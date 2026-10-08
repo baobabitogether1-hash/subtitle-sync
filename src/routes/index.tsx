@@ -88,6 +88,8 @@ import {
 } from "@/lib/playback-preferences";
 import { ApkReleaseModal } from "@/components/ApkReleaseModal";
 import { SubtitleFetchToast } from "@/components/SubtitleFetchToast";
+import { VideoLibraryPanel } from "@/components/VideoLibraryPanel";
+import { recordVideoWatch } from "@/utils/videoLibraryManager";
 import { notifySubtitleFetch } from "@/utils/subtitleNotificationManager";
 import { getApkReleaseLinks } from "@/utils/apkUpdater";
 import { isValidJsonSubtitleResponse } from "@/utils/subtitleCache";
@@ -141,11 +143,12 @@ declare global {
 
 type SpeechProgress = { lang: string; row: number; start: number; end: number } | null;
 type Theme = "light" | "dark" | "dark-blue";
-type PanelId = "player" | "playback" | "parser" | "languages" | "subtitles";
+type PanelId = "player" | "playback" | "library" | "parser" | "languages" | "subtitles";
 
 const PANELS: { id: PanelId; title: string }[] = [
   { id: "player", title: "Video" },
   { id: "playback", title: "Playback" },
+  { id: "library", title: "Video library" },
   { id: "parser", title: "Parser" },
   { id: "languages", title: "Languages" },
   { id: "subtitles", title: "Parallel subtitles" },
@@ -666,10 +669,47 @@ function Index() {
   const [openPanels, setOpenPanels] = useState<Record<PanelId, boolean>>({
     player: true,
     playback: true,
+    library: true,
     parser: true,
     languages: true,
     subtitles: true,
   });
+
+  const handleSelectLibraryVideo = (newId: string, customUrl?: string) => {
+    if (!newId || newId === videoId) return;
+    cancelSpeech();
+    setTracks(null);
+    setObservedUrl("");
+    setDefaultCaptionsLoaded(false);
+    setActive(-1);
+    setSpeakingLang(null);
+    setSpeakingRow(-1);
+    setSpeechProgress(null);
+    setPlayedRecordsCount(0);
+    playedTtsRecords.current.clear();
+    setVideoId(newId);
+    setVideoInput(newId);
+    if (typeof window !== "undefined") {
+      const currentSearch = new URLSearchParams(window.location.search);
+      if (currentSearch.get("v") !== newId) {
+        currentSearch.set("v", newId);
+        window.history.pushState(
+          { videoId: newId },
+          "",
+          `${window.location.pathname}?${currentSearch.toString()}${window.location.hash}`,
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (videoId) {
+      recordVideoWatch({
+        id: videoId,
+        originalUrl: `https://www.youtube.com/watch?v=${videoId}`,
+      });
+    }
+  }, [videoId]);
   const [active, setActive] = useState(-1);
   const [speakingLang, setSpeakingLang] = useState<string | null>(null);
   const [speakingRow, setSpeakingRow] = useState(-1);
@@ -1796,6 +1836,13 @@ function Index() {
                     Show spoken subtitle over video
                   </label>
                 </div>
+              )}
+
+              {panelId === "library" && (
+                <VideoLibraryPanel
+                  currentVideoId={videoId}
+                  onSelectVideo={handleSelectLibraryVideo}
+                />
               )}
 
               {panelId === "parser" && (
