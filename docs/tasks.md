@@ -1,5 +1,15 @@
 # Tasks
 
+## Task 51: Fix Original Video Repeating Same Time-Frame and Not Respecting Subtitle Time-Sections in Audio-Track Mode
+
+- [x] **Subtask 51.1: Audio-Track Mode Loop Progression & Accurate Time-Section Resumption**:
+  - In `src/routes/index.tsx`, update the playback loop resume logic when a section completes: advance directly to `rows[candidateRow + 1].start / 1000` (or pause cleanly if at the last row), eliminating the duplicate replay of the same time-frame.
+  - When `audioTrackMode` is enabled and no explicit spoken languages are selected, fallback to the base/primary language so the original video element pauses and repeats each subtitle section with native audio.
+  - In `src/utils/multiVideoPlayerManager.ts` (`executeMultiVideoSegmentSync`), add pre-seek guard (`hasStartedNearStart`) ensuring the repetition loop does not terminate prematurely due to pre-seek `getCurrentTime()` readings when repeating on the primary player.
+  - In `seek(r, i)` in `src/routes/index.tsx`, delete `i` from `playedTtsRecords` so manually selected rows can repeat and play.
+  - Create dedicated test suite `scripts/verify-audio-track-time-sections.ts` validating that the player advances to the next section without repeating the same time-frame, respects subtitle start/end boundaries, and handles fallback.
+  - Register `test:audio-track-time-sections` in `package.json`, update `docs/files.md`, run verification tests, build app, and lint.
+
 ## Task 50: Draggable Floating Setup Pause Button with Autofocus, Auto-scroll & Play-Switch Suppression
 
 - [x] **Subtask 50.1: Draggable Floating Pause Component & Drag Handling**:

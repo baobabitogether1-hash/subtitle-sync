@@ -1064,6 +1064,7 @@ function Index() {
     audioTrackMode,
     sectionOrder,
     isSetupPaused,
+    baseLanguage,
   });
   st.current = {
     rows,
@@ -1076,6 +1077,7 @@ function Index() {
     audioTrackMode,
     sectionOrder,
     isSetupPaused,
+    baseLanguage,
   };
 
   const playerEl = useRef<HTMLDivElement>(null);
@@ -1155,6 +1157,7 @@ function Index() {
         pauseMode,
         orderedLangs,
         audioTrackMode: isAudioTrackMode,
+        baseLanguage: currentBaseLanguage,
       } = st.current;
       const idx = rows.findIndex((r) => ms >= r.start && ms < r.end);
       setActive(idx);
@@ -1163,7 +1166,7 @@ function Index() {
 
       const getEligibleLangs = (rowIdx: number) => {
         if (rowIdx < 0 || playedTtsRecords.current.has(rowIdx)) return [];
-        return orderedLangs.filter(
+        const matched = orderedLangs.filter(
           (l) =>
             spoken.includes(l.code) &&
             isSubtitleInstanceEligibleForTTS(
@@ -1172,6 +1175,14 @@ function Index() {
               playedTtsRecords.current,
             ),
         );
+        // When audioTrackMode is enabled with no spoken languages selected,
+        // fallback to base / primary language so the original video repeats the section with native audio
+        if (matched.length === 0 && isAudioTrackMode && spoken.length === 0) {
+          const fallbackLang = orderedLangs.find((l) => l.code === currentBaseLanguage) ||
+            orderedLangs[0] || { code: "primary", tts: "en-US", name: "Primary" };
+          return [fallbackLang];
+        }
+        return matched;
       };
 
       const speakRow = async (rowIdx: number) => {
@@ -1266,16 +1277,19 @@ function Index() {
             await speakRow(candidateRow);
             busy.current = false;
             handledRow.current = candidateRow;
-            const resumeTarget =
-              idx >= 0 && rows[idx]?.start
-                ? rows[idx].start / 1000
-                : rows[candidateRow + 1]?.start
-                  ? rows[candidateRow + 1].start / 1000
-                  : p.getCurrentTime();
-            lastMs.current = resumeTarget * 1000;
-            multiVideoPlayerRegistry.unmuteOnly("primary");
-            p.seekTo(resumeTarget, true);
-            p.playVideo();
+            const nextRowIdx = candidateRow + 1;
+            if (nextRowIdx < rows.length && rows[nextRowIdx]) {
+              const nextRow = rows[nextRowIdx];
+              const resumeTarget = nextRow.start / 1000;
+              lastMs.current = resumeTarget * 1000;
+              lastRow.current = nextRowIdx;
+              multiVideoPlayerRegistry.unmuteOnly("primary");
+              p.seekTo(resumeTarget, true);
+              p.playVideo();
+            } else {
+              multiVideoPlayerRegistry.unmuteOnly("primary");
+              p.pauseVideo();
+            }
           }
         }
       }
@@ -1354,6 +1368,7 @@ function Index() {
     busy.current = false;
     lastRow.current = i;
     handledRow.current = -1;
+    playedTtsRecords.current.delete(i);
     lastMs.current = r.start;
     player.current?.seekTo(r.start / 1000, true);
     player.current?.playVideo();

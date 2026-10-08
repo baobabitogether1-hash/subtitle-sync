@@ -1,5 +1,16 @@
 # Done tasks
 
+## Task 51: Fix Original Video Repeating Same Time-Frame and Not Respecting Subtitle Time-Sections in Audio-Track Mode
+
+### Subtask 51.1: Audio-Track Mode Loop Progression & Accurate Time-Section Resumption
+
+- Replaced the flawed `idx >= 0 && rows[idx]?.start ? rows[idx].start / 1000 : ...` resume target logic in `src/routes/index.tsx`. When section `candidateRow` completes and audio-track repetition finishes, playback advances strictly to `rows[candidateRow + 1].start / 1000` (or cleanly pauses if reaching the final subtitle row). This eliminates the bug where the original video element repeated the same section before proceeding.
+- Added audio-track fallback in `getEligibleLangs` in `src/routes/index.tsx`: when `audioTrackMode` is enabled and no explicit spoken languages are selected, it falls back to the default base language (`baseLanguage` / `primary`), ensuring that subtitle time-sections are respected, paused, and repeated using the original video's native audio even with no secondary languages enabled.
+- Added pre-seek guard (`hasStartedNearStart`) in `executeMultiVideoSegmentSync` in `src/utils/multiVideoPlayerManager.ts`, confirming the player has completed its asynchronous seek near `startMs` before allowing `currentMs >= endMs - 50` completion checks.
+- Cleared row index `i` from `playedTtsRecords` in `seek(r, i)` in `src/routes/index.tsx`, ensuring clicking any row resets its played state and allows it to repeat and play cleanly.
+- Implemented dedicated verification test suite `scripts/verify-audio-track-time-sections.ts` (`npm run test:audio-track-time-sections`) validating section progression, elimination of duplicate replaying, pre-seek guarding, language fallback, and replayability. Registered script in `package.json` and documented in `docs/files.md`.
+- Verified all regression test suites, app compilation, and ESLint pass with 0 errors and 0 warnings.
+
 ## Task 50: Draggable Floating Setup Pause Button with Autofocus, Auto-scroll & Play-Switch Suppression
 
 ### Subtask 50.1: Draggable Floating Pause Component & Drag Handling
