@@ -1,8 +1,10 @@
 # Active Sub-task
 
-## Subtask 49.2: Horizontal Swiper Carousel Component for Multi-Video Elements
+## Subtask 47.2: Ensure GitHub Actions E2E Tests Pass and Deploy to GitHub Pages on Forked Repos
 
-- Create `src/components/VideoInstancesSwiper.tsx` providing a smooth horizontal swipeable carousel for mobile touch and desktop navigation.
-- Include slide indicators, previous/next controls, language headers (e.g. `Primary (en)`, `Audio Track (es)`, `Audio Track (he)`), active playback badge, and user setup guidance (prompting user to configure the native YouTube audio track for that specific language instance).
-- Integrate the swiper into the player panel in `src/routes/index.tsx`.
-- Implement dedicated verification suite `scripts/verify-video-instances-swiper.ts`.
+- Add `push: branches: [main, master]` triggers to `web.yml` and `emulation.yml` in addition to `workflow_run` so forks automatically run CI and publish to `gh-pages`.
+- Verify `web.yml`, `deploy-demo.yml`, and `emulation.yml` deploy all reports (`mochawesome.html`, `playwright/`, `android-emulator-report.html`, `screenshots/`) to `gh-pages` with `keep_files: true`.
+- Run all E2E test suites locally and verify app compilation and linting.
+
+
+
