@@ -4,15 +4,15 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 261: Elevate Frontend Aesthetic Polish & Modern Design)
+### Active Prompt Token Economy Flow (Task 262: Fix Android "This page didn't load" Runtime Error)
 
 - **Prompt Objective**:
-  1. Elevate design to modern production-grade frontend standards (refined typography, glassmorphism sticky header, subtle ambient surface styling, crisp data-grid, and sleek controls).
-  2. Maintain 100% functional parity, testids, and zero regressions across all modes.
-  3. Synchronize app version to `2.0.52` across all 5 files.
-  4. Author dedicated automated test `scripts/verify-elevated-frontend-design.ts`.
+  1. Fix Android "This page didn't load" crash: eliminate `saveFavoriteLanguages` ReferenceError and guard subtitle row text lookups.
+  2. Enhance `src/routes/__root.tsx` ErrorComponent with visible error details and one-click app state reset button.
+  3. Stage Item 2 ("enforce same components policy (beginner & advance mode) - only the order differ") in `docs/tasks.md` and `docs/later.md`.
+  4. Synchronize app version to `2.0.53` across all 5 files and implement dedicated test `scripts/verify-android-page-error-fix.ts`.
 - **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.52`.
+- **App Version**: `2.0.53`.
 
 ---
 

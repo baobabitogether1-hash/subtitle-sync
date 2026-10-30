@@ -47,12 +47,27 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
+  const handleResetAppState = () => {
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+        window.location.href = "/";
+      }
+    } catch (_e) {
+      window.location.reload();
+    }
+  };
+
+  const errorMessage = error?.message || String(error);
+  const errorStack = error?.stack || "";
+
   return (
     <div
       data-testid="router-error-component"
-      className="flex min-h-screen items-center justify-center bg-background px-4"
+      className="flex min-h-screen items-center justify-center bg-background px-4 py-8"
     >
-      <div className="max-w-md text-center">
+      <div className="max-w-md w-full text-center">
         <h1
           data-testid="router-error-title"
           className="text-xl font-semibold tracking-tight text-foreground"
@@ -62,6 +77,24 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p data-testid="router-error-description" className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
+
+        {errorMessage && (
+          <div
+            data-testid="router-error-details"
+            className="mt-4 p-3 rounded-md bg-destructive/10 border border-destructive/20 text-left text-xs font-mono text-destructive break-words max-h-48 overflow-y-auto"
+          >
+            <p className="font-semibold">{errorMessage}</p>
+            {errorStack && (
+              <details className="mt-2 text-[11px] text-muted-foreground">
+                <summary className="cursor-pointer hover:underline">Stack trace</summary>
+                <pre className="mt-1 whitespace-pre-wrap font-mono text-[10px] opacity-80 overflow-x-auto">
+                  {errorStack}
+                </pre>
+              </details>
+            )}
+          </div>
+        )}
+
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             data-testid="router-error-retry-button"
@@ -80,6 +113,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Go home
           </a>
+          <button
+            type="button"
+            data-testid="router-error-reset-app-button"
+            onClick={handleResetAppState}
+            className="inline-flex items-center justify-center rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/20"
+            title="Clear saved local settings and restart from scratch"
+          >
+            Reset App Data
+          </button>
         </div>
       </div>
     </div>

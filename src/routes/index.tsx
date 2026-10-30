@@ -932,7 +932,7 @@ function Index() {
         const clean = urlTarget.toLowerCase().trim();
         if (clean && !favs.includes(clean)) {
           favs = [clean, ...favs];
-          saveFavoriteLanguages(favs);
+          setFavoriteLanguages(favs);
         }
       }
       if (favs.length > 0) return favs;
@@ -4391,9 +4391,9 @@ function Index() {
   const specialCharactersRemovalSampleCues =
     tracks && baseLanguage && tracks[baseLanguage]?.events
       ? tracks[baseLanguage].events.slice(0, 5).map((event) => ({
-          text: (event.segs || []).map((segment) => segment.utf8).join(""),
-          start: (event.tStartMs || 0) / 1000,
-          duration: (event.dDurationMs || 0) / 1000,
+          text: (event?.segs || []).map((segment) => segment?.utf8 || "").join(""),
+          start: (event?.tStartMs || 0) / 1000,
+          duration: (event?.dDurationMs || 0) / 1000,
         }))
       : [];
   const specialCharactersRemovalPanel = (
@@ -4796,7 +4796,7 @@ function Index() {
                   >
                     {speakingLang && speakingRow >= 0 ? (
                       <HighlightedSubtitle
-                        text={rows[speakingRow]?.texts[speakingLang] ?? ""}
+                        text={rows[speakingRow]?.texts?.[speakingLang] ?? ""}
                         progress={
                           speechProgress?.row === speakingRow &&
                           speechProgress.lang === speakingLang
@@ -4805,7 +4805,7 @@ function Index() {
                         }
                       />
                     ) : active >= 0 && rows[active] ? (
-                      (rows[active]?.texts[baseLanguage] ??
+                      (rows[active]?.texts?.[baseLanguage] ??
                       Object.values(rows[active]?.texts || {})[0] ??
                       "")
                     ) : (
@@ -5327,7 +5327,7 @@ function Index() {
                                         >
                                           {speakingLang && speakingRow >= 0 ? (
                                             <HighlightedSubtitle
-                                              text={rows[speakingRow]?.texts[speakingLang] ?? ""}
+                                              text={rows[speakingRow]?.texts?.[speakingLang] ?? ""}
                                               progress={
                                                 speechProgress?.row === speakingRow &&
                                                 speechProgress.lang === speakingLang
@@ -5337,8 +5337,8 @@ function Index() {
                                             />
                                           ) : active >= 0 && rows[active] ? (
                                             <span>
-                                              {baseLanguage && rows[active]?.texts[baseLanguage]
-                                                ? rows[active]?.texts[baseLanguage]
+                                              {baseLanguage && rows[active]?.texts?.[baseLanguage]
+                                                ? rows[active]?.texts?.[baseLanguage]
                                                 : Object.values(rows[active]?.texts || {})[0] || ""}
                                             </span>
                                           ) : (

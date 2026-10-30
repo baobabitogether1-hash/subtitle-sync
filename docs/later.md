@@ -4,6 +4,8 @@
 
 The following tasks are deferred for later execution after all active tasks are complete:
 
+- [ ] **Task 263 (Later 2): AGENTS.md - Enforce same components policy (beginner & advance mode) - only the order differ**
+  - Formalize rule in AGENTS.md and codebase architecture requiring absolute UI component parity between Beginner and Advanced modes where every feature/panel is composed of identical component blocks and differs strictly in sequence/order.
 - [ ] **Extend text-to-speech service support**
   - Add additional TTS service integrations while retaining Google as the default until the user selects another service.
 - [ ] **Review and relocate controls by category**

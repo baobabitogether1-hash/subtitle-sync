@@ -141,7 +141,12 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-is it the best design u can do ?
+1. on android i get error message:
+this page didn't load
+something went wrong on our end. you can try refreshing or head back home.
+
+later:
+2. AGENTS.md - enfore same components policy (beginner & advance mode) - only the order differ
 ```
 
 
