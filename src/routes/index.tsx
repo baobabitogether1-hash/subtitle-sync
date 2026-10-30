@@ -959,13 +959,33 @@ function Index() {
         Array.isArray(videoSaved.targetLanguages) &&
         videoSaved.targetLanguages.length > 0
       ) {
-        list = videoSaved.targetLanguages.map((l: unknown) =>
-          typeof l === "string" ? l : (l as { code: string }).code,
-        );
+        list = videoSaved.targetLanguages
+          .map((l: unknown) =>
+            typeof l === "string"
+              ? l.trim()
+              : l &&
+                  typeof l === "object" &&
+                  "code" in l &&
+                  typeof (l as { code?: unknown }).code === "string"
+                ? (l as { code: string }).code.trim()
+                : "",
+          )
+          .filter((s): s is string => typeof s === "string" && s.length > 0);
       } else {
         const saved = getUserLearningLanguages();
         if (saved && saved.length > 0) {
-          list = [...saved];
+          list = saved
+            .map((l: unknown) =>
+              typeof l === "string"
+                ? l.trim()
+                : l &&
+                    typeof l === "object" &&
+                    "code" in l &&
+                    typeof (l as { code?: unknown }).code === "string"
+                  ? (l as { code: string }).code.trim()
+                  : "",
+            )
+            .filter((s): s is string => typeof s === "string" && s.length > 0);
         } else {
           const isAndroidEnv =
             Boolean(nativeShell()) ||
@@ -1142,9 +1162,20 @@ function Index() {
   );
 
   const [explicitBaseLanguage, setExplicitBaseLanguage] = useState<string>("");
-  const [simpleParserConfig, setSimpleParserConfig] = useState<SimpleParserConfig>(
-    DEFAULT_SIMPLE_PARSER_CONFIG,
-  );
+  const [simpleParserConfig, setSimpleParserConfig] = useState<SimpleParserConfig>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("yt_simple_parser_config");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return { ...DEFAULT_SIMPLE_PARSER_CONFIG, ...parsed };
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return DEFAULT_SIMPLE_PARSER_CONFIG;
+  });
 
   const setBaseLanguage = useCallback((lang: string) => {
     setExplicitBaseLanguage(lang);
@@ -1859,6 +1890,13 @@ function Index() {
       clearOnDemandTranslations(videoId);
       setOnDemandTranslations({});
       setSimpleParserConfig(config);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("yt_simple_parser_config", JSON.stringify(config));
+        } catch {
+          // ignore
+        }
+      }
     },
     [videoId],
   );
@@ -3250,7 +3288,20 @@ function Index() {
     if (!videoId || !baseLanguage || !rawRows || rawRows.length === 0) return;
 
     const pendingLangs = Array.from(
-      new Set([...targetLanguages, ...favoriteLanguages, ...spoken, ...shown]),
+      new Set(
+        [...targetLanguages, ...favoriteLanguages, ...spoken, ...shown]
+          .map((item) =>
+            typeof item === "string"
+              ? item.trim()
+              : item &&
+                  typeof item === "object" &&
+                  "code" in item &&
+                  typeof (item as { code?: unknown }).code === "string"
+                ? (item as { code: string }).code.trim()
+                : "",
+          )
+          .filter((s): s is string => typeof s === "string" && s.length > 0),
+      ),
     ).filter(
       (code) =>
         code !== baseLanguage &&

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { removeSpecialCharacters } from "../../../utils/captionParser";
+import { MaxWordsPerSentenceInput } from "@/components/shared/MaxWordsPerSentenceInput";
+import { countWords } from "@/utils/newSubtitlesParser";
 
 export interface CustomCharRule {
   id: string;
@@ -22,6 +24,8 @@ export interface BeginnerParsingTabProps {
   onStripSpeakerBracketsChange: (enabled: boolean) => void;
   removeChars: string[];
   onRemoveCharsChange: (chars: string[]) => void;
+  maxWordsPerSentence?: number;
+  onMaxWordsPerSentenceChange?: (words: number) => void;
   sampleCues?: Array<{ text: string; start: number; duration: number }>;
   onApplyParsing?: () => void;
   onContinueToNextTab?: () => void;
@@ -39,9 +43,18 @@ export function cleanSubtitleText(
   return removeSpecialCharacters(text, options);
 }
 
-export function splitTextByPunctuation(text: string, punctuationChars: string[]): string[] {
+export function splitTextByPunctuation(
+  text: string,
+  punctuationChars: string[],
+  maxWords?: number,
+): string[] {
   if (!text) return [];
-  if (!punctuationChars || punctuationChars.length === 0) return [text];
+  if (!punctuationChars || punctuationChars.length === 0) {
+    const raw = [text];
+    return typeof maxWords === "number" && maxWords > 0
+      ? raw.filter((s) => countWords(s) <= maxWords)
+      : raw;
+  }
 
   // Escape special regex characters in punctuationChars
   const escaped = punctuationChars
@@ -50,7 +63,12 @@ export function splitTextByPunctuation(text: string, punctuationChars: string[])
 
   const regex = new RegExp(`([^${escaped}]+[${escaped}]+)`, "g");
   const matches = text.match(regex);
-  if (!matches) return [text];
+  if (!matches) {
+    const raw = [text];
+    return typeof maxWords === "number" && maxWords > 0
+      ? raw.filter((s) => countWords(s) <= maxWords)
+      : raw;
+  }
 
   // Collect segments and remaining trailing text
   const segments: string[] = [];
@@ -64,7 +82,11 @@ export function splitTextByPunctuation(text: string, punctuationChars: string[])
   const remainder = text.slice(lastIndex).trim();
   if (remainder) segments.push(remainder);
 
-  return segments.length > 0 ? segments : [text];
+  let result = segments.length > 0 ? segments : [text];
+  if (typeof maxWords === "number" && maxWords > 0) {
+    result = result.filter((s) => countWords(s) <= maxWords);
+  }
+  return result;
 }
 
 export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
@@ -76,10 +98,14 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
   onStripSpeakerBracketsChange,
   removeChars,
   onRemoveCharsChange,
+  maxWordsPerSentence,
+  onMaxWordsPerSentenceChange,
   sampleCues = [],
   onApplyParsing,
   onContinueToNextTab,
 }) => {
+  const [localMaxWords, setLocalMaxWords] = useState<number>(maxWordsPerSentence ?? 10);
+  const effectiveMaxWords = maxWordsPerSentence ?? localMaxWords;
   const [newCharInput, setNewCharInput] = useState("");
   const [newReplacementInput, setNewReplacementInput] = useState("");
   const [customRules, setCustomRules] = useState<CustomCharRule[]>([
@@ -151,8 +177,10 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
         customRules,
       });
       const sentences = splitByPunctuation
-        ? splitTextByPunctuation(cleaned, punctuationChars)
-        : [cleaned];
+        ? splitTextByPunctuation(cleaned, punctuationChars, effectiveMaxWords)
+        : effectiveMaxWords > 0 && countWords(cleaned) > effectiveMaxWords
+          ? []
+          : [cleaned];
       return {
         sentences,
       };
@@ -164,6 +192,7 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
     customRules,
     splitByPunctuation,
     punctuationChars,
+    effectiveMaxWords,
   ]);
 
   return (
@@ -387,6 +416,7 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
         </div>
 
         {splitByPunctuation && (
+          <div className="space-y-3 pt-2 border-t border-border/50">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className="text-xs text-foreground/90 font-medium">
                 Choose punctuation marks to split on:
@@ -426,6 +456,17 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
                   </label>
                 );
               })}
+            </div>
+
+            {/* Shared Max Words Per Sentence Input */}
+            <div className="pt-2">
+              <MaxWordsPerSentenceInput
+                value={effectiveMaxWords}
+                onChange={(val) => {
+                  setLocalMaxWords(val);
+                  onMaxWordsPerSentenceChange?.(val);
+                }}
+              />
             </div>
           </div>
         )}

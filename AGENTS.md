@@ -2,17 +2,17 @@
 
 ## Subtitles fetching (read first)
 
-- The subtitle fetch design (attempt order, session vs link-only sending, refetch buttons, web demo = local fixtures only) lives in [docs/reliable-subtitles-fetching.md](docs/reliable-subtitles-fetching.md). Follow it for any change to subtitle fetching.
+- Subtitle fetch design (attempt order, session vs link-only sending, refetch buttons, web demo = local fixtures only) lives in [docs/reliable-subtitles-fetching.md](docs/reliable-subtitles-fetching.md).
 
 ## Codespaces, Docker, and E2E runbooks (read before running)
 
-- Read [docs/codespace.md](docs/codespace.md), [docs/docker.md](docs/docker.md), and [docs/e2e.md](docs/e2e.md). Follow [docker/manage.sh](docker/manage.sh) for containerized Playwright runs and [docs/docker-e2e.md](docs/docker-e2e.md) and [docs/e2e-android.md](docs/e2e-android.md) guides.
+- See [docs/codespace.md](docs/codespace.md), [docs/docker.md](docs/docker.md), [docs/e2e.md](docs/e2e.md), [docker/manage.sh](docker/manage.sh), [docs/docker-e2e.md](docs/docker-e2e.md), and [docs/e2e-android.md](docs/e2e-android.md).
 
 ## Subtitles fixtures restriction & zero hardcoded subtitles policy
 
 - **Single permitted fixture video and directory**: The ONLY subtitles fixtures this application will ever have is strictly for video `L2Ryrr6txwA` and located strictly at `public/fixtures/L2Ryrr6txwA`. No other video ID, path, or directory may contain, bundle, or use static subtitle fixtures.
 - **Mandatory fixture labelling and explicit developer approval**: Never show, load, or render subtitle fixtures without explicitly labelling it as a fixture (e.g., `[Fixture]` badge or label). Fixtures may only ever be displayed after explicit developer approval.
-- **Zero hardcoded subtitles policy**: All hardcoded subtitles, static cue arrays, and static translation maps are strictly prohibited in `src/config` (such as `src/config/fixtures.ts`, `src/config/appConfig.ts`) and everywhere across the codebase. Video items in `DEFAULT_LIBRARY_ITEMS` and initial application state must have empty cues (`cues: []`), relying on authentic dynamic timedtext fetching or explicitly approved fixtures for `L2Ryrr6txwA`.
+- **Zero hardcoded subtitles policy**: All hardcoded subtitles, static cue arrays, and static translation maps are strictly prohibited in `src/config` (such as `src/config/fixtures.ts`, `src/config/appConfig.ts`) and everywhere across the codebase. Video items in `DEFAULT_LIBRARY_ITEMS` and initial application state must have empty cues (`cues: []`), relying on dynamic timedtext fetching or approved fixtures for `L2Ryrr6txwA`.
 
 ## Application stages pipeline & execution order
 
@@ -22,11 +22,11 @@ The application processes and presents subtitles through a strict sequential pip
 2. **Stage 2: Validation & Schema Conformance**: Enforces HTTP 200, valid non-HTML JSON, YouTube `json3` structure (`events` with `tStartMs`, `dDurationMs`, `segs[].utf8`), and non-empty cues (`cuesCount > 0`). Rejects HTML error pages or malformed payloads.
 3. **Stage 3: Special Characters Removal & Sanitization**:
    - **RESTRICT RULE: Special characters removal MUST happen BEFORE the translation stage.**
-   - Strips speaker tags/brackets (`[Speaker 1]:`), sound indicators (`[Music]`, `[Applause]`), arrows (`>`, `>>`), entities, and normalizes excess whitespace.
-4. **Stage 4: Sentence Boundary Detection & Punctuation Splitting**: Splits continuous stream cues into grammatical sentences using terminal punctuation (`.`, `!`, `?` or configured criteria) with linear time interpolation for start and duration.
+   - Strips speaker tags (`[Speaker 1]:`), sound indicators (`[Music]`, `[Applause]`), arrows (`>`, `>>`), entities, and normalizes excess whitespace.
+4. **Stage 4: Sentence Boundary Detection & Punctuation Splitting**: Splits continuous stream cues into grammatical sentences using terminal punctuation (`.`, `!`, `?` or configured criteria) with linear time interpolation.
 5. **Stage 5: Translation Stage**: Translates clean sentence text into target languages via `tlang` fallback, on-demand AI translation, or secondary track alignment. Operates strictly AFTER Stage 3 (Special Characters Removal).
-6. **Stage 6: Multi-Language Alignment & Grid Formulation**: Synchronizes target language tracks with the base language track into parallel sentence rows. Formats aligned text side-by-side.
-7. **Stage 7: Audio Playback Coordination & TTS Synthesis**: Highlights active sentences during video playback. Coordinates video pauses between sections to allow Web Speech or Alternative TTS voices to complete speech synthesis before resuming playback.
+6. **Stage 6: Multi-Language Alignment & Grid Formulation**: Synchronizes target language tracks with the base language track into parallel sentence rows side-by-side.
+7. **Stage 7: Audio Playback Coordination & TTS Synthesis**: Highlights active sentences during video playback. Coordinates video pauses between sections to allow Web Speech or Alternative TTS voices to complete speech synthesis before resuming.
 
 ### Absolute Parity Rule Between Advanced and Beginner Modes:
 
@@ -42,7 +42,6 @@ The application processes and presents subtitles through a strict sequential pip
 - **Resume after interruption**: Read this section, `current-sub-task.md`, `docs/todo.md`, and active entries in `docs/tasks.md` to identify the source of truth for where to continue.
 - **Fresh-chat recommendation for uncommitted work**: Inspect `git status --short` and diffs. Reply **“go on”** when changes form one coherent task with passing validation. If uncertain, point user to `current-sub-task.md`.
 - Inspect diffs before editing, reconcile trackers with worktree, and do not resume tasks already recorded in `docs/done.md`.
-
 - **Mandatory location of all .md files under `docs/*.md` & zero duplicates policy**: ALL documentation, specification, design, operational, and architectural Markdown files MUST be located strictly under `docs/*.md`. There must be ZERO duplicate `.md` files in the repository. Only `README.md`, `AGENTS.md`, `current-sub-task.md`, and `temp.md` are permitted in root.
 - **Mandatory token economy flow on every prompt (`docs/tokens.md`)**: On EVERY single prompt received, the agent MUST activate and process the token optimization flow defined in `docs/tokens.md` and maintain `current-sub-task.md`.
 - **Task management protocol with `current-sub-task.md` & `temp.md`**: Break every prompt into clear numbered tasks and smaller sub-tasks in `docs/tasks.md` before performing actions. Maintain `current-sub-task.md` (and `docs/todo.md`) by staging the single active sub-task before executing any step. Use `temp.md` as an ephemeral scratchpad for draft diffs, checklists, or intermediate calculations.
@@ -79,13 +78,13 @@ The application processes and presents subtitles through a strict sequential pip
 
 ## Clean repository hygiene and authentic testing
 
-- Keep repository strictly clean of build products, generated artifacts, and synthetic report files: only genuine source code, configs, GitHub Actions workflows, and Markdown documentation (`.md` files) belong in the repository. Build outputs (`dist/`, runtime caches) must remain ephemeral and ignored.
-- Do not add or maintain hardcoded report generators, fabricated HTML presentation dashboards, or synthetic artifact creators.
-- All end-to-end (E2E) and integration tests must validate real application source code and dynamic runtime execution directly.
+- Keep repository strictly clean of build products, generated artifacts, and synthetic report files: only genuine source code, configs, GitHub Actions workflows, and Markdown documentation (`.md` files) belong in repository. Build outputs (`dist/`, caches) remain ephemeral.
+- Do not maintain hardcoded report generators or synthetic artifact creators.
+- E2E and integration tests validate real application source code directly.
 
 ## Project-specific delivery
 
-- This project should remain identical in architecture, tooling, workflows, scripts, and conventions to [mostuf2556/Youtubenet6](https://github.com/mostuf2556/Youtubenet6), with deliberate differences limited strictly to the views and the subtitles parser. For every issue or discrepancy, inspect and compare against the corresponding solution in `https://github.com/mostuf2556/Youtubenet6`.
+- This project remains identical in architecture, tooling, workflows, scripts, and conventions to [mostuf2556/Youtubenet6](https://github.com/mostuf2556/Youtubenet6), with deliberate differences limited strictly to views and subtitles parser.
 - **README.md is to be created by GitHub Actions — do not copy it when syncing git**: `README.md` is to be created and dynamically updated by GitHub Actions (via `.github/workflows/update-readme.yml` and `scripts/update-readme.mjs`). When syncing git, **`README.md` MUST NOT be copied or overwritten**.
 - **App version updates**: The app version number must not stay 1.0 always; it should be updated across `package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, and `src/utils/appSettings.ts` when delivering updates for prompt response.
 - **Strict UI & Web-Demo Design Preservation Mandate**: NEVER alter, redesign, replace, re-theme, or disrupt the user interface, page layout, component structure, or web-demo design without explicit user confirmation and request. The clean, original web-demo layout MUST remain intact.
@@ -95,7 +94,7 @@ The application processes and presents subtitles through a strict sequential pip
 
 - **Mandatory E2E verification on real Android runtimes**: Changes to Android shell components, WebView bridges, native caption interception, or video player integrations MUST be validated through E2E execution on an Android device or emulator (API 34 Google APIs) using `scripts/run-android-e2e.sh`, `scripts/android-e2e-assert.sh`, and `e2e/emulation.spec.ts`.
 - **Screencast video recording protocol**: When screencast is enabled, record via `adb shell screenrecord --time-limit 180 --bit-rate 4000000 /sdcard/android-emulator-video.mp4` and finalize with graceful SIGINT `adb shell pkill -2 -f screenrecord` before pulling via `adb pull`.
-- **Strict repository hygiene for video & build outputs**: Video recordings, device screenshots, and build binaries MUST NEVER exist on `main`. Build outputs and artifacts are staged to the orphaned `gh-pages` branch. Detailed operational instructions and schemas are maintained in `docs/android.md`. Subtitle parsing specifications are maintained in `docs/parser.md`. Self-verification protocol is maintained in `docs/self-verification.md`.
+- **Strict repository hygiene for video & build outputs**: Video recordings, device screenshots, and build binaries MUST NEVER exist on `main` (staged to orphaned `gh-pages`). Operational instructions in `docs/android.md`, parser specs in `docs/parser.md`, self-verification protocol in `docs/self-verification.md`.
 
 ## Subtitles fetch, anti-bot, validation, and caching architecture
 
@@ -142,43 +141,12 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-Fix the errors in the app
+some components and element are just a waste of space
+Apply style changes to the selected element(s).
 [AIS_METADATA_SECTION_START]
-fix_it_trigger: manual
-error 0: [APP_BOOT_ERROR] Router rendered ErrorComponent: This page didn't load langCode.trim is not a function
-error 1: [APP_PAGE_ERROR] This page didn't load: langCode.trim is not a function
-error 2: TypeError: langCode.trim is not a function
-    at isLanguageSpoken (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/lib/playback-preferences.ts:134:25)
-    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:95
-    at Array.filter (<anonymous>)
-    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:7
-    at Object.react_stack_bottom_frame (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:14176:13)
-    at runWithFiberInDEV (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:943:66)
-    at commitHookEffectListMount (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6899:153)
-    at commitHookPassiveMountEffects (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6934:55)
-    at commitPassiveMountOnFiber (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:8311:22)
-    at recursivelyTraversePassiveMountEffects (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:8298:313)
-error 3: %o
+CSS selector 1: div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5)
+CSS 1: {
 
-%s
-
-%s TypeError: langCode.trim is not a function
-    at isLanguageSpoken (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/lib/playback-preferences.ts:134:25)
-    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:95
-    at Array.filter (<anonymous>)
-    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:7
-    at Object.react_stack_bottom_frame (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:14176:13)
-    at runWithFiberInDEV (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:943:66)
-    at commitHookEffectListMount (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6899:153)
-    ... [3 frames omitted]
+}
 [AIS_METADATA_SECTION_END]
 ```
-
-
-
-
-
-
-
-
-

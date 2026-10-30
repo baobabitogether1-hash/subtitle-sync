@@ -1,5 +1,86 @@
 # Done tasks
 
+## Task 259: Space-Saving Styles on Sanitization Live Preview in Chars Removal Accordion
+
+- **Selected Element Space-Saving Styling (`src/components/SpecialCharactersRemovalPanel.tsx`)**:
+  - Responded to user focus-mode selection targeting the Sanitization Live Preview card (`div:nth-of-type(5)`) inside the Chars Removal accordion (`details:nth-of-type(3)`).
+  - Replaced the bulky preview block with an ultra-compact, collapsible space-saving card (`px-2.5 py-1.5`, ~28px height when collapsed).
+  - Added interactive toggle button (`data-testid="toggle-chars-preview-btn"`) with `ChevronDown` / `ChevronUp` and helpful tooltip so users can collapse/expand the preview on demand.
+  - Added `max-h-36 overflow-y-auto` scroll containment and compact text styling (`text-[11px]`, `p-1.5`) when expanded to eliminate vertical space waste.
+  - Preserved testid integrity (`data-testid="advanced-chars-removal-preview"`), authentic sample cues handling (`sampleCues.slice(0, 3)`), and zero hardcoded fixtures policy.
+- **Version 2.0.50 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.50"`, added `"test:compact-preview-space-saving"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20050`, `versionName = "2.0.50"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.50"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.50"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.50"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:compact-preview-space-saving` (`scripts/verify-compact-preview-space-saving.ts`) (100% PASS).
+  - Chars removal parity test: `npm run test:chars-removal-accordion-order` (100% PASS).
+  - Parser test: `npm run test:max-words-per-sentence` (100% PASS).
+  - Applet compilation: `compile_applet` (PASS).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - Zero open PR check on `https://github.com/mostuf2556/subtitle-sync/pulls`: Verified.
+  - AGENTS.md size budget: 18,519 bytes (< 21,000 bytes with 6,057 bytes headroom).
+
+## Task 258: Max Words Per Sentence Input & Parser Sentence Discarding
+
+- **Shared Input Component (`src/components/shared/MaxWordsPerSentenceInput.tsx`)**:
+  - Implemented reusable shared component supporting `compact` toolbar mode (Advanced mode) and card mode (Beginner mode).
+  - Features `data-testid="max-words-per-sentence-input"`, increment (`+`) and decrement (`-`) buttons, bounded clamping (`min=1`, `max=100`), filter icon, and descriptive labels.
+- **Subtitle Parser Sentence Discarding (`src/utils/newSubtitlesParser.ts`)**:
+  - Implemented and exported `countWords(text: string): number` utility to accurately count whitespace-delimited words.
+  - Updated `splitCuesIntoSentences(cues, config)`: when `config.enabled` and `config.maxWordsPerSentence > 0`, discards any sentence where `countWords(seg.text) > config.maxWordsPerSentence`.
+  - Automatically filters base language sentences during `simpleAlign`, excluding sentences over the limit from parallel subtitle rows and subsequent speech synthesis.
+  - Exported `countWords` in `src/lib/subtitles.ts`.
+- **Advanced Mode and Beginner Mode Parity Integration**:
+  - `src/components/NewSubtitlesParserBar.tsx`: Integrated `MaxWordsPerSentenceInput` in compact mode inside the parser options bar.
+  - `src/components/beginner/tabs/BeginnerParsingTab.tsx`: Integrated `MaxWordsPerSentenceInput` inside the Parser section.
+  - Preserved pipeline parity: Stage 3 (Chars Removal) strictly precedes Stage 4 (Parser) in both modes.
+- **Persistence & Configuration**:
+  - Added `maxWordsPerSentence: 10` to `DEFAULT_SIMPLE_PARSER_CONFIG`.
+  - Persisted user-configured parser state to `localStorage` under `"yt_simple_parser_config"` in `src/routes/index.tsx`.
+- **Version 2.0.49 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.49"`, added `"test:max-words-per-sentence"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20049`, `versionName = "2.0.49"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.49"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.49"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.49"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:max-words-per-sentence` (`scripts/verify-max-words-per-sentence.ts`) (100% PASS).
+  - Applet compilation: `compile_applet` (PASS).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - AGENTS.md safe budget verified under 21,000 bytes with 6,138 bytes headroom.
+  - Verified zero pending PRs on `https://github.com/mostuf2556/subtitle-sync/pulls`.
+
+### Hotfix: Fix isLanguageSpoken TypeError & Router Boot Error
+
+- **Root Cause Resolution**:
+  - The router crashed during initial boot with `TypeError: langCode.trim is not a function` at `isLanguageSpoken` called from `src/routes/index.tsx`.
+  - When stored settings or arrays contained object items (e.g. `{ code: "he" }`), non-strings, or `undefined`, passing them into `getLanguageTtsRatio` or `isLanguageSpoken` caused `.trim()` to fail.
+  - Additionally, `isLanguageSpoken` was vulnerable when arguments were inverted (`(spokenList, langCode)` instead of `(langCode, spokenList)`).
+- **Core Fixes Applied**:
+  - `src/lib/playback-preferences.ts`: Added `extractLanguageCodeString` and `extractLanguageCodeList` to safely parse strings from primitive strings or `{ code?: string, lang?: string, value?: string }` objects without ever calling `.trim()` on non-strings.
+  - Made `isLanguageSpoken(arg1, arg2)` fully bidirectional and tolerant: supports `(code, spokenList)`, `(spokenList, code)`, arrays in both positions, objects with `.code`, or single strings.
+  - Made `getLanguageTtsRatio` and `isTtsSpeakableLanguage` completely safe against non-string and object inputs.
+  - `src/components/beginner/tabs/BeginnerParsingTab.tsx`: Fixed JSX transform syntax error by wrapping conditional children inside an opening `div` tag matching line 430.
+  - `src/routes/index.tsx`: Sanitized `pendingLangs`, `getInitialTargetLanguages`, and `getInitialFavoriteLanguages` so only clean, valid non-empty language code strings are kept.
+  - `src/utils/appSettings.ts`: Sanitized `getFavoriteLanguages()` return values to filter out corrupted objects or non-strings from `localStorage`.
+- **Version 2.0.48 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.48"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20048`, `versionName = "2.0.48"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.48"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.48"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.48"`.
+- **AGENTS.md Headroom & Size Budget**:
+  - Optimized whitespace and trimmed trailing blank lines to bring `AGENTS.md` safely down to 20,952 bytes (under the 21,000-byte budget, providing 3,624 bytes of headroom).
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:is-language-spoken-hotfix` (PASS).
+  - All 19 constitutional checks: `npm run test:agents-all` (19/19 PASS).
+  - Applet compilation: `compile_applet` (PASS).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - Zero open PR check on `https://github.com/mostuf2556/subtitle-sync/pulls`: Verified.
+
 ## Task 252: Remote TTS tts3.lovable.app, Short Complete Sentences Parser, On-Demand Translation TTS Guard & Ratio Alignment
 
 - **Remote TTS Endpoint Migration to `tts3.lovable.app`**:

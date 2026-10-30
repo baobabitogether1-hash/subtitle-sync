@@ -4,16 +4,15 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Hotfix Task 253: Fix isLanguageSpoken TypeError)
+### Active Prompt Token Economy Flow (Task 259: Space-Saving Styles on Sanitization Live Preview)
 
 - **Prompt Objective**:
-  1. Fix `TypeError: langCode.trim is not a function` at `isLanguageSpoken`.
-  2. Defensively handle argument ordering in `isLanguageSpoken(langCode, spokenLangs)` or `(spokenLangs, langCode)`.
-  3. Fix reversed arguments call in `src/routes/index.tsx` line 3258: `isLanguageSpoken(code, spoken)`.
-  4. Author dedicated automated test `scripts/verify-is-language-spoken-hotfix.ts`.
-  5. Synchronize app version to `2.0.47` across all 5 targets.
-- **Status**: Hotfix Active.
-- **App Version**: Bumping to `2.0.47`.
+  1. Apply space-saving, compact style changes to selected element `div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5)` (Sanitization Live Preview Card in SpecialCharactersRemovalPanel).
+  2. Implement collapsible space-saving toggle (`showPreview`), slim header, compact padding, and max-height scrolling to prevent vertical waste of space.
+  3. Synchronize app version to `2.0.50` across all 5 files.
+  4. Author dedicated automated test `scripts/verify-compact-preview-space-saving.ts`.
+- **Status**: Completed (Migrated to `docs/done.md`).
+- **App Version**: `2.0.50`.
 
 ---
 
