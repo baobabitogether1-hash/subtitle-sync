@@ -40,6 +40,7 @@ import {
   History,
   Volume2,
   Hourglass,
+  Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -213,6 +214,8 @@ import {
   DEFAULT_SIMPLE_PARSER_CONFIG,
 } from "@/utils/newSubtitlesParser";
 import { BeginnerFlowContainer } from "@/components/beginner/BeginnerFlowContainer";
+import { InterfacePathChooser, type InterfacePath } from "@/components/portal/InterfacePathChooser";
+import { FutureExperienceContainer } from "@/components/future/FutureExperienceContainer";
 import { PerLanguageTtsPreferences } from "@/components/beginner/PerLanguageTtsPreferences";
 import {
   BeginnerTtsServiceControl,
@@ -775,26 +778,42 @@ function Index() {
     );
   });
 
-  const [workflowMode, setWorkflowMode] = useState<"beginner" | "expert">(() => {
+  const [workflowMode, setWorkflowMode] = useState<"chooser" | "beginner" | "expert" | "future">(() => {
     if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlMode = params.get("mode") || params.get("path");
+      if (urlMode === "chooser" || urlMode === "portal") return "chooser";
+      if (urlMode === "beginner") return "beginner";
+      if (urlMode === "expert" || urlMode === "advanced") return "expert";
+      if (urlMode === "future") return "future";
+
       if (isDeveloperModeEnabled(window.location.search)) return "expert";
       try {
         const saved = localStorage.getItem("app_workflow_mode");
-        if (saved === "expert" || saved === "beginner") return saved;
+        if (saved === "expert" || saved === "beginner" || saved === "future" || saved === "chooser") {
+          return saved as "chooser" | "beginner" | "expert" | "future";
+        }
       } catch {
         // ignore
       }
     }
-    return "beginner";
+    return "chooser";
   });
 
   const [expandedPrefsHelp, setExpandedPrefsHelp] = useState<Record<string, boolean>>({});
 
-  const handleWorkflowModeChange = (mode: "beginner" | "expert") => {
+  const handleWorkflowModeChange = (
+    mode: "chooser" | "beginner" | "expert" | "future",
+    remember = true,
+  ) => {
     setWorkflowMode(mode);
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem("app_workflow_mode", mode);
+        if (remember && mode !== "chooser") {
+          localStorage.setItem("app_workflow_mode", mode);
+        } else if (mode === "chooser") {
+          localStorage.removeItem("app_workflow_mode");
+        }
       } catch {
         // ignore
       }
@@ -4372,6 +4391,18 @@ function Index() {
               type="button"
               size="sm"
               variant="outline"
+              onClick={() => handleWorkflowModeChange("chooser", false)}
+              className="h-6 px-2 text-[11px] font-medium rounded-full border border-border/80 bg-muted/40 text-foreground/80 hover:bg-muted hover:text-foreground flex items-center gap-1 transition-all shrink-0 cursor-pointer"
+              data-testid="choose-path-btn"
+              title="Return to Interface Path Chooser"
+            >
+              <Compass className="h-3 w-3 text-cyan-400" />
+              <span>Choose Path</span>
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
               onClick={() =>
                 handleWorkflowModeChange(workflowMode === "beginner" ? "expert" : "beginner")
               }
@@ -4629,7 +4660,28 @@ function Index() {
       {/* Mode Switcher Header: Toggle between Guided Beginner Mode & Advanced Studio */}
       <ModeSwitcherHeader currentMode={workflowMode} onModeChange={handleWorkflowModeChange} />
 
-      {workflowMode === "beginner" ? (
+      {workflowMode === "chooser" ? (
+        <InterfacePathChooser
+          onSelectPath={(path, remember) => handleWorkflowModeChange(path, remember)}
+          currentPath={workflowMode}
+        />
+      ) : workflowMode === "future" ? (
+        <FutureExperienceContainer
+          videoId={videoId}
+          url={videoInput || (videoId ? `https://www.youtube.com/watch?v=${videoId}` : "")}
+          onUrlChange={(newUrl) => setVideoInput(newUrl)}
+          onSubmitUrl={(submittedUrl) => {
+            const parsed = parseVideoId(submittedUrl);
+            const newId = parsed || submittedUrl.trim();
+            handleSelectLibraryVideo(newId, submittedUrl);
+          }}
+          rawTracks={tracks || {}}
+          baseLanguage={baseLanguage}
+          targetLanguages={targetLanguages}
+          observedUrl={observedUrl}
+          onSwitchPath={() => handleWorkflowModeChange("chooser", false)}
+        />
+      ) : workflowMode === "beginner" ? (
         <BeginnerFlowContainer
           url={videoInput || (videoId ? `https://www.youtube.com/watch?v=${videoId}` : "")}
           videoId={videoId}

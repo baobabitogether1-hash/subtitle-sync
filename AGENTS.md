@@ -142,13 +142,12 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-initial issues which are stopping app from acting reliably:
-1. case where no subtitles fetched yet and there is no clear indication to the user that that is the status. the fix would be to ensure fix both: 1. never fail to intercept the youtube api request (ensure intercaptor is ready before init the iframe element), 2. critical alert the user to re-enable the youtube captions again 
-2. case where the default subtitles intercepted but there is a failure to show&populate the subtitles-viewer
-3. the subtitles-viewer has been populated but failed to fetch foreign languages subtitles and failed to execute on-demand translation
+the major app success mechanism is already implemented. lets try to come-up with interface which express the good parts and make this app manageble and give the correct respect to the user. 
 
-ensure the logs indicated those issues in informative manner to aid reliable bug reporting. (easy copy-to-clipboard. all actions and app status reported and timestamped)
+lets isolate the previous design called "beginner" and "advance"
+create a first default screen where the user will choose a path of which interface to continue on to. then i will ask you to create a "future" design which give the good parts of all words with a clean and fresh look and without any hard-to-govern controls.
 ```
+
 
 
 

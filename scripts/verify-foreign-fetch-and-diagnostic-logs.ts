@@ -9,24 +9,26 @@ async function runVerification() {
   console.log("Diagnostic Logging & Copy-to-Clipboard (v2.0.40)");
   console.log("==========================================================");
 
-  // 1. Verify Version 2.0.40 synchronization across all 5 files
-  console.log("\n[1] Verifying Version 2.0.40 synchronization across 5 files...");
+  // 1. Verify Version synchronization across all 5 files
   const pkgJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
-  assert.strictEqual(pkgJson.version, "2.0.40", "package.json version must be 2.0.40");
+  const expectedVer = pkgJson.version as string;
+  const [major, minor, patch] = expectedVer.split(".").map(Number);
+  const expectedCode = major * 10000 + minor * 100 + patch;
+  console.log(`\n[1] Verifying Version ${expectedVer} synchronization across 5 files...`);
 
   const gradleFile = fs.readFileSync(path.join(process.cwd(), "android-shell/app/build.gradle.kts"), "utf8");
-  assert.ok(gradleFile.includes('versionCode = 20040'), "build.gradle.kts must contain versionCode = 20040");
-  assert.ok(gradleFile.includes('versionName = "2.0.40"'), "build.gradle.kts must contain versionName = \"2.0.40\"");
+  assert.ok(gradleFile.includes(`versionCode = ${expectedCode}`), `build.gradle.kts must contain versionCode = ${expectedCode}`);
+  assert.ok(gradleFile.includes(`versionName = "${expectedVer}"`), `build.gradle.kts must contain versionName = "${expectedVer}"`);
 
   const appConfigFile = fs.readFileSync(path.join(process.cwd(), "src/config/appConfig.ts"), "utf8");
-  assert.ok(appConfigFile.includes('export const APP_VERSION = "2.0.40";'), "appConfig.ts must export APP_VERSION = '2.0.40'");
+  assert.ok(appConfigFile.includes(`export const APP_VERSION = "${expectedVer}";`), `appConfig.ts must export APP_VERSION = '${expectedVer}'`);
 
   const apkUpdaterFile = fs.readFileSync(path.join(process.cwd(), "src/utils/apkUpdater.ts"), "utf8");
-  assert.ok(apkUpdaterFile.includes('export const CURRENT_APK_VERSION = "v2.0.40";'), "apkUpdater.ts must export CURRENT_APK_VERSION = 'v2.0.40'");
+  assert.ok(apkUpdaterFile.includes(`export const CURRENT_APK_VERSION = "v${expectedVer}";`), `apkUpdater.ts must export CURRENT_APK_VERSION = 'v${expectedVer}'`);
 
   const appSettingsFile = fs.readFileSync(path.join(process.cwd(), "src/utils/appSettings.ts"), "utf8");
-  assert.ok(appSettingsFile.includes('version: "2.0.40",'), "appSettings.ts snapshot must have version: '2.0.40'");
-  console.log("  ✓ Version 2.0.40 verified in all 5 configuration and build files.");
+  assert.ok(appSettingsFile.includes(`version: "${expectedVer}",`), `appSettings.ts snapshot must have version: '${expectedVer}'`);
+  console.log(`  ✓ Version ${expectedVer} verified in all 5 configuration and build files.`);
 
   // 2. Verify Structured Timestamped Logging
   console.log("\n[2] Verifying Structured Logging and Categories...");

@@ -4,17 +4,19 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Tasks 245 - 247: Completed)
+### Active Prompt Token Economy Flow (Task 250: Completed)
 
-- **Prompt Objective**: Resolve 3 critical reliability issues:
-  1. Subtitle interception readiness before iframe init + critical alert to re-enable YouTube CC (Task 245 - COMPLETED).
-  2. Subtitles-viewer population & visibility when default subtitles are intercepted (Task 246 - COMPLETED).
-  3. Foreign language fetch failure handling & on-demand translation execution, with informative timestamped logging and easy copy-to-clipboard for bug reporting (Task 247 - COMPLETED).
-- **Current Status**: All active prompt tasks fully completed, verified with dedicated test suites, and migrated to `docs/done.md`. Backlog is clear.
-- **App Version**: Synchronized to `2.0.40` across all 5 version files.
+- **Prompt Objective**: Isolate previous "beginner" and "advance" designs and create a first default screen where the user chooses their interface path:
+  - Created `src/components/portal/InterfacePathChooser.tsx` offering Beginner, Advanced, and Future paths.
+  - Isolated Beginner and Advanced designs, updating `src/routes/index.tsx` so `"chooser"` mode acts as the default entry portal while preserving direct access to all modes.
+  - Added dedicated "Choose Path" button in the header (`data-testid="choose-path-btn"`) alongside 1-click `data-testid="header-mode-toggle"`.
+  - Built `src/components/future/FutureExperienceContainer.tsx` previewing the clean immersion stage.
+  - Synchronized app version to `2.0.43` across all 5 version files.
+  - Verified 100% pass on dedicated automated test suite, `compile_applet`, `lint_applet`, and production build.
+- **Current Status**: All prompt tasks completed and migrated to `docs/done.md`. Backlog is clear.
+- **App Version**: Synchronized to `2.0.43` across all 5 version files.
 
 ---
-
 
 ## 1. The Token Economy Problem: Why Big Tasks Fail
 
