@@ -1,5 +1,39 @@
 # Done tasks
 
+## Task 262: Fix Android "This page didn't load" Error & Diagnostic Error Screen
+
+- **Android App Runtime Crash Resolution**:
+  - Responded to user report ("on android i get error message: this page didn't load something went wrong on our end. you can try refreshing or head back home.").
+  - **Root Cause Diagnosed**:
+    - In `src/routes/index.tsx` (`getInitialFavoriteLanguages`), when URL contained `target_lang` or `lang` query parameters (as dispatched by Android native shell or shared video intents), `saveFavoriteLanguages(favs)` was called.
+    - Because `saveFavoriteLanguages` was never defined or exported (`setFavoriteLanguages` is the correct imported setter), JavaScript threw `ReferenceError: saveFavoriteLanguages is not defined`.
+    - This uncaught exception during initial component state evaluation crashed React into TanStack Router's root `ErrorComponent` ("This page didn't load").
+  - **Fixes Applied**:
+    - `src/routes/index.tsx`: Replaced undefined `saveFavoriteLanguages(favs)` with the imported `setFavoriteLanguages(favs)`.
+    - `src/routes/index.tsx`: Added safe optional chaining (`rows[active]?.texts?.[baseLanguage]` and `rows[speakingRow]?.texts?.[speakingLang]`) to prevent any possible `TypeError: Cannot read properties of undefined` during row lookups.
+    - `src/routes/index.tsx`: Guarded segment mapping in `specialCharactersRemovalSampleCues` with safe optional chaining.
+- **Enhanced Root ErrorComponent Diagnostics & Recovery (`src/routes/__root.tsx`)**:
+  - Added visible diagnostic error card (`data-testid="router-error-details"`) displaying the exact error message and an expandable stack trace, ensuring errors are never invisible to users or developers.
+  - Added "Reset App Data" button (`data-testid="router-error-reset-app-button"`) that clears corrupt `localStorage` / `sessionStorage` and reloads to clean state in 1 click.
+  - Preserved all existing test IDs (`router-error-component`, `router-error-title`, `router-error-description`, `router-error-retry-button`, `router-error-home-link`) and console signatures (`[APP_BOOT_ERROR]`, `[APP_PAGE_ERROR]`).
+- **Later Task Staged (`docs/tasks.md` and `docs/later.md`)**:
+  - Staged Item 2 ("AGENTS.md - enforce same components policy (beginner & advance mode) - only the order differ") in `docs/tasks.md` and `docs/later.md` under `## Later Tasks`.
+- **Version 2.0.53 Synchronization Across All 5 Targets**:
+  1. `package.json`: `"version": "2.0.53"`, added `"test:android-page-error-fix"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20053`, `versionName = "2.0.53"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.53"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.53"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.53"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:android-page-error-fix` (`scripts/verify-android-page-error-fix.ts`) (100% PASS).
+  - Playwright Android emulation: `npm run test:e2e:emulation` (100% PASS, 2/2 tests passed).
+  - Android simulation script: Verified 0 console errors and clean boot with `?android=true`, `?target_lang=he`.
+  - Android asset synchronization: `npm run test:android-run-parity` (100% PASS).
+  - AGENTS.md contract suite: `npm run test:agents-all` (100% PASS, 19/19 passed).
+  - Applet compilation: `compile_applet` (Build succeeded).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - Zero open PR check on `https://github.com/mostuf2556/subtitle-sync/pulls`: Verified.
+
 ## Task 261: Elevated Frontend Aesthetic Polish & Modern Design Craftsmanship
 
 - **Elevated Aesthetic Craft & Modern UI Polish**:

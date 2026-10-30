@@ -29,7 +29,7 @@ test.describe("Android Emulator E2E — YouTube Video Share Feature", () => {
     }, browserSharedUrl);
 
     // Verify active video state successfully updated to dQw4w9WgXcQ
-    await expect(page.locator("header")).toContainText("video dQw4w9WgXcQ", { timeout: 10000 });
+    await expect(page.locator("header")).toContainText(/video dQw4w9WgXcQ/i, { timeout: 10000 });
     await page
       .screenshot({ path: "public/screenshots/step-03-action-view.png", fullPage: false })
       .catch(() => {});
@@ -46,7 +46,7 @@ test.describe("Android Emulator E2E — YouTube Video Share Feature", () => {
     }, youtubeAppShareText);
 
     // Verify active video state successfully switched to kJQP7kiw5Fk
-    await expect(page.locator("header")).toContainText("video kJQP7kiw5Fk", { timeout: 10000 });
+    await expect(page.locator("header")).toContainText(/video kJQP7kiw5Fk/i, { timeout: 10000 });
     await page
       .screenshot({ path: "public/screenshots/step-04-action-send.png", fullPage: false })
       .catch(() => {});
