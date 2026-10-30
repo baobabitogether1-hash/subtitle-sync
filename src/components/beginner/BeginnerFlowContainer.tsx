@@ -29,6 +29,8 @@ export interface BeginnerFlowContainerProps {
   criticalCaptionsAlertSlot?: React.ReactNode;
   perLanguageTtsSettingsSlot?: React.ReactNode;
   favoriteLanguageCatalog: Array<{ code: string; name: string }>;
+  favoriteLanguages: string[];
+  baseLanguage: string;
   selectedTargetLanguages: string[];
   onTargetLanguagesChange: (languages: string[]) => void;
   webDemoUrlsSlot?: React.ReactNode;
@@ -59,6 +61,8 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
   criticalCaptionsAlertSlot,
   perLanguageTtsSettingsSlot,
   favoriteLanguageCatalog,
+  favoriteLanguages,
+  baseLanguage,
   selectedTargetLanguages,
   onTargetLanguagesChange,
   webDemoUrlsSlot,
@@ -78,7 +82,6 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
   const [activeTab, setActiveTab] = useState<BeginnerTabId>(
     settings.beginnerActiveTab === "video" ? "video" : "preferences",
   );
-  const [selectedBaseLang, setSelectedBaseLang] = useState("");
   const [order, setOrder] = useState<"video-first" | "tts-first">(
     settings.playOrder === "tts_then_video" ? "tts-first" : "video-first",
   );
@@ -86,11 +89,6 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
   const [ttsVoice, setTtsVoice] = useState<string>(settings.beginnerTtsVoice ?? "");
   const [subtitlesRatio, setSubtitlesRatio] = useState<number>(
     settings.beginnerSubtitlesRatio ?? 1.0,
-  );
-  const [favoriteLanguages, setFavoriteLanguages] = useState<string[]>(
-    settings.beginnerFavoriteLangs && settings.beginnerFavoriteLangs.length > 0
-      ? settings.beginnerFavoriteLangs
-      : ["he", "en", "es", "fr", "ru", "ar"],
   );
   // Video Library Modal
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -121,21 +119,20 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
           name: langObj ? langObj.name : lang.toUpperCase(),
           cuesCount: json.events.length,
           isCached: true,
-          isBase: selectedBaseLang === lang,
+          isBase: baseLanguage === lang,
         });
       }
     }
     return list;
-  }, [rawTracks, selectedBaseLang]);
+  }, [rawTracks, baseLanguage]);
 
-  const hasObservedBaseLanguage = observedTracks.some((track) => track.lang === selectedBaseLang);
+  const hasObservedBaseLanguage = observedTracks.some((track) => track.lang === baseLanguage);
 
   // Prefer English when available; otherwise use the first detected track.
   useEffect(() => {
     if (observedTracks.length > 0 && !hasObservedBaseLanguage) {
       const defaultLang = getBeginnerDefaultBaseLanguage(observedTracks);
       if (!defaultLang) return;
-      setSelectedBaseLang(defaultLang);
       onBaseLangChange?.(defaultLang);
     }
   }, [observedTracks, hasObservedBaseLanguage, onBaseLangChange]);
@@ -159,7 +156,7 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
 
       {/* Main Tab View Container */}
       <main className="flex-1 py-3 px-2">
-        {activeTab === "video" && (
+        <div hidden={activeTab !== "video"}>
           <BeginnerVideoTab
             url={url}
             onUrlChange={onUrlChange}
@@ -189,9 +186,9 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
             showVideoSubtitles={showVideoSubtitles}
             onToggleVideoSubtitles={onToggleVideoSubtitles}
           />
-        )}
+        </div>
 
-        {activeTab === "preferences" && (
+        <div hidden={activeTab !== "preferences"}>
           <BeginnerPreferencesTab
             order={order}
             onOrderChange={(o) => {
@@ -214,18 +211,14 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
               onTtsVoiceChange?.(v);
             }}
             favoriteLanguages={favoriteLanguages}
-            onFavoriteLanguagesChange={(langs) => {
-              setFavoriteLanguages(langs);
-              updateSettings({ beginnerFavoriteLangs: langs });
-              onFavoriteLanguagesChange?.(langs);
-            }}
+            onFavoriteLanguagesChange={(langs) => onFavoriteLanguagesChange?.(langs)}
             showVideoSubtitles={showVideoSubtitles}
             onToggleVideoSubtitles={onToggleVideoSubtitles}
-            baseLanguage={selectedBaseLang}
+            baseLanguage={baseLanguage}
             perLanguageTtsSettingsSlot={perLanguageTtsSettingsSlot}
             onContinueToNextTab={() => handleTabChange("video")}
           />
-        )}
+        </div>
       </main>
 
       {/* Video Library Modal */}

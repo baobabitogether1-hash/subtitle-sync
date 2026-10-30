@@ -16,6 +16,8 @@ const appSettingsPath = path.join(rootDir, "src/utils/appSettings.ts");
 
 assert.ok(fs.existsSync(indexRoutePath), "src/routes/index.tsx must exist");
 const indexContent = fs.readFileSync(indexRoutePath, "utf-8");
+const favoritesPanelPath = path.join(rootDir, "src/components/GlobalFavoriteLanguagesPanel.tsx");
+const favoritesPanelContent = fs.readFileSync(favoritesPanelPath, "utf-8");
 
 // Check 1: enabled-languages-status-card is removed from Languages accordion
 console.log("--> [Check 1] Verifying enabled-languages-status-card is removed...");
@@ -53,40 +55,46 @@ assert.ok(
 );
 console.log("✅ PASS: LanguageBoxesSelector is properly present for current-video selection.");
 
-// Check 3: Favorite languages configuration remains available in Settings accordion
-console.log("--> [Check 3] Verifying Favorite list creation and management remains in Settings...");
+// Check 3: Global favorite management is available in Languages, not Settings
+console.log("--> [Check 3] Verifying global favorite management is placed under Languages...");
 assert.ok(
-  indexContent.includes('data-testid="settings-reset-video-to-favorites-btn"'),
-  "Settings accordion must provide settings-reset-video-to-favorites-btn",
+  /className="hidden pt-2 border-t border-border\/60 space-y-2\.5"[\s\S]*?data-testid="settings-favorites-languages-card"/.test(indexContent),
+  "Legacy favorite manager in Settings must remain hidden from users",
 );
 assert.ok(
-  indexContent.includes('data-testid="settings-save-current-as-favorites-btn"'),
-  "Settings accordion must provide settings-save-current-as-favorites-btn",
+  /panelId === "languages"[\s\S]{0,8000}<GlobalFavoriteLanguagesPanel/.test(indexContent),
+  "GlobalFavoriteLanguagesPanel must render inside the Languages accordion",
 );
 assert.ok(
-  indexContent.includes('data-testid="settings-favorites-languages-card"'),
-  "Settings accordion must provide settings-favorites-languages-card",
+  favoritesPanelContent.includes('data-testid="global-favorite-languages-panel"') &&
+    favoritesPanelContent.includes('data-testid="languages-reset-video-to-favorites-btn"') &&
+    favoritesPanelContent.includes('data-testid="languages-save-current-as-favorites-btn"') &&
+    favoritesPanelContent.includes('data-testid="language-favorites-add-select"'),
+  "Languages favorite manager must preserve add/remove and per-video actions",
 );
-console.log("✅ PASS: Settings accordion preserves favorite languages management.");
+console.log("✅ PASS: Favorite management is no longer rendered in Settings.");
 
-// Check 4: Version synchronization across all 5 files to 2.0.36
-console.log("--> [Check 4] Verifying version bump across all 5 files to 2.0.36...");
+// Check 4: Version synchronization across all 5 files
+console.log("--> [Check 4] Verifying version synchronization across all 5 files...");
 const pkgJson = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-assert.strictEqual(pkgJson.version, "2.0.36", "package.json version must be 2.0.36");
+const expectedVersion = pkgJson.version as string;
+assert.match(expectedVersion, /^\d+\.\d+\.\d+$/, "package.json version must be semantic");
+const [major, minor, patch] = expectedVersion.split(".").map(Number);
+const expectedVersionCode = major! * 10000 + minor! * 100 + patch!;
 
 const gradleContent = fs.readFileSync(gradlePath, "utf-8");
-assert.ok(gradleContent.includes('versionName = "2.0.36"'), "build.gradle.kts must have versionName 2.0.36");
-assert.ok(gradleContent.includes("versionCode = 20036"), "build.gradle.kts must have versionCode 20036");
+assert.ok(gradleContent.includes(`versionName = "${expectedVersion}"`), "Gradle versionName must match package.json");
+assert.ok(gradleContent.includes(`versionCode = ${expectedVersionCode}`), "Gradle versionCode must match package.json");
 
 const appConfigContent = fs.readFileSync(appConfigPath, "utf-8");
-assert.ok(appConfigContent.includes('APP_VERSION = "2.0.36"'), "appConfig.ts must have APP_VERSION 2.0.36");
+assert.ok(appConfigContent.includes(`APP_VERSION = "${expectedVersion}"`), "appConfig.ts must match package.json");
 
 const apkUpdaterContent = fs.readFileSync(apkUpdaterPath, "utf-8");
-assert.ok(apkUpdaterContent.includes('CURRENT_APK_VERSION = "v2.0.36"'), "apkUpdater.ts must have CURRENT_APK_VERSION v2.0.36");
+assert.ok(apkUpdaterContent.includes(`CURRENT_APK_VERSION = "v${expectedVersion}"`), "apkUpdater.ts must match package.json");
 
 const appSettingsContent = fs.readFileSync(appSettingsPath, "utf-8");
-assert.ok(appSettingsContent.includes('version: "2.0.36"'), "appSettings.ts must have version 2.0.36");
-console.log("✅ PASS: All 5 files consistently updated to version 2.0.36.");
+assert.ok(appSettingsContent.includes(`version: "${expectedVersion}"`), "appSettings.ts must match package.json");
+console.log(`✅ PASS: All 5 files consistently use ${expectedVersion}.`);
 
 console.log("=========================================================================");
 console.log("🎉 ALL REDUNDANT LANGUAGES STATUS CARD REMOVAL CHECKS PASSED (100%)!");

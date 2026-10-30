@@ -1,3 +1,4 @@
+| `docs/parallel.doc`                                                        | Parallel Work Guide                   | Explains isolated ownership, worktrees, shared-file coordination, and integration checks for two independent application areas.                                                        |
 # Code & Documentation Files Inventory (`docs/files.md`)
 
 This document serves as the master catalog and directory of all repository documentation files (under `docs/*.md` and root) as well as the complete codebase implementation inventory.

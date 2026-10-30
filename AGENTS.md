@@ -35,6 +35,13 @@ The application processes and presents subtitles through a strict sequential pip
   - The Special Characters Removal (Chars Removal) feature MUST be present in Advanced Mode as a dedicated accordion section, providing full functional parity with Beginner Mode.
   - In BOTH Advanced Mode and Beginner Mode, the Chars Removal section/accordion MUST strictly appear BEFORE the Parser (Sentence Splitting) section/accordion, adhering directly to the pipeline sequence (Stage 3 Chars Removal precedes Stage 4 Parser).
 
+### State Preservation Across Modes and Stages
+
+- Beginner stage/tab changes and Beginner/Advanced mode switches are view transitions, not application resets. Preserve the active video and player state, including playback position and playing/paused state, across those transitions.
+- Preserve user selections and configuration across modes and stages, including base/target/favorite languages, parser settings, TTS settings, and subtitle-table state. Keep shared state above conditional views or persist it in the established settings store.
+- If a platform requires recreating the player host, restore the same video's prior position and play/pause state. Do not reset or reload the active video solely because the user changes mode or stage.
+- Add focused regression coverage for state continuity whenever changing mode or stage ownership, player lifecycle, or settings persistence.
+
 ## Work tracking
 
 - **Check pending pull requests before starting features**: Before starting work on another feature, always check that there are no pending open pull requests by checking `https://github.com/mostuf2556/subtitle-sync/pulls` (e.g. via GitHub API, web, or CLI).
@@ -129,6 +136,8 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 
 ## Default Subtitle & Shared-Subtitle Favorites Policy
 
+- **Single favorites manager**: Global favorite languages have one shared source for Beginner and Advanced modes and one user-facing manager in the Languages panel. Keep that manager searchable with visible add/remove controls and clear actions; do not duplicate it under general Settings.
+- **Separate global and per-video choices**: Global favorites are defaults for new videos. Selecting target languages for the active video changes only that video's selection unless the user explicitly chooses to save it as the global favorites list.
 - **Leftmost column as default language**: The leftmost column in the parallel subtitles table always acts as the default language and is automatically added to the user's favorite languages as the default-subtitle.
 - **Shared-subtitle parameter synchronization**: When the app or web-demo is triggered by a URL containing a `target_lang` query parameter (e.g. `?target_lang=he`), that shared-subtitle language is automatically added to the list of favorite languages and enabled for the current video.
 
@@ -141,5 +150,5 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-go on
+git commit and push after tasks accomplished
 ```

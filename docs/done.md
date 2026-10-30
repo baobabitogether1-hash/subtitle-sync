@@ -1,5 +1,95 @@
 # Done tasks
 
+### Hotfix: Fix Beginner Shared Base Language Reference
+
+- **Resolution**: Replaced the stale `selectedBaseLang` reference with the shared `baseLanguage` prop in `BeginnerFlowContainer` and added a regression assertion.
+- **Verification**: `npm run test:beginner-mode` (PASS); `npm run build` (PASS); `bash docker/manage.sh e2e emulation` (PASS, 2/2).
+- **Commit**: Deferred to the final delivery commit as requested.
+
+## Task 274: Simplify Language and Favorite List Management Guidance
+
+- **Implementation**: Added a concise AGENTS.md rule defining one shared Global Favorites source for Beginner and Advanced, a single searchable Languages-panel manager, and separate per-video selections.
+- **Dedicated verification**: `npm run test:agents-subtitles-spec` (PASS).
+- **Commit**: Deferred to final delivery as requested.
+
+## Task 275: Final Version, Verification, and Delivery
+
+- **Version**: Synchronized `2.0.56` across `package.json`, Android `versionCode = 20056` / `versionName`, `APP_VERSION`, `CURRENT_APK_VERSION`, and the app settings snapshot.
+- **Focused verification**: `test:mode-switch-player-state`, `test:max-words-per-sentence`, `test:ui-languages-and-subtitles-table`, `test:beginner-mode`, `test:remove-redundant-languages-status-card`, `test:agents-all` (19/19), `test:md`, and `test:language-accordion-ux` all passed.
+- **Build and lint**: `npm run build` and `npm run lint` passed. Build reports the existing large-chunk warning.
+- **E2E**: `bash docker/manage.sh e2e emulation` passed 2/2 after the Beginner base-language hotfix.
+- **Known unrelated test failure**: `npm run test:language-selection-tts-flow` still fails its rate-slider source assertion for `min={0.3}` / `max={1.5}`; it is unrelated to these changes and was not modified.
+- **Delivery**: Completed in the final commit and push for this prompt.
+
+## Task 273: Remove Duplicate Language Settings
+
+- **Implementation**: Added a single `GlobalFavoriteLanguagesPanel` under the Languages accordion, with add/remove, apply-to-video, and save-current-video-as-favorites actions. The legacy Settings block is hidden so the manager is presented only in Languages. Beginner and Advanced share the same favorites source.
+- **Dedicated verification**: `npm run test:remove-redundant-languages-status-card` (PASS).
+- **Additional checks**: `npm run test:language-accordion-ux` and `npm run test:beginner-mode` (PASS); `npm run build` (PASS).
+- **Diagnostics**: `get_errors` reported no errors in the route, panel component, or placement test.
+- **Known unrelated test failure**: `npm run test:language-selection-tts-flow` fails at its existing TTS rate-slider assertion requiring `min={0.3}` and `max={1.5}`. This is unrelated to favorite-language placement and was not changed.
+- **Commit**: Deferred until all active tasks are complete, as requested.
+
+### Hotfix: Restore Fixtures and Speech Helpers
+
+- **Resolution**: Restored the original `getFixturesUrl` implementation and `speak()` function prefix from `HEAD`, removing the misplaced Settings JSX from the speech helper.
+- **Verification**: `npm run build` (PASS); `npm run test:mode-switch-player-state` (PASS); route diagnostics clean.
+- **Commit**: Not created; delivery commit is deferred until the active tasks are complete, as requested.
+
+### Hotfix: Restore Route Imports After Mis-Targeted Hunk
+
+- **Resolution**: Restored the route's original imports from `HEAD` while retaining the current parser and Languages-panel imports. No user-owned worktree changes were reverted.
+- **Verification**: `npm run build` (PASS); `npm run test:mode-switch-player-state` (PASS); route `get_errors` clean.
+- **Commit**: Not created; commits were not requested.
+
+## Task 272: Allow Android Subtitle Table Horizontal Scrolling
+
+- **Implementation**: Android table headers and rows now receive a false freeze setting regardless of desktop preference; the freeze toggle is hidden on Android. Desktop freeze behavior remains unchanged.
+- **Dedicated verification**: `npm run test:ui-languages-and-subtitles-table` (PASS).
+- **Diagnostics**: `get_errors` reported no errors in the table panel or verification script.
+- **Commit**: Not created; commits were not requested.
+
+## Task 271: Align Beginner Language Settings
+
+- **Implementation**: Beginner now receives the same global favorite languages, selected base language, target languages, and update callbacks as Advanced mode. Removed the separate Beginner favorite-list state; automatic base-language selection updates the shared route state.
+- **Dedicated verification**: `npm run test:beginner-mode` (PASS; asserts shared favorite/base props and absence of the legacy Beginner favorite source).
+- **Diagnostics**: `get_errors` reported no errors in the container, route, or verification script.
+- **Commit**: Not created; commits were not requested.
+
+## Task 270: Document Parallel Application Work
+
+- **Implementation**: Added `docs/parallel.doc` with isolated worktree/file-ownership guidance, shared-file coordination rules, task-tracker constraints, and serial integration checks. Added it to `docs/files.md`.
+- **Verification**: `npm run test:md` scanned 60 Markdown files and validated all 40 relative links.
+- **Commit**: Not created; commits were not requested.
+
+## Task 269: Document State Preservation in AGENTS.md
+
+- **Implementation**: Added a cross-mode/stage continuity rule covering video identity, playback time and state, user selections, parser/TTS settings, and regression coverage.
+- **Dedicated verification**: `npm run test:agents-subtitles-spec` (PASS).
+- **Diagnostics**: `get_errors` reported no errors in AGENTS.md or the specification test.
+- **Commit**: Not created; commits were not requested.
+
+## Task 268: Filter TTS Sentences by Maximum Word Count
+
+- **Implementation**: Reused the existing parser maximum-word setting and added a shared word-boundary predicate to TTS playback and on-demand translation eligibility, so over-limit sentences remain excluded even when parsing is disabled. Updated the control description to explain its TTS/translation effect.
+- **Dedicated verification**: `npm run test:max-words-per-sentence` (PASS; exact limit accepted, over-limit rejected, and zero disables filtering).
+- **Diagnostics**: `get_errors` reported no errors in the parser utility, route, shared control, or verification script.
+- **Commit**: Not created; commits were not requested.
+
+## Task 267: Preserve State Between Beginner and Advanced Modes
+
+- **Implementation**: Snapshot the primary YouTube player's video ID, playback position, and playing/paused state before the route player is destroyed during a mode/host change; restore the snapshot when the same video is initialized again.
+- **Dedicated verification**: `npm run test:mode-switch-player-state` (PASS).
+- **Diagnostics**: `get_errors` reported no errors in the route, verification script, or package manifest.
+- **Commit**: Not created; commits were not requested.
+
+## Task 266: Preserve Beginner Player State Between Stages
+
+- **Implementation**: Kept both Beginner tab subtrees mounted and changed only their visibility, preserving the video player/iframe and tab-local input state while navigating between Video and Preferences.
+- **Dedicated verification**: `npm run test:beginner-mode` (PASS).
+- **Diagnostics**: `get_errors` reported no errors in the changed component or verification script.
+- **Commit**: Not created; commits were not requested.
+
 ## Task 265: Fix TTS Service URL and Direct Google TTS
 
 - **TTS Service URL Fix**:

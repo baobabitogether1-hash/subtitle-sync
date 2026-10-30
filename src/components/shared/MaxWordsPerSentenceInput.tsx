@@ -59,7 +59,7 @@ export const MaxWordsPerSentenceInput: React.FC<MaxWordsPerSentenceInputProps> =
           htmlFor="max-words-per-sentence-input"
           data-testid="max-words-per-sentence-label"
           className="text-[11px] font-medium text-foreground flex items-center gap-1 cursor-pointer select-none"
-          title="Discard any parsed sentences with more than this number of words"
+          title="Exclude sentences above this word count from TTS and on-demand translation"
         >
           <Filter className="h-3 w-3 text-primary shrink-0" />
           <span>{label}:</span>
@@ -153,7 +153,7 @@ export const MaxWordsPerSentenceInput: React.FC<MaxWordsPerSentenceInputProps> =
         </div>
       </div>
       <p className="mt-1 text-[11px] text-muted-foreground leading-normal">
-        Discards any subtitle sentence exceeding <span className="font-semibold text-foreground font-mono">{currentVal}</span> words to keep speech natural and concise.
+        Excludes sentences above <span className="font-semibold text-foreground font-mono">{currentVal}</span> words from TTS playback and on-demand translation.
       </p>
     </div>
   );

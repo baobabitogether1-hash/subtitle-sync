@@ -32,6 +32,24 @@ const agentsMdPath = path.join(rootDir, "AGENTS.md");
 assert(fs.existsSync(agentsMdPath), "AGENTS.md must exist");
 const agentsContent = fs.readFileSync(agentsMdPath, "utf8");
 
+assert(
+  agentsContent.includes("State Preservation Across Modes and Stages") &&
+    agentsContent.includes("view transitions, not application resets") &&
+    agentsContent.includes("playback position and playing/paused state") &&
+    agentsContent.includes("focused regression coverage for state continuity"),
+  "AGENTS.md must require state continuity across Beginner stages and Beginner/Advanced mode switches",
+);
+console.log("✅ PASS: AGENTS.md requires cross-mode and cross-stage state continuity");
+
+assert(
+  agentsContent.includes("one shared source for Beginner and Advanced modes") &&
+    agentsContent.includes("one user-facing manager in the Languages panel") &&
+    agentsContent.includes("do not duplicate it under general Settings") &&
+    agentsContent.includes("changes only that video's selection"),
+  "AGENTS.md must keep global favorites shared and separate from per-video language selections",
+);
+console.log("✅ PASS: AGENTS.md defines a single shared, easy-to-manage favorites source");
+
 // Section 1: Fallback strategy
 assert(
   agentsContent.includes("Subtitles fetch fallback strategy") &&

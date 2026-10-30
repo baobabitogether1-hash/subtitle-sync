@@ -117,12 +117,10 @@ import {
   extractVideoIdFromSubtitlesUrl,
   extractLanguageFromSubtitlesUrl,
 } from "@/utils/urlStateManager";
-
 import {
   recordSharedLanguageForVideo,
   isSharedLanguageForVideo,
 } from "@/utils/favoriteLanguagesRules";
-
 import { ShareStateModal } from "@/components/ShareStateModal";
 import { VideoMetadataModal } from "@/components/VideoMetadataModal";
 import {
@@ -132,6 +130,7 @@ import {
   clearOnDemandTranslations,
 } from "@/utils/onDemandTranslationManager";
 import { LanguageBoxesSelector } from "@/components/LanguageBoxesSelector";
+import { GlobalFavoriteLanguagesPanel } from "@/components/GlobalFavoriteLanguagesPanel";
 import { LanguageSubtitleUrlModal } from "@/components/LanguageSubtitleUrlModal";
 import {
   addUniqueSubtitleColumn,
@@ -214,6 +213,7 @@ import { FloatingSubtitleRetryIndicator } from "@/components/FloatingSubtitleRet
 import { ModeSwitcherHeader } from "@/components/ModeSwitcherHeader";
 import {
   simpleAlign,
+  isSentenceWithinWordLimit,
   type SimpleParserConfig,
   DEFAULT_SIMPLE_PARSER_CONFIG,
 } from "@/utils/newSubtitlesParser";
@@ -1013,7 +1013,6 @@ function Index() {
     getInitialFavoriteLanguages,
   );
   const [targetLanguages, setTargetLanguages] = useState<string[]>(getInitialTargetLanguages);
-  const [addFavoriteFilter, setAddFavoriteFilter] = useState<string>("");
 
   // For any favorite language - by default do checkbox on for both options: present in table & tts-play
   const [shown, setShown] = useState<string[]>(() => {
@@ -1183,6 +1182,10 @@ function Index() {
     }
     return DEFAULT_SIMPLE_PARSER_CONFIG;
   });
+  const maxTtsWordsRef = useRef(simpleParserConfig.maxWordsPerSentence);
+  useEffect(() => {
+    maxTtsWordsRef.current = simpleParserConfig.maxWordsPerSentence;
+  }, [simpleParserConfig.maxWordsPerSentence]);
 
   const setBaseLanguage = useCallback((lang: string) => {
     setExplicitBaseLanguage(lang);
@@ -3339,6 +3342,14 @@ function Index() {
         startIndex,
         sentencesAhead: onDemandAheadCount,
         isSentenceEligibleForTts: (idx) => {
+          if (
+            !isSentenceWithinWordLimit(
+              sourceSentences[idx] || "",
+              simpleParserConfig.maxWordsPerSentence,
+            )
+          ) {
+            return false;
+          }
           const ratio = getLanguageTtsRatio(ttsRatios, targetLang);
           const pLang = primaryTtsLang || computePrimaryTtsLang(spoken, ttsRatios);
           const pRatio = pLang ? getLanguageTtsRatio(ttsRatios, pLang) : 1;
@@ -3384,6 +3395,7 @@ function Index() {
     onDemandAheadCount,
     ttsRatios,
     primaryTtsLang,
+    simpleParserConfig.maxWordsPerSentence,
   ]);
 
   const activeCatalog = useMemo(() => {
@@ -3482,6 +3494,11 @@ function Index() {
     setPlayerContainerNode(el);
   }, []);
   const player = useRef<YTPlayer | null>(null);
+  const playerRestoreSnapshot = useRef<{
+    videoId: string;
+    seconds: number;
+    wasPlaying: boolean;
+  } | null>(null);
   const busy = useRef(false);
   const lastRow = useRef(-1);
   const handledRow = useRef(-1);
@@ -3693,6 +3710,8 @@ function Index() {
       const host = document.createElement("div");
       host.className = "h-full w-full";
       playerEl.current.appendChild(host);
+      const restoreSnapshot = playerRestoreSnapshot.current;
+      playerRestoreSnapshot.current = null;
       // Ensure interceptor queue and bridges are active before creating player iframe
       setupEarlyCaptionInterceptor();
       logInterception("Initializing YouTube Player iframe element", {
@@ -3722,6 +3741,17 @@ function Index() {
                 if (rate > 0) setPlaybackRate(rate);
                 const state = player.current.getPlayerState?.();
                 setIsVideoPlaying(state === 1);
+                if (restoreSnapshot?.videoId === videoId) {
+                  const restoreSeconds = Math.max(0, restoreSnapshot.seconds);
+                  if (restoreSeconds > 0) player.current.seekTo(restoreSeconds, true);
+                  if (restoreSnapshot.wasPlaying) {
+                    player.current.playVideo();
+                  } else {
+                    player.current.pauseVideo();
+                  }
+                  setPlaybackCurrentTime(restoreSeconds);
+                  setIsVideoPlaying(restoreSnapshot.wasPlaying);
+                }
                 const enriched = enrichMetadataWithPlayer(videoId, player.current);
                 if (enriched) setVideoMetadata({ ...enriched });
               } catch {
@@ -3867,6 +3897,8 @@ function Index() {
       const getEligibleLangs = (rowIdx: number) => {
         if (rowIdx < 0 || playedTtsRecords.current.has(getPlaybackSectionId(rows[rowIdx]!)))
           return [];
+        const baseText = st.current.rows[rowIdx]?.texts[st.current.baseLanguage] ?? "";
+        if (!isSentenceWithinWordLimit(baseText, maxTtsWordsRef.current)) return [];
         const matched = orderedLangs.filter(
           (l) =>
             isTtsSpeakableLanguage(l.code, currentBaseLanguage) &&
@@ -4067,6 +4099,16 @@ function Index() {
       clearInterval(iv);
       cancelSpeech();
       multiVideoPlayerRegistry.unregister("primary");
+      if (player.current) {
+        const seconds = player.current.getCurrentTime?.();
+        if (typeof seconds === "number" && Number.isFinite(seconds)) {
+          playerRestoreSnapshot.current = {
+            videoId,
+            seconds,
+            wasPlaying: player.current.getPlayerState?.() === 1,
+          };
+        }
+      }
       player.current?.destroy?.();
       player.current = null;
     };
@@ -4939,6 +4981,8 @@ function Index() {
             ) : undefined
           }
           favoriteLanguageCatalog={SUPPORTED_LANGUAGES_CATALOG}
+          favoriteLanguages={favoriteLanguages}
+          baseLanguage={baseLanguage}
           selectedTargetLanguages={targetLanguages}
           onTargetLanguagesChange={handleTargetLanguagesChange}
           onOrderChange={(newOrder) => {
@@ -4967,6 +5011,7 @@ function Index() {
             handleUpdateFavoriteLanguages(newFavs);
           }}
           onBaseLangChange={(lang) => {
+            setBaseLanguage(lang);
             if (!spoken.includes(lang)) {
               setSpoken((prev) => [...prev, lang]);
             }
@@ -6344,7 +6389,7 @@ function Index() {
 
                           {/* Favorite Languages (Settings & localStorage) and Video-Specific Selection */}
                           <div
-                            className="pt-2 border-t border-border/60 space-y-2.5"
+                            className="hidden pt-2 border-t border-border/60 space-y-2.5"
                             data-testid="settings-favorites-languages-card"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -6482,7 +6527,6 @@ function Index() {
                                 </p>
                               </div>
                             </div>
-
                             {/* Accordion Auto-Collapse Timeout Setting */}
                             <div
                               className="pt-3 border-t border-border/40 space-y-2"
@@ -7185,6 +7229,15 @@ function Index() {
                               currentVideoId={videoId}
                               loadedTracks={tracks}
                               onSaveSubtitleUrl={handleSaveTrackFromUrl}
+                            />
+                            <GlobalFavoriteLanguagesPanel
+                              catalog={SUPPORTED_LANGUAGES_CATALOG}
+                              favoriteLanguages={favoriteLanguages}
+                              targetLanguages={targetLanguages}
+                              videoId={videoId}
+                              onFavoriteLanguagesChange={handleUpdateFavoriteLanguages}
+                              onApplyFavoritesToVideo={handleResetVideoToFavorites}
+                              onSaveCurrentSelectionAsFavorites={handleSaveCurrentAsFavorites}
                             />
                             <div className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/20">
                               <div className="space-y-0.5">

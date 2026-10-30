@@ -4,7 +4,7 @@ This file is strictly the active backlog containing pending, active, and upcomin
 
 ## Active Tasks
 
-*(No active tasks pending. All tasks from previous prompt completed.)*
+*(No active tasks pending. All numbered items from the current prompt are completed; Task 5 remains in Later Tasks as explicitly requested.)*
 
 ## Later Tasks
 
@@ -27,3 +27,5 @@ This file is strictly the active backlog containing pending, active, and upcomin
   - Add support for additional TTS services beyond the current Google default. Keep this separate from the new-user/daily-usage design update.
 - [ ] **Later: Review control-placement category colors**
   - After the user reviews the provisional new-user, daily-usage, and experimental control backgrounds, relocate controls according to the agreed placement recommendations.
+- [ ] **Later: Verify GitHub Actions and screencast artifacts**
+  - Verify the relevant GitHub Actions workflows and ensure the Android screencast artifact is produced without deprecated or limiting configuration. Inspect workflow history and artifact-upload behavior when this later item is activated.

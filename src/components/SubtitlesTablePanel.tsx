@@ -63,6 +63,7 @@ export function SubtitlesTablePanel({
     DEFAULT_SIMPLE_PARSER_CONFIG,
   );
   const [freezeColumns, setFreezeColumns] = React.useState<boolean>(true);
+    const shouldFreezeColumns = !isAndroid && freezeColumns;
   const activeParserConfig = externalParserConfig || localParserConfig;
   const handleParserConfigChange = onParserConfigChange || setLocalParserConfig;
 
@@ -196,7 +197,8 @@ export function SubtitlesTablePanel({
           className="flex items-center justify-between border-b border-border bg-muted/25 px-3 py-1.5 text-xs"
         >
           <div className="flex items-center gap-2">
-            <button
+            {!isAndroid && (
+              <button
               type="button"
               id="toggle-freeze-columns-btn"
               data-testid="toggle-freeze-columns-btn"
@@ -214,7 +216,8 @@ export function SubtitlesTablePanel({
             >
               <Columns className="h-3.5 w-3.5" />
               <span>{freezeColumns ? "Columns Frozen (1 & 2)" : "Freeze Columns"}</span>
-            </button>
+              </button>
+            )}
             <span className="text-[11px] text-muted-foreground">
               {rows.length} {rows.length === 1 ? "sentence" : "sentences"}
             </span>
@@ -227,7 +230,7 @@ export function SubtitlesTablePanel({
             <th
               data-testid="table-header-time"
               className={`w-28 min-w-[7rem] max-w-[7rem] px-3 py-2 text-left font-medium ${
-                freezeColumns ? "sticky left-0 z-30 bg-secondary shadow-[1px_0_0_0_rgba(0,0,0,0.1)]" : ""
+                shouldFreezeColumns ? "sticky left-0 z-30 bg-secondary shadow-[1px_0_0_0_rgba(0,0,0,0.1)]" : ""
               }`}
             >
               Time
@@ -239,7 +242,7 @@ export function SubtitlesTablePanel({
                   key={l.code}
                   data-testid={`table-header-col-${l.code}`}
                   className={`px-3 py-2 text-left font-medium min-w-[12rem] ${
-                    freezeColumns && isFirstCol
+                    shouldFreezeColumns && isFirstCol
                       ? "sticky left-28 z-30 bg-secondary shadow-[2px_0_5px_-2px_rgba(0,0,0,0.15)]"
                       : ""
                   }`}
@@ -306,7 +309,7 @@ export function SubtitlesTablePanel({
                   ttsRatios={ttsRatios}
                   primaryTtsLang={primaryTtsLang}
                   onSpeakCue={onSpeakCue}
-                  freezeColumns={freezeColumns}
+                  freezeColumns={shouldFreezeColumns}
                 />
               );
             })
