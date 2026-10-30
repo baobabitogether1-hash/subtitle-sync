@@ -4,7 +4,11 @@ This file is strictly the active backlog containing pending, active, and upcomin
 
 ## Active Tasks
 
-*(No active tasks pending. Backlog idle.)*
+- [ ] **Task 265: Fix TTS Service URL and Direct Google TTS**
+  - **Subtask 265.1**: Fix TTS service URL (`tts3.lovable.app`) and direct Google TTS audio routing in `src/lib/alternative-tts.ts`, ensuring direct playback without failing through remote proxy.
+  - **Subtask 265.2**: Enable alternative TTS engine selection (`lovable` vs `google_translate`) and direct Google TTS in Beginner mode (`BeginnerPreferencesTab.tsx`, `BeginnerTtsServiceControl.tsx`) and Advanced mode (`src/routes/index.tsx`).
+  - **Subtask 265.3**: Update test assertions for `tts3.lovable.app` in `verify-lovable-alternative-tts.ts`, `verify-lovable-tts-ui.ts`, and `verify-lovable-tts-service-preference.ts`.
+  - **Subtask 265.4**: Synchronize app version `2.0.55` across all 5 files, create dedicated automated test `scripts/verify-tts-service-url-and-direct-google-tts.ts`, verify with build & lint, and migrate to `docs/done.md`.
 
 ## Later Tasks
 

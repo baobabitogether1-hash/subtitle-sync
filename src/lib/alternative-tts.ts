@@ -747,11 +747,19 @@ export async function playAlternativeTtsAudio(
   }
 
   const engine = engineOverride || getAlternativeTtsEngine();
+  const provider = optionsOverride?.provider || getLovableTtsProvider();
 
   let audioUrl = "";
   let shouldRevoke = false;
 
-  if (engine === "lovable") {
+  // Direct Google TTS: route directly to buildGoogleTranslateTtsUrl when engine is google_translate
+  // or when provider is google without explicit custom voice override
+  if (
+    engine === "google_translate" ||
+    (engine === "lovable" && provider === "google" && !optionsOverride?.voice)
+  ) {
+    audioUrl = buildGoogleTranslateTtsUrl(text, lang);
+  } else if (engine === "lovable") {
     try {
       const requestedSpeed =
         optionsOverride?.speed ?? (typeof rate === "number" && rate > 0 ? rate : 1.0);

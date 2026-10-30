@@ -40,6 +40,8 @@ import {
   setUseAlternativeTts,
   getAlternativeTtsMode,
   setAlternativeTtsMode,
+  getAlternativeTtsEngine,
+  setAlternativeTtsEngine,
   getLovableTtsProvider,
   setLovableTtsProvider,
   getLovableTtsVoice,
@@ -54,6 +56,7 @@ import {
   LOVABLE_VOICES,
   OPENROUTER_VOICES,
   type AlternativeTtsMode,
+  type AlternativeTtsEngine,
   type LovableTtsProvider,
 } from "@/lib/alternative-tts";
 
@@ -96,6 +99,9 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
   );
   const [alternativeTtsModeState, setAlternativeTtsModeState] = useState<AlternativeTtsMode>(() =>
     typeof window !== "undefined" ? getAlternativeTtsMode() : "fallback_only",
+  );
+  const [alternativeTtsEngineState, setAlternativeTtsEngineState] = useState<AlternativeTtsEngine>(() =>
+    typeof window !== "undefined" ? getAlternativeTtsEngine() : "lovable",
   );
   const [lovableTtsProviderState, setLovableTtsProviderState] = useState<LovableTtsProvider>(() =>
     typeof window !== "undefined" ? getLovableTtsProvider() : "google",
@@ -150,7 +156,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
 
     if (useAltTts && altMode === "always") {
       setIsAuditioning(true);
-      playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, "lovable", {
+      playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, alternativeTtsEngineState, {
         provider: lovableTtsProviderState,
         voice:
           lovableTtsProviderState === "google"
@@ -177,7 +183,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
       window.onNativeTTSError = (uid: string, err?: string) => {
         if (uid === utteranceId) {
           window.onNativeTTSError = prevErr;
-          playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, "lovable", {
+          playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, alternativeTtsEngineState, {
             provider: lovableTtsProviderState || "google",
             voice: lovableTtsVoiceState,
             speed: ttsSpeed,
@@ -190,7 +196,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
 
     if (!("speechSynthesis" in window)) {
       setIsAuditioning(true);
-      playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, "lovable", {
+      playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, alternativeTtsEngineState, {
         provider: lovableTtsProviderState || "google",
         voice:
           lovableTtsProviderState === "google"
@@ -218,7 +224,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
       utterance.onend = () => setIsAuditioning(false);
       utterance.onerror = () => {
         if (useAltTts) {
-          playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, "lovable", {
+          playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, alternativeTtsEngineState, {
             provider: lovableTtsProviderState,
             voice:
               lovableTtsProviderState === "google"
@@ -237,7 +243,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
       window.speechSynthesis.speak(utterance);
     } catch {
       if (useAltTts) {
-        playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, "lovable", {
+        playAlternativeTtsAudio(text, baseLanguage, ttsSpeed, undefined, alternativeTtsEngineState, {
           provider: lovableTtsProviderState,
           voice:
             lovableTtsProviderState === "google"
@@ -555,11 +561,16 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
               <span className="text-muted-foreground font-medium">TTS Engine:</span>
               <select
                 data-testid="beginner-alternative-tts-engine-select"
-                value="lovable"
-                disabled
-                className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium opacity-90 cursor-default"
+                value={alternativeTtsEngineState}
+                onChange={(e) => {
+                  const eng = e.target.value as AlternativeTtsEngine;
+                  setAlternativeTtsEngineState(eng);
+                  setAlternativeTtsEngine(eng);
+                }}
+                className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium transition-all focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
               >
                 <option value="lovable">Lovable Speak API (tts3.lovable.app)</option>
+                <option value="google_translate">Google TTS (Direct translate_tts)</option>
               </select>
               <a
                 href={LOVABLE_TTS_OPENAPI_URL}

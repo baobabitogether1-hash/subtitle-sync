@@ -4,16 +4,17 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 264: Fix Video Playback Stopped Working)
+### Active Prompt Token Economy Flow (Task 265: Fix TTS Service URL and Direct Google TTS)
 
 - **Prompt Objective**:
-  1. Fix video playback stopped working: ensure YouTube player host `div` is appended to `playerEl.current`, preventing detached iframe execution.
-  2. Guard player initialization and state recovery across mode/tab switching and seeking.
-  3. Support instant resume and seek-to-0 on ended state in `handleTogglePlay`.
-  4. Synchronize app version to `2.0.54` across all 5 files (`package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, `src/utils/appSettings.ts`).
-  5. Implement dedicated test `scripts/verify-video-play-fix.ts`.
-- **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.54`.
+  1. Fix TTS service URL and endpoints: ensure `LOVABLE_TTS_BASE_URL = "https://tts3.lovable.app"` and `LOVABLE_TTS_ENDPOINT = "https://tts3.lovable.app/api/public/tts"`.
+  2. Implement/fix direct Google TTS selection and execution: allow users to directly select Google TTS in Beginner mode and Advanced mode without failing through remote proxy, routing directly to `buildGoogleTranslateTtsUrl`.
+  3. Enable `alternative-tts-engine-select` in both Beginner Preferences and Advanced Mode settings.
+  4. Fix legacy test assertions in `verify-lovable-alternative-tts.ts`, `verify-lovable-tts-ui.ts`, and `verify-lovable-tts-service-preference.ts`.
+  5. Synchronize app version to `2.0.55` across all 5 files (`package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, `src/utils/appSettings.ts`).
+  6. Implement dedicated automated test `scripts/verify-tts-service-url-and-direct-google-tts.ts`.
+- **Status**: Active (In Progress).
+- **App Version**: `2.0.55`.
 
 ---
 
