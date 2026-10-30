@@ -4,15 +4,15 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 259: Space-Saving Styles on Sanitization Live Preview)
+### Active Prompt Token Economy Flow (Task 261: Elevate Frontend Aesthetic Polish & Modern Design)
 
 - **Prompt Objective**:
-  1. Apply space-saving, compact style changes to selected element `div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5)` (Sanitization Live Preview Card in SpecialCharactersRemovalPanel).
-  2. Implement collapsible space-saving toggle (`showPreview`), slim header, compact padding, and max-height scrolling to prevent vertical waste of space.
-  3. Synchronize app version to `2.0.50` across all 5 files.
-  4. Author dedicated automated test `scripts/verify-compact-preview-space-saving.ts`.
+  1. Elevate design to modern production-grade frontend standards (refined typography, glassmorphism sticky header, subtle ambient surface styling, crisp data-grid, and sleek controls).
+  2. Maintain 100% functional parity, testids, and zero regressions across all modes.
+  3. Synchronize app version to `2.0.52` across all 5 files.
+  4. Author dedicated automated test `scripts/verify-elevated-frontend-design.ts`.
 - **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.50`.
+- **App Version**: `2.0.52`.
 
 ---
 

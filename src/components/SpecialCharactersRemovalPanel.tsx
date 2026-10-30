@@ -183,10 +183,10 @@ export const SpecialCharactersRemovalPanel: React.FC<SpecialCharactersRemovalPan
       <div className="space-y-2 p-3 rounded-lg border border-border/70 bg-card">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-foreground">
-            Target Symbols &amp; Markers to Strip:
+            Symbols to strip:
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {removeChars.length} symbol{removeChars.length === 1 ? "" : "s"} active
+            {removeChars.length} active
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5" data-testid="advanced-remove-chars-chips">
@@ -210,7 +210,7 @@ export const SpecialCharactersRemovalPanel: React.FC<SpecialCharactersRemovalPan
           ))}
           {removeChars.length === 0 && (
             <span className="text-xs text-muted-foreground italic">
-              No character rules specified (raw text retained).
+              No character rules specified.
             </span>
           )}
         </div>
@@ -219,7 +219,7 @@ export const SpecialCharactersRemovalPanel: React.FC<SpecialCharactersRemovalPan
       {/* Custom Character Removal / Replacement Rules */}
       <div className="space-y-2.5 p-3 rounded-lg border border-border/70 bg-card">
         <span className="text-xs font-semibold text-foreground">
-          Add Custom Removal or Replacement Rule:
+          Add custom rule:
         </span>
         <div className="flex flex-wrap items-center gap-2">
           <Input

@@ -4421,7 +4421,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header
-        className="flex flex-wrap items-center gap-4 border-b border-border px-6 py-4"
+        className="sticky top-0 z-40 flex flex-wrap items-center gap-3 sm:gap-4 border-b border-border/70 bg-background/85 backdrop-blur-md px-4 py-3 sm:px-6 shadow-2xs transition-colors"
         data-app-hydrated={isHydrated ? "true" : undefined}
       >
         <div className="mr-auto flex flex-col gap-1 max-w-3xl">
@@ -4431,7 +4431,7 @@ function Index() {
             </span>
             <span className="text-muted-foreground/40 text-xs">·</span>
             <h1
-              className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate max-w-xl"
+              className="font-display text-lg sm:text-xl font-bold tracking-tight text-foreground truncate max-w-xl"
               data-testid="top-screen-video-title"
               title={topScreenTitle}
             >
@@ -4484,7 +4484,7 @@ function Index() {
           <div className="flex flex-col gap-0.5">
             <p
               data-testid="top-screen-video-description"
-              className="text-xs text-muted-foreground line-clamp-2 leading-relaxed"
+              className="text-xs text-muted-foreground line-clamp-1 leading-relaxed"
               title={topScreenDescription}
             >
               {topScreenDescription}
@@ -6217,24 +6217,25 @@ function Index() {
                                     </div>
                                   </div>
 
-                                  <p className="text-[10px] text-muted-foreground">
-                                    Endpoint:{" "}
-                                    <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">
-                                      https://tts3.lovable.app/api/public/tts
-                                    </code>{" "}
-                                    • Provider:{" "}
-                                    <span className="font-semibold text-foreground font-mono">
-                                      {lovableTtsProviderState}
-                                    </span>{" "}
-                                    • Speaks subtitles using configured target language, current
-                                    text, and native speech rate with voice:{" "}
-                                    {lovableTtsProviderState === "google"
-                                      ? "Default"
-                                      : lovableTtsVoiceState ||
-                                        (lovableTtsProviderState === "openrouter"
-                                          ? "alloy"
-                                          : "Kore")}
-                                    .
+                                  <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                                    <span>
+                                      Provider:{" "}
+                                      <strong className="text-foreground font-mono">
+                                        {lovableTtsProviderState}
+                                      </strong>
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      Voice:{" "}
+                                      <span className="text-foreground">
+                                        {lovableTtsProviderState === "google"
+                                          ? "Default"
+                                          : lovableTtsVoiceState ||
+                                            (lovableTtsProviderState === "openrouter"
+                                              ? "alloy"
+                                              : "Kore")}
+                                      </span>
+                                    </span>
                                   </p>
                                 </div>
 

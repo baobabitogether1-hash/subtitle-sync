@@ -57,13 +57,15 @@ export const SubtitleRow = memo(function SubtitleRow({
       data-testid={`subtitle-cue-row-${actualIndex}`}
       data-row={actualIndex}
       onClick={() => onSeek(r, actualIndex)}
-      className={`cursor-pointer border-t border-border align-top ${isActive ? "bg-accent" : "hover:bg-muted"}`}
+      className={`cursor-pointer border-t border-border/70 align-top transition-colors duration-150 ${
+        isActive ? "bg-primary/[0.08] dark:bg-primary/[0.14]" : "hover:bg-muted/40"
+      }`}
     >
       <td
         data-testid="cue-row-timestamp"
-        className={`whitespace-nowrap px-3 py-2 tabular-nums text-muted-foreground w-28 min-w-[7rem] max-w-[7rem] ${
+        className={`whitespace-nowrap px-3 py-2.5 tabular-nums text-xs font-mono text-muted-foreground w-28 min-w-[7rem] max-w-[7rem] transition-colors ${
           freezeColumns
-            ? `sticky left-0 z-10 ${isActive ? "bg-accent" : "bg-card/95"} shadow-[1px_0_0_0_rgba(0,0,0,0.06)]`
+            ? `sticky left-0 z-10 ${isActive ? "bg-accent/95 backdrop-blur-xs font-semibold text-foreground" : "bg-card/95"} shadow-[1px_0_0_0_rgba(0,0,0,0.06)]`
             : ""
         }`}
       >
@@ -100,13 +102,13 @@ export const SubtitleRow = memo(function SubtitleRow({
             data-tts-pronounced={isPronouncedHighlight ? "true" : undefined}
             data-tts-eligible={isEligible ? "true" : "false"}
             data-tts-role={isPrimary ? "primary" : primaryTtsLang ? "secondary" : undefined}
-            className={`px-3 py-2 leading-relaxed transition-colors min-w-[12rem] ${
+            className={`px-3.5 py-2.5 text-sm leading-relaxed transition-colors min-w-[12rem] ${
               freezeColumns && isFirstCol
-                ? `sticky left-28 z-10 ${isActive ? "bg-accent" : "bg-card/95"} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]`
+                ? `sticky left-28 z-10 ${isActive ? "bg-accent/95 backdrop-blur-xs font-medium text-foreground" : "bg-card/95"} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.08)]`
                 : ""
             } ${
               isPronouncedHighlight
-                ? "bg-primary/10 border-s-2 border-primary/60 dark:bg-primary/15 dark:border-primary/80"
+                ? "bg-primary/10 dark:bg-primary/15"
                 : ""
             }`}
           >

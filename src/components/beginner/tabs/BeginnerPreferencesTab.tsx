@@ -290,10 +290,9 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
             <Sliders className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Step 1: General Preferences</h2>
+            <h2 className="text-sm font-semibold text-foreground">Preferences</h2>
             <p className="text-xs text-muted-foreground">
-              Configure playback order, narration speed, speech voice, subtitle-overlay defaults,
-              and favorite languages.
+              Configure speech, narration order, and favorite languages.
             </p>
           </div>
         </div>
@@ -374,7 +373,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
                 {order === "video-first" && <Check className="w-3.5 h-3.5 text-primary" />}
               </div>
               <div className="text-[11px] text-muted-foreground truncate">
-                Natural video dialogue pacing
+                Video dialogue leads
               </div>
             </div>
           </button>
@@ -404,7 +403,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
                 {order === "tts-first" && <Check className="w-3.5 h-3.5 text-primary" />}
               </div>
               <div className="text-[11px] text-muted-foreground truncate">
-                Spoken subtitle translation leads
+                Speech translation leads
               </div>
             </div>
           </button>
@@ -760,22 +759,10 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
                 </div>
               </div>
 
-              <p className="text-[10px] text-muted-foreground">
-                Endpoint:{" "}
-                <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">
-                  https://tts3.lovable.app/api/public/tts
-                </code>{" "}
-                • Provider:{" "}
-                <span className="font-semibold text-foreground font-mono">
-                  {lovableTtsProviderState}
-                </span>{" "}
-                • Speaks subtitles using configured target language, current text, and native speech
-                rate with voice:{" "}
-                {lovableTtsProviderState === "google"
-                  ? "Default"
-                  : lovableTtsVoiceState ||
-                    (lovableTtsProviderState === "openrouter" ? "alloy" : "Kore")}
-                .
+              <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                <span>Provider: <strong className="text-foreground font-mono">{lovableTtsProviderState}</strong></span>
+                <span>•</span>
+                <span>Voice: <span className="text-foreground">{lovableTtsProviderState === "google" ? "Default" : lovableTtsVoiceState || (lovableTtsProviderState === "openrouter" ? "alloy" : "Kore")}</span></span>
               </p>
             </div>
 
@@ -841,9 +828,6 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
             {favoriteLanguages.length} active
           </span>
         </div>
-        <p className="text-[11px] text-muted-foreground">
-          The app fetches translations and prepares TTS speech for your favorite languages.
-        </p>
 
         {/* Active Languages Chips */}
         <div className="flex flex-wrap gap-1.5 pt-1" data-testid="favorite-languages-chips">
