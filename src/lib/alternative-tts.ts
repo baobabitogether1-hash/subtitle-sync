@@ -1,17 +1,17 @@
 /**
  * Alternative Text-to-Speech (TTS) Service
  * Supports:
- * 1. Lovable Speak API (OpenAPI 3.1.0: https://tts2.lovable.app/api/public/openapi.json)
- *    Endpoint: https://tts2.lovable.app/api/public/tts
+ * 1. Lovable Speak API (OpenAPI 3.1.0: https://tts3.lovable.app/api/public/openapi.json)
+ *    Endpoint: https://tts3.lovable.app/api/public/tts
  *    CORS enabled (access-control-allow-origin: *)
  *    Provides multi-provider synthesis: "google", "lovable", "openrouter"
  * 2. Google Translate TTS (Legacy fallback)
  *    Endpoint: https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl={lang}&q={text}
  */
 
-export const LOVABLE_TTS_BASE_URL = "https://tts2.lovable.app";
-export const LOVABLE_TTS_ENDPOINT = "https://tts2.lovable.app/api/public/tts";
-export const LOVABLE_TTS_OPENAPI_URL = "https://tts2.lovable.app/api/public/openapi.json";
+export const LOVABLE_TTS_BASE_URL = "https://tts3.lovable.app";
+export const LOVABLE_TTS_ENDPOINT = "https://tts3.lovable.app/api/public/tts";
+export const LOVABLE_TTS_OPENAPI_URL = "https://tts3.lovable.app/api/public/openapi.json";
 export const GOOGLE_TRANSLATE_TTS_ENDPOINT = "https://translate.google.com/translate_tts";
 
 const STORAGE_KEY_USE_ALTERNATIVE_TTS = "yt_use_alternative_tts_v1";
@@ -92,7 +92,7 @@ export function normalizeLanguageCode(lang: string): string {
 
 /**
  * Builds the Lovable Speak API URL according to the OpenAPI specification.
- * Endpoint: https://tts2.lovable.app/api/public/tts
+ * Endpoint: https://tts3.lovable.app/api/public/tts
  * Query parameters:
  * - text (required, string <= 5000 chars)
  * - lang (required, string e.g. "en")

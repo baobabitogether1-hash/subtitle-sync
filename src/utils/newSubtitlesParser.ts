@@ -12,7 +12,10 @@ export interface SimpleParserConfig {
   splitOnQuestion: boolean;
   splitOnExclamation: boolean;
   splitOnComma: boolean;
+  splitOnColonSemicolon: boolean;
   splitIntraCue: boolean;
+  shortCompleteSentences: boolean;
+  maxWordsPerSentence: number;
   customDelimiters: string;
   dotAbbreviationExceptions: string;
 }
@@ -22,8 +25,11 @@ export const DEFAULT_SIMPLE_PARSER_CONFIG: SimpleParserConfig = {
   splitOnDot: true,
   splitOnQuestion: true,
   splitOnExclamation: true,
-  splitOnComma: false,
+  splitOnComma: true,
+  splitOnColonSemicolon: true,
   splitIntraCue: true,
+  shortCompleteSentences: true,
+  maxWordsPerSentence: 10,
   customDelimiters: "",
   dotAbbreviationExceptions: "dr., mrs., mr., ms., prof., etc., e.g., i.e.",
 };
@@ -70,17 +76,20 @@ export function buildSplitRegex(config: SimpleParserConfig): RegExp | null {
   if (!config.enabled) return null;
 
   const escapedChars: string[] = [];
-  if (config.splitOnDot) {
+  if (config.splitOnDot || config.shortCompleteSentences) {
     escapedChars.push("\\.", "。");
   }
-  if (config.splitOnQuestion) {
+  if (config.splitOnQuestion || config.shortCompleteSentences) {
     escapedChars.push("\\?", "؟");
   }
-  if (config.splitOnExclamation) {
+  if (config.splitOnExclamation || config.shortCompleteSentences) {
     escapedChars.push("!");
   }
-  if (config.splitOnComma) {
+  if (config.splitOnComma || config.shortCompleteSentences) {
     escapedChars.push(",", "،", "、");
+  }
+  if (config.splitOnColonSemicolon || config.shortCompleteSentences) {
+    escapedChars.push(";", "؛", ":", "—", "–");
   }
 
   if (config.customDelimiters && config.customDelimiters.trim().length > 0) {
@@ -94,8 +103,12 @@ export function buildSplitRegex(config: SimpleParserConfig): RegExp | null {
 
   if (escapedChars.length === 0) return null;
 
-  // Match delimiter followed by optional closing quotes/brackets and either whitespace or end of string
-  return new RegExp(`([${escapedChars.join("")}]+["'»)”]*)(?=\\s+|$)`, "gu");
+  // Match delimiter followed by optional closing quotes/brackets and either whitespace or end of string,
+  // OR delimiter preceded by whitespace (handles patterns like "XXX ,YYY")
+  return new RegExp(
+    `(?:(?<=\\s)[${escapedChars.join("")}]+["'»)”]*)|(?:[${escapedChars.join("")}]+["'»)”]*(?=\\s+|$))`,
+    "gu"
+  );
 }
 
 export interface SplitSegment {
@@ -106,6 +119,8 @@ export interface SplitSegment {
 
 /**
  * Splits each native timed cue independently so parser output never crosses cue boundaries.
+ * Grabs grammatically complete sentence/clause units bounded by punctuation (e.g. XXX, YYY? ZZ -> XXX, YYY?, ZZ).
+ * Rejects anti-patterns like "XXX, Y" or "Y? ZZ" by strictly requiring whole-clause boundaries.
  */
 export function splitCuesIntoSentences(
   cues: Cue[],
@@ -148,25 +163,35 @@ export function splitCuesIntoSentences(
         continue;
       }
 
-      const partText = cueText.slice(lastMatchEnd, delimiterEnd).trim();
+      let partText = cueText.slice(lastMatchEnd, delimiterEnd).trim();
+      if (config.shortCompleteSentences) {
+        partText = partText.replace(/^[,\s;:]+|[,\s;:]+$/g, "").trim();
+      }
       const charStartFraction = Math.min(1, Math.max(0, lastMatchEnd / cueText.length));
       const charEndFraction = Math.min(1, Math.max(0, delimiterEnd / cueText.length));
       const partStart =
         lastMatchEnd === 0 ? cueStart : Math.round(cueStart + charStartFraction * cueDuration);
       const partEnd = Math.round(cueStart + charEndFraction * cueDuration);
 
-      if (partText) {
+      // Only push if partText contains actual readable word content (avoids isolated dangling punctuation like ",")
+      if (partText && /[^\s\p{P}]/u.test(partText)) {
         cueSegments.push({ start: partStart, end: partEnd, text: partText });
+        lastMatchEnd = delimiterEnd;
       }
-      lastMatchEnd = delimiterEnd;
     }
 
-    const leftover = cueText.slice(lastMatchEnd).trim();
-    if (leftover) {
+    let leftover = cueText.slice(lastMatchEnd).trim();
+    if (config.shortCompleteSentences) {
+      leftover = leftover.replace(/^[,\s;:]+|[,\s;:]+$/g, "").trim();
+    }
+    if (leftover && /[^\s\p{P}]/u.test(leftover)) {
       const charStartFraction = Math.min(1, Math.max(0, lastMatchEnd / cueText.length));
       const partStart =
         lastMatchEnd === 0 ? cueStart : Math.round(cueStart + charStartFraction * cueDuration);
       cueSegments.push({ start: partStart, end: cueEnd, text: leftover });
+    } else if (leftover && cueSegments.length > 0 && !config.shortCompleteSentences) {
+      // Append any trailing punctuation to the last segment
+      cueSegments[cueSegments.length - 1]!.text += " " + leftover;
     }
 
     if (cueSegments.length === 0) {

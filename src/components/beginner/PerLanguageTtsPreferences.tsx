@@ -100,17 +100,30 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
                       </span>
                     </span>
                   ) : (
-                    onPrimaryLangChange && (
-                      <button
-                        type="button"
-                        data-testid={`tts-switch-primary-${language.code}`}
-                        onClick={() => onPrimaryLangChange(language.code)}
-                        className="truncate text-xs font-semibold text-foreground hover:text-primary hover:underline transition-colors cursor-pointer text-left"
-                        title={`Set ${language.name} as Primary`}
+                    <div className="flex items-center gap-1 truncate">
+                      {onPrimaryLangChange ? (
+                        <button
+                          type="button"
+                          data-testid={`tts-switch-primary-${language.code}`}
+                          onClick={() => onPrimaryLangChange(language.code)}
+                          className="truncate text-xs font-semibold text-foreground hover:text-primary hover:underline transition-colors cursor-pointer text-left"
+                          title={`Set ${language.name} as Primary`}
+                        >
+                          {language.name}
+                        </button>
+                      ) : (
+                        <span className="truncate text-xs font-semibold text-foreground">
+                          {language.name}
+                        </span>
+                      )}
+                      <span
+                        data-testid={`tts-role-badge-${language.code}`}
+                        className="rounded bg-muted text-muted-foreground border border-border px-1 py-0.2 text-[9px] font-medium"
+                        title={`Relative to ${primaryLangObj?.name || "Primary"}`}
                       >
-                        {language.name}
-                      </button>
-                    )
+                        Sec ({primaryLangObj?.name ? `rel. ${primaryLangObj.name}` : "rel. primary"})
+                      </span>
+                    </div>
                   )}
                 </div>
                 <label className="flex items-center gap-1.5 text-xs">
@@ -122,7 +135,7 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
                         : `Speaks 1 in N sentences relative to ${primaryLangObj?.name || "primary"} activations`
                     }
                   >
-                    Speak
+                    Ratio
                   </span>
                   <select
                     aria-label={`${language.name} TTS sentence ratio`}
@@ -138,7 +151,9 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
                   >
                     {ratioPresets.map((preset) => (
                       <option key={preset} value={preset}>
-                        1:{preset}
+                        {isPrimary
+                          ? `1:${preset} (Every ${preset === 1 ? "sentence" : `${preset} sentences`})`
+                          : `1:${preset} (Every ${preset}× of ${primaryLangObj?.name || "Primary"})`}
                       </option>
                     ))}
                   </select>

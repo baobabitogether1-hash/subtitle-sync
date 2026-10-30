@@ -40,7 +40,6 @@ import {
   History,
   Volume2,
   Hourglass,
-  Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -198,6 +197,8 @@ import {
   logForeignTrack,
   copyBugReportToClipboard,
 } from "@/utils/logBuffer";
+import { AccordionSection } from "@/components/AccordionSection";
+import { StateMachineActionLogsInspector } from "@/components/StateMachineActionLogsInspector";
 import { CriticalCaptionsAlert } from "@/components/CriticalCaptionsAlert";
 import { SubtitlesTablePanel } from "@/components/SubtitlesTablePanel";
 import { HighlightedSubtitle } from "@/components/HighlightedSubtitle";
@@ -214,8 +215,6 @@ import {
   DEFAULT_SIMPLE_PARSER_CONFIG,
 } from "@/utils/newSubtitlesParser";
 import { BeginnerFlowContainer } from "@/components/beginner/BeginnerFlowContainer";
-import { InterfacePathChooser, type InterfacePath } from "@/components/portal/InterfacePathChooser";
-import { FutureExperienceContainer } from "@/components/future/FutureExperienceContainer";
 import { PerLanguageTtsPreferences } from "@/components/beginner/PerLanguageTtsPreferences";
 import {
   BeginnerTtsServiceControl,
@@ -778,41 +777,34 @@ function Index() {
     );
   });
 
-  const [workflowMode, setWorkflowMode] = useState<"chooser" | "beginner" | "expert" | "future">(() => {
+  const [workflowMode, setWorkflowMode] = useState<"beginner" | "expert">(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const urlMode = params.get("mode") || params.get("path");
-      if (urlMode === "chooser" || urlMode === "portal") return "chooser";
+      const urlMode = params.get("mode");
       if (urlMode === "beginner") return "beginner";
       if (urlMode === "expert" || urlMode === "advanced") return "expert";
-      if (urlMode === "future") return "future";
 
       if (isDeveloperModeEnabled(window.location.search)) return "expert";
       try {
         const saved = localStorage.getItem("app_workflow_mode");
-        if (saved === "expert" || saved === "beginner" || saved === "future" || saved === "chooser") {
-          return saved as "chooser" | "beginner" | "expert" | "future";
+        if (saved === "expert" || saved === "beginner") {
+          return saved as "beginner" | "expert";
         }
       } catch {
         // ignore
       }
     }
-    return "chooser";
+    return "beginner";
   });
 
   const [expandedPrefsHelp, setExpandedPrefsHelp] = useState<Record<string, boolean>>({});
 
-  const handleWorkflowModeChange = (
-    mode: "chooser" | "beginner" | "expert" | "future",
-    remember = true,
-  ) => {
+  const handleWorkflowModeChange = (mode: "beginner" | "expert", remember = true) => {
     setWorkflowMode(mode);
     if (typeof window !== "undefined") {
       try {
-        if (remember && mode !== "chooser") {
+        if (remember) {
           localStorage.setItem("app_workflow_mode", mode);
-        } else if (mode === "chooser") {
-          localStorage.removeItem("app_workflow_mode");
         }
       } catch {
         // ignore
@@ -3259,7 +3251,12 @@ function Index() {
 
     const pendingLangs = Array.from(
       new Set([...targetLanguages, ...favoriteLanguages, ...spoken, ...shown]),
-    ).filter((code) => code !== baseLanguage && !findFetchedSubtitleLanguage(tracks, code));
+    ).filter(
+      (code) =>
+        code !== baseLanguage &&
+        !findFetchedSubtitleLanguage(tracks, code) &&
+        isLanguageSpoken(code, spoken),
+    );
 
     if (pendingLangs.length === 0) return;
 
@@ -3275,6 +3272,18 @@ function Index() {
         sentences: sourceSentences,
         startIndex,
         sentencesAhead: onDemandAheadCount,
+        isSentenceEligibleForTts: (idx) => {
+          const ratio = getLanguageTtsRatio(ttsRatios, targetLang);
+          const pLang = primaryTtsLang || computePrimaryTtsLang(spoken, ttsRatios);
+          const pRatio = pLang ? getLanguageTtsRatio(ttsRatios, pLang) : 1;
+          return isLanguageEligibleForTtsWithRole({
+            rowIdx: idx,
+            langCode: targetLang,
+            ratio,
+            primaryLang: pLang,
+            primaryRatio: pRatio,
+          });
+        },
         onSentenceTranslated: (idx, trans) => {
           if (translationGeneration !== parserTranslationGeneration.current) return;
           if (findFetchedSubtitleLanguage(tracksRef.current, targetLang)) return;
@@ -3307,6 +3316,8 @@ function Index() {
     shown,
     tracks,
     onDemandAheadCount,
+    ttsRatios,
+    primaryTtsLang,
   ]);
 
   const activeCatalog = useMemo(() => {
@@ -4391,18 +4402,6 @@ function Index() {
               type="button"
               size="sm"
               variant="outline"
-              onClick={() => handleWorkflowModeChange("chooser", false)}
-              className="h-6 px-2 text-[11px] font-medium rounded-full border border-border/80 bg-muted/40 text-foreground/80 hover:bg-muted hover:text-foreground flex items-center gap-1 transition-all shrink-0 cursor-pointer"
-              data-testid="choose-path-btn"
-              title="Return to Interface Path Chooser"
-            >
-              <Compass className="h-3 w-3 text-cyan-400" />
-              <span>Choose Path</span>
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
               onClick={() =>
                 handleWorkflowModeChange(workflowMode === "beginner" ? "expert" : "beginner")
               }
@@ -4660,28 +4659,7 @@ function Index() {
       {/* Mode Switcher Header: Toggle between Guided Beginner Mode & Advanced Studio */}
       <ModeSwitcherHeader currentMode={workflowMode} onModeChange={handleWorkflowModeChange} />
 
-      {workflowMode === "chooser" ? (
-        <InterfacePathChooser
-          onSelectPath={(path, remember) => handleWorkflowModeChange(path, remember)}
-          currentPath={workflowMode}
-        />
-      ) : workflowMode === "future" ? (
-        <FutureExperienceContainer
-          videoId={videoId}
-          url={videoInput || (videoId ? `https://www.youtube.com/watch?v=${videoId}` : "")}
-          onUrlChange={(newUrl) => setVideoInput(newUrl)}
-          onSubmitUrl={(submittedUrl) => {
-            const parsed = parseVideoId(submittedUrl);
-            const newId = parsed || submittedUrl.trim();
-            handleSelectLibraryVideo(newId, submittedUrl);
-          }}
-          rawTracks={tracks || {}}
-          baseLanguage={baseLanguage}
-          targetLanguages={targetLanguages}
-          observedUrl={observedUrl}
-          onSwitchPath={() => handleWorkflowModeChange("chooser", false)}
-        />
-      ) : workflowMode === "beginner" ? (
+      {workflowMode === "beginner" ? (
         <BeginnerFlowContainer
           url={videoInput || (videoId ? `https://www.youtube.com/watch?v=${videoId}` : "")}
           videoId={videoId}
@@ -5961,7 +5939,7 @@ function Index() {
                                     className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium opacity-90 cursor-default"
                                   >
                                     <option value="lovable">
-                                      Lovable Speak API (tts2.lovable.app)
+                                      Lovable Speak API (tts3.lovable.app)
                                     </option>
                                   </select>
                                   <a
@@ -6191,7 +6169,7 @@ function Index() {
                                   <p className="text-[10px] text-muted-foreground">
                                     Endpoint:{" "}
                                     <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">
-                                      https://tts2.lovable.app/api/public/tts
+                                      https://tts3.lovable.app/api/public/tts
                                     </code>{" "}
                                     • Provider:{" "}
                                     <span className="font-semibold text-foreground font-mono">
@@ -7384,6 +7362,9 @@ function Index() {
                                                     data-testid={`tts-ratio-preset-${lang.code}-${n}`}
                                                   >
                                                     1:{n}
+                                                    {isPrimary
+                                                      ? " (Primary)"
+                                                      : ` (rel. ${orderedLangs.find((l) => l.code === (primaryTtsLang || spoken[0]))?.name || "Primary"})`}
                                                   </option>
                                                 ))}
                                               </select>

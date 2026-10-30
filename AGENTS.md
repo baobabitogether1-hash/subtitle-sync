@@ -142,11 +142,39 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-the major app success mechanism is already implemented. lets try to come-up with interface which express the good parts and make this app manageble and give the correct respect to the user. 
+Fix the errors in the app
+[AIS_METADATA_SECTION_START]
+fix_it_trigger: manual
+error 0: [APP_BOOT_ERROR] Router rendered ErrorComponent: This page didn't load langCode.trim is not a function
+error 1: [APP_PAGE_ERROR] This page didn't load: langCode.trim is not a function
+error 2: TypeError: langCode.trim is not a function
+    at isLanguageSpoken (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/lib/playback-preferences.ts:134:25)
+    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:95
+    at Array.filter (<anonymous>)
+    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:7
+    at Object.react_stack_bottom_frame (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:14176:13)
+    at runWithFiberInDEV (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:943:66)
+    at commitHookEffectListMount (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6899:153)
+    at commitHookPassiveMountEffects (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6934:55)
+    at commitPassiveMountOnFiber (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:8311:22)
+    at recursivelyTraversePassiveMountEffects (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:8298:313)
+error 3: %o
 
-lets isolate the previous design called "beginner" and "advance"
-create a first default screen where the user will choose a path of which interface to continue on to. then i will ask you to create a "future" design which give the good parts of all words with a clean and fresh look and without any hard-to-govern controls.
+%s
+
+%s TypeError: langCode.trim is not a function
+    at isLanguageSpoken (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/lib/playback-preferences.ts:134:25)
+    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:95
+    at Array.filter (<anonymous>)
+    at https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/src/routes/index.tsx:2569:7
+    at Object.react_stack_bottom_frame (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:14176:13)
+    at runWithFiberInDEV (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:943:66)
+    at commitHookEffectListMount (https://ais-dev-o4fswksomoqcbae6o4fp6v-515898758927.europe-west1.run.app/node_modules/.vite/deps/react-dom_client.js?v=c12424fe:6899:153)
+    ... [3 frames omitted]
+[AIS_METADATA_SECTION_END]
 ```
+
+
 
 
 

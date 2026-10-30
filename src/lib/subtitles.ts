@@ -245,6 +245,12 @@ export interface ParserPreset {
 
 export const PARSER_PRESETS: ParserPreset[] = [
   {
+    id: "speechShort",
+    name: "Short Complete Sentences (TTS)",
+    desc: "Short, complete clauses bound by punctuation (. ? ! , ; :) with zero dangling fragments",
+    criteria: ["sentence", "pause"],
+  },
+  {
     id: "sentencesOnly",
     name: "Pure Sentences",
     desc: "Sentence ends only (. ? !) including punctuation inside cues",

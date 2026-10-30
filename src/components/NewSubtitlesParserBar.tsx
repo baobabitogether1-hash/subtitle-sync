@@ -90,6 +90,18 @@ export function NewSubtitlesParserBar({
 
       {isExpanded && (
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/60 pt-2 text-muted-foreground">
+          {/* Short Complete Sentences (TTS Optimized Clauses) toggle */}
+          <label className="flex items-center gap-1.5 font-semibold text-emerald-600 dark:text-emerald-400 cursor-pointer bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            <input
+              type="checkbox"
+              data-testid="parser-short-complete-sentences-toggle"
+              checked={config.shortCompleteSentences}
+              onChange={() => handleToggle("shortCompleteSentences")}
+              className="h-3.5 w-3.5 rounded border-border accent-emerald-600 cursor-pointer"
+            />
+            <span>Short Complete Sentences (TTS)</span>
+          </label>
+
           {/* Main Dot split toggle */}
           <label className="flex items-center gap-1.5 font-medium text-foreground cursor-pointer">
             <input
@@ -136,6 +148,18 @@ export function NewSubtitlesParserBar({
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
             <span>Split on comma ( , )</span>
+          </label>
+
+          {/* Semicolon & Colon split toggle */}
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <input
+              type="checkbox"
+              data-testid="parser-split-colon-semicolon-toggle"
+              checked={config.splitOnColonSemicolon}
+              onChange={() => handleToggle("splitOnColonSemicolon")}
+              className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
+            />
+            <span>Split on ; and :</span>
           </label>
 
           {/* Intra-cue splitting toggle */}
