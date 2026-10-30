@@ -1,5 +1,38 @@
 # Done tasks
 
+## Task 264: Fix Video Playback Stopped Working & YouTube Player Initialization
+
+- **Video Playback Root Cause Resolution**:
+  - Responded to user report ("video play stop working").
+  - **Root Cause Diagnosed**:
+    - In `src/routes/index.tsx` inside the YouTube player `init()` routine, `playerEl.current.innerHTML = ""` cleared the player container, followed by `const host = document.createElement("div")`.
+    - However, `playerEl.current.appendChild(host)` was never called! `host` remained detached from the DOM tree.
+    - When `new window.YT.Player(host, { ... })` executed on a detached DOM element, the generated YouTube `<iframe>` was created outside the document tree.
+    - Because the iframe was detached:
+      1. No video player was visible on the page (the player container remained completely empty).
+      2. Browsers block video/audio media operations in detached iframes.
+      3. Clicks on the video overlay Play button or controls Play button called `p.playVideo?.()`, which failed or did nothing.
+  - **Fixes Applied**:
+    - `src/routes/index.tsx`: Attached `host` to `playerEl.current` (`playerEl.current.appendChild(host)`) and styled with `host.className = "h-full w-full"`.
+    - `src/routes/index.tsx`: Configured explicit `width: "100%"` and `height: "100%"` in `new window.YT.Player(host, { ... })`.
+    - `src/routes/index.tsx`: Added iframe attachment inspection (`const iframe = player.current.getIframe?.(); const isAttached = Boolean(iframe && playerEl.current.contains(iframe));`) to detect detached instances on container re-renders and cleanly recycle stale player instances.
+    - `src/routes/index.tsx`: Added `initPlayerRef` so `handleTogglePlay` can kickstart/recover player initialization if uninitialized.
+    - `src/routes/index.tsx`: Handled state 0 (ended) in `handleTogglePlay` by rewinding to 0 (`p.seekTo?.(0, true)`) to immediately replay.
+    - `src/routes/index.tsx`: Updated `seek()` to reset `userExplicitlyPausedRef.current = false`, clear `pauseReason`, and set `isVideoPlaying(true)` for smooth playback resumption.
+    - `src/routes/index.tsx`: Updated the guardian interval to verify iframe presence in `playerEl.current`.
+- **Version 2.0.54 Synchronization Across All 5 Targets**:
+  1. `package.json`: `"version": "2.0.54"`, added `"test:video-play-fix"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20054`, `versionName = "2.0.54"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.54"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.54"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.54"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:video-play-fix` (`scripts/verify-video-play-fix.ts`) (100% PASS).
+  - Playback regression suites: `scripts/verify-design-play-buttons.ts`, `scripts/verify-video-playback-controls.ts`, `scripts/verify-stable-video-player-lifecycle.ts`, `scripts/verify-pause-both-video-and-tts.ts` (100% PASS).
+  - Applet compilation: `compile_applet` (Build succeeded).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - Cataloged in `docs/files.md`.
+
 ## Task 262: Fix Android "This page didn't load" Error & Diagnostic Error Screen
 
 - **Android App Runtime Crash Resolution**:

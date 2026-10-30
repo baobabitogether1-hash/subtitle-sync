@@ -1,6 +1,6 @@
 {
   "name": "subtitle-sync",
-  "version": "2.0.53",
+  "version": "2.0.54",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -13,6 +13,7 @@
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "eslint src/lib src/routes",
     "format": "prettier --write .",
+    "test:video-play-fix": "tsx scripts/verify-video-play-fix.ts",
     "test:android-page-error-fix": "tsx scripts/verify-android-page-error-fix.ts",
     "test:compact-preview-space-saving": "tsx scripts/verify-compact-preview-space-saving.ts",
     "test:max-words-per-sentence": "tsx scripts/verify-max-words-per-sentence.ts",

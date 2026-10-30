@@ -2333,6 +2333,7 @@ function Index() {
   const [speechProgress, setSpeechProgress] = useState<SpeechProgress>(null);
   const [subtitlesLimit, setSubtitlesLimit] = useState<number>(() => (isAndroid ? 10 : 0));
   const [subtitlesPage, setSubtitlesPage] = useState<number>(1);
+  const initPlayerRef = useRef<(() => void) | null>(null);
 
   const pauseBothVideoAndTts = useCallback(() => {
     logStateMachineAction("PLAYBACK_PAUSE_REQUESTED", {
@@ -2356,7 +2357,11 @@ function Index() {
   }, [videoId]);
 
   const handleTogglePlay = useCallback(() => {
-    const p = player.current;
+    let p = player.current;
+    if (!p && initPlayerRef.current) {
+      initPlayerRef.current();
+      p = player.current;
+    }
     if (!p) return;
     try {
       const state = p.getPlayerState?.();
@@ -2374,6 +2379,9 @@ function Index() {
         busy.current = false;
         userExplicitlyPausedRef.current = false;
         setPauseReason(null);
+        if (state === 0) {
+          p.seekTo?.(0, true);
+        }
         p.playVideo?.();
         setIsVideoPlaying(true);
       }
@@ -3650,19 +3658,34 @@ function Index() {
       if (player.current && typeof player.current.getPlayerState === "function") {
         try {
           const curVid = player.current.getVideoData?.()?.video_id;
-          if (curVid === videoId) {
-            return;
-          }
-          if (typeof player.current.loadVideoById === "function") {
-            player.current.loadVideoById(videoId);
-            return;
+          const iframe = player.current.getIframe?.();
+          const isAttached = Boolean(iframe && playerEl.current.contains(iframe));
+          if (isAttached) {
+            if (curVid === videoId) {
+              return;
+            }
+            if (typeof player.current.loadVideoById === "function") {
+              player.current.loadVideoById(videoId);
+              return;
+            }
           }
         } catch {
           // ignore error and re-init
         }
       }
+      if (player.current) {
+        try {
+          multiVideoPlayerRegistry.unregister("primary");
+          player.current.destroy?.();
+        } catch {
+          // ignore
+        }
+        player.current = null;
+      }
       playerEl.current.innerHTML = "";
       const host = document.createElement("div");
+      host.className = "h-full w-full";
+      playerEl.current.appendChild(host);
       // Ensure interceptor queue and bridges are active before creating player iframe
       setupEarlyCaptionInterceptor();
       logInterception("Initializing YouTube Player iframe element", {
@@ -3672,6 +3695,8 @@ function Index() {
       if (!window.YT?.Player) return;
       player.current = new window.YT.Player(host, {
         videoId,
+        width: "100%",
+        height: "100%",
         playerVars: {
           rel: 0,
           autoplay: isAndroid ? 1 : 0,
@@ -3747,6 +3772,7 @@ function Index() {
         multiVideoPlayerRegistry.register("primary", player.current);
       }
     };
+    initPlayerRef.current = init;
     if (window.YT?.Player) {
       init();
     } else {
@@ -3758,7 +3784,11 @@ function Index() {
       }
     }
     const iv = setInterval(async () => {
-      if (!player.current && playerEl.current && window.YT?.Player) {
+      if (
+        (!player.current || !playerEl.current?.querySelector("iframe")) &&
+        playerEl.current &&
+        window.YT?.Player
+      ) {
         init();
       }
       const p = player.current;
@@ -4026,6 +4056,7 @@ function Index() {
       }
     }, 150);
     return () => {
+      initPlayerRef.current = null;
       clearInterval(iv);
       cancelSpeech();
       multiVideoPlayerRegistry.unregister("primary");
@@ -4162,6 +4193,9 @@ function Index() {
   const seek = (r: Row, i: number) => {
     cancelSpeech();
     busy.current = false;
+    userExplicitlyPausedRef.current = false;
+    setPauseReason(null);
+    setIsVideoPlaying(true);
     lastRow.current = i;
     handledRow.current = -1;
     playedTtsRecords.current.delete(getPlaybackSectionId(r));
