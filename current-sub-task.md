@@ -4,4 +4,4 @@
 - **Active Task**: None
 - **Active Subtask**: None
 - **Target Files**: None
-- **Validation**: All active tasks from the current prompt are complete and verified; delivery commit and push are performed in this turn.
+- **Validation**: The remaining lockfile is synchronized with package.json and will be included in the requested follow-up commit/push.

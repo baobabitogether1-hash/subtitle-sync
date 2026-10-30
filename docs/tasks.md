@@ -4,7 +4,7 @@ This file is strictly the active backlog containing pending, active, and upcomin
 
 ## Active Tasks
 
-*(No active tasks pending. All numbered items from the current prompt are completed; Task 5 remains in Later Tasks as explicitly requested.)*
+*(No active tasks pending. All numbered items from the current prompt are completed.)*
 
 ## Later Tasks
 

@@ -150,5 +150,5 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-git commit and push after tasks accomplished
+there is 1 file not comited yet and not pushed
 ```
