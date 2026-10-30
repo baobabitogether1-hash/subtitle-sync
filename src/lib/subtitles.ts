@@ -811,6 +811,7 @@ export {
   simpleAlign,
   splitCuesIntoSentences,
   buildSplitRegex,
+  countWords,
   DEFAULT_SIMPLE_PARSER_CONFIG,
   type SimpleParserConfig,
   type SplitSegment,

@@ -397,12 +397,33 @@ export function getFavoriteLanguages(): string[] {
     const raw = localStorage.getItem(FAVORITE_LANGUAGES_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed
+          .map((item: unknown) =>
+            typeof item === "string"
+              ? item.trim()
+              : item && typeof item === "object" && "code" in item && typeof (item as { code?: unknown }).code === "string"
+                ? (item as { code: string }).code.trim()
+                : "",
+          )
+          .filter((s): s is string => typeof s === "string" && s.length > 0);
+      }
     }
   } catch {
     // fallback
   }
-  return getUserLearningLanguages();
+  const learning = getUserLearningLanguages();
+  return Array.isArray(learning)
+    ? learning
+        .map((item: unknown) =>
+          typeof item === "string"
+            ? item.trim()
+            : item && typeof item === "object" && "code" in item && typeof (item as { code?: unknown }).code === "string"
+              ? (item as { code: string }).code.trim()
+              : "",
+        )
+        .filter((s): s is string => typeof s === "string" && s.length > 0)
+    : [];
 }
 
 /**
@@ -486,7 +507,7 @@ export function exportFullAppState(extraStatus?: Record<string, any>): string {
 
   const snapshot: AppStateSnapshot = {
     exportedAt: new Date().toISOString(),
-    version: "2.0.46",
+    version: "2.0.50",
     settings: currentSettings,
     videoSettings: allVideoSettings,
     status: {

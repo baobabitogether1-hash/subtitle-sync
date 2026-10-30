@@ -118,6 +118,17 @@ export interface SplitSegment {
 }
 
 /**
+ * Counts whitespace-delimited words in a string.
+ */
+export function countWords(text: string): number {
+  if (!text || !text.trim()) return 0;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((token) => token.length > 0).length;
+}
+
+/**
  * Splits each native timed cue independently so parser output never crosses cue boundaries.
  * Grabs grammatically complete sentence/clause units bounded by punctuation (e.g. XXX, YYY? ZZ -> XXX, YYY?, ZZ).
  * Rejects anti-patterns like "XXX, Y" or "Y? ZZ" by strictly requiring whole-clause boundaries.
@@ -200,6 +211,15 @@ export function splitCuesIntoSentences(
       cueSegments[cueSegments.length - 1]!.end = cueEnd;
       segments.push(...cueSegments);
     }
+  }
+
+  // User-defined max words per sentence filter: discard sentences exceeding word count limit
+  if (
+    config.enabled &&
+    typeof config.maxWordsPerSentence === "number" &&
+    config.maxWordsPerSentence > 0
+  ) {
+    return segments.filter((seg) => countWords(seg.text) <= config.maxWordsPerSentence);
   }
 
   return segments;

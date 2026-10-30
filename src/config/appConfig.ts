@@ -4,13 +4,13 @@ import { LibraryVideoItem } from "../types";
  * Global Application Configuration & Default Settings
  */
 
-export const APP_VERSION = "2.0.47";
+export const APP_VERSION = "2.0.50";
 export const APP_COMMIT_ID =
   (typeof process !== "undefined" && process.env?.VITE_COMMIT_SHA) ||
   (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_COMMIT_SHA) ||
   "c192f44";
 export const APP_VERSION_DESCRIPTION =
-  "Hotfix: Fix isLanguageSpoken TypeError and parameter ordering resilience (Version 2.0.47)";
+  "Apply compact space-saving styles and collapsible preview to Sanitization Live Preview in Chars Removal Accordion (Version 2.0.50)";
 
 export const ALL_RELEASES_URL = "https://github.com/mostuf2556/subtitle-sync/releases";
 

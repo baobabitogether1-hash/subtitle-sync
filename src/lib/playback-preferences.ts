@@ -3,8 +3,27 @@
 export type SubtitleRequestMode = "tlang" | "lang";
 export type SectionOrder = "video-first" | "tts-first";
 
-export const isTtsSpeakableLanguage = (languageCode: string, baseLanguage: string): boolean =>
-  !baseLanguage || languageCode !== baseLanguage;
+export const isTtsSpeakableLanguage = (languageCode: unknown, baseLanguage: unknown): boolean => {
+  const code =
+    typeof languageCode === "string"
+      ? languageCode.trim()
+      : languageCode &&
+          typeof languageCode === "object" &&
+          "code" in languageCode &&
+          typeof (languageCode as { code?: unknown }).code === "string"
+        ? (languageCode as { code: string }).code.trim()
+        : "";
+  const base =
+    typeof baseLanguage === "string"
+      ? baseLanguage.trim()
+      : baseLanguage &&
+          typeof baseLanguage === "object" &&
+          "code" in baseLanguage &&
+          typeof (baseLanguage as { code?: unknown }).code === "string"
+        ? (baseLanguage as { code: string }).code.trim()
+        : "";
+  return !base || code !== base;
+};
 
 const KEYS = {
   requestMode: "yt_subtitle_request_mode_v1",
@@ -124,18 +143,58 @@ export const setTtsRatePreference = (langCode: string, rate: number) => {
 };
 
 /**
+ * Extracts a normalized string language code from string or object ({ code, lang, value }).
+ */
+export function extractLanguageCodeString(val: unknown): string {
+  if (typeof val === "string") return val.trim();
+  if (val && typeof val === "object") {
+    if ("code" in val && typeof (val as { code?: unknown }).code === "string") {
+      return (val as { code: string }).code.trim();
+    }
+    if ("lang" in val && typeof (val as { lang?: unknown }).lang === "string") {
+      return (val as { lang: string }).lang.trim();
+    }
+    if ("value" in val && typeof (val as { value?: unknown }).value === "string") {
+      return (val as { value: string }).value.trim();
+    }
+  }
+  return "";
+}
+
+/**
+ * Normalizes an array or single value into a clean list of language code strings.
+ */
+export function extractLanguageCodeList(val: unknown): string[] {
+  if (Array.isArray(val)) {
+    return val.map(extractLanguageCodeString).filter((s) => s.length > 0);
+  }
+  if (typeof val === "string") {
+    const s = val.trim();
+    return s.length > 0 ? [s] : [];
+  }
+  if (val && typeof val === "object") {
+    const s = extractLanguageCodeString(val);
+    return s.length > 0 ? [s] : [];
+  }
+  return [];
+}
+
+/**
  * Normalizes language codes to lookup the configured TTS ratio.
  * Resolves aliases (e.g. "iw" <-> "he", "il" <-> "he") and dialect prefixes (e.g. "pt-BR" <-> "pt", "en-US" <-> "en").
  */
 export function getLanguageTtsRatio(
   ratios: Record<string, number> | undefined | null,
-  langCode: string,
+  langCode: unknown,
 ): number {
   if (!ratios || !langCode) return 1;
-  if (typeof ratios[langCode] === "number" && ratios[langCode] > 0) {
-    return Math.max(1, Math.round(ratios[langCode]));
+  const targetCode = extractLanguageCodeString(langCode);
+  if (!targetCode) return 1;
+
+  if (typeof ratios[targetCode] === "number" && ratios[targetCode] > 0) {
+    return Math.max(1, Math.round(ratios[targetCode]));
   }
-  const clean = langCode.trim().toLowerCase();
+  const clean = targetCode.toLowerCase();
   if (typeof ratios[clean] === "number" && ratios[clean] > 0) {
     return Math.max(1, Math.round(ratios[clean]));
   }
@@ -166,45 +225,52 @@ export function getLanguageTtsRatio(
 /**
  * Checks whether a language code is included in the list of spoken languages,
  * normalizing Hebrew aliases ("iw", "il", "he") and dialect codes ("pt-BR" <-> "pt").
+ * Resilient to argument ordering (targetCode, spokenList) or (spokenList, targetCode).
  */
-export function isLanguageSpoken(
-  langCode: string | readonly string[] | undefined | null,
-  spokenLangs: readonly string[] | string | undefined | null,
-): boolean {
-  if (!langCode || !spokenLangs) return false;
+export function isLanguageSpoken(arg1: unknown, arg2: unknown): boolean {
+  if (!arg1 || !arg2) return false;
 
-  let actualCode: string;
-  let actualList: readonly string[];
+  let targetCode = "";
+  let list: string[] = [];
 
-  if (typeof langCode === "string" && Array.isArray(spokenLangs)) {
-    actualCode = langCode;
-    actualList = spokenLangs;
-  } else if (Array.isArray(langCode) && typeof spokenLangs === "string") {
-    actualCode = spokenLangs;
-    actualList = langCode;
-  } else if (typeof langCode === "string" && typeof spokenLangs === "string") {
-    actualCode = langCode;
-    actualList = [spokenLangs];
+  if (Array.isArray(arg1) && !Array.isArray(arg2)) {
+    // Called as isLanguageSpoken(spokenList, targetCode)
+    list = extractLanguageCodeList(arg1);
+    targetCode = extractLanguageCodeString(arg2);
+  } else if (!Array.isArray(arg1) && Array.isArray(arg2)) {
+    // Called as isLanguageSpoken(targetCode, spokenList)
+    targetCode = extractLanguageCodeString(arg1);
+    list = extractLanguageCodeList(arg2);
+  } else if (Array.isArray(arg1) && Array.isArray(arg2)) {
+    // Both are arrays - check if any intersects
+    const list1 = extractLanguageCodeList(arg1);
+    const list2 = extractLanguageCodeList(arg2);
+    return list1.some((c) => isLanguageSpoken(c, list2));
   } else {
-    return false;
+    // Both are single items/strings/objects
+    targetCode = extractLanguageCodeString(arg1);
+    list = extractLanguageCodeList(arg2);
   }
 
-  if (actualList.includes(actualCode)) return true;
-  const clean = actualCode.trim().toLowerCase();
-  if (actualList.some((s) => typeof s === "string" && s.toLowerCase() === clean)) return true;
+  if (!targetCode || list.length === 0) return false;
+
+  if (list.includes(targetCode)) return true;
+  const clean = targetCode.toLowerCase();
+  if (list.some((s) => s.toLowerCase() === clean)) return true;
+
   if (clean === "iw" || clean === "il") {
-    if (actualList.some((s) => typeof s === "string" && s.toLowerCase() === "he")) return true;
+    if (list.some((s) => s.toLowerCase() === "he")) return true;
   } else if (clean === "he") {
-    if (actualList.some((s) => typeof s === "string" && (s.toLowerCase() === "iw" || s.toLowerCase() === "il"))) return true;
+    if (list.some((s) => s.toLowerCase() === "iw" || s.toLowerCase() === "il")) return true;
   }
+
   const base = clean.split("-")[0];
   if (
     base &&
-    actualList.some(
-      (s) =>
-        typeof s === "string" &&
-        (s.toLowerCase() === base || s.toLowerCase().startsWith(`${base}-`)),
-    )
+    list.some((s) => {
+      const lower = s.toLowerCase();
+      return lower === base || lower.startsWith(`${base}-`);
+    })
   ) {
     return true;
   }

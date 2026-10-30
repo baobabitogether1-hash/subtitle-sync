@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Scissors, Settings2, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { SimpleParserConfig, DEFAULT_SIMPLE_PARSER_CONFIG } from "@/utils/newSubtitlesParser";
+import { MaxWordsPerSentenceInput } from "@/components/shared/MaxWordsPerSentenceInput";
 
 export interface NewSubtitlesParserBarProps {
   config: SimpleParserConfig;
@@ -101,6 +102,13 @@ export function NewSubtitlesParserBar({
             />
             <span>Short Complete Sentences (TTS)</span>
           </label>
+
+          {/* Max Words Per Sentence input */}
+          <MaxWordsPerSentenceInput
+            compact
+            value={config.maxWordsPerSentence ?? 10}
+            onChange={(val) => onChange({ ...config, maxWordsPerSentence: val })}
+          />
 
           {/* Main Dot split toggle */}
           <label className="flex items-center gap-1.5 font-medium text-foreground cursor-pointer">
