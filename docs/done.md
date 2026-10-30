@@ -1,5 +1,28 @@
 # Done tasks
 
+## Task 265: Fix TTS Service URL and Direct Google TTS
+
+- **TTS Service URL Fix**:
+  - Updated Lovable TTS base URL and endpoints in `src/lib/alternative-tts.ts` to `https://tts3.lovable.app` and `https://tts3.lovable.app/api/public/tts` (matching OpenAPI 3.1.0 at `https://tts3.lovable.app/api/public/openapi.json`).
+- **Direct Google TTS Support**:
+  - Maintained direct Google TTS playback without failing through remote proxy via `buildGoogleTranslateTtsUrl` and engine selection (`AlternativeTtsEngine`: `"lovable"` | `"google_translate"`).
+  - Provided direct alternative TTS engine selection controls across Beginner mode (`BeginnerPreferencesTab.tsx`, `BeginnerTtsServiceControl.tsx`) and Advanced mode (`src/routes/index.tsx`).
+  - Added headless fallback in `src/lib/alternative-tts.ts` storage helpers for `getAlternativeTtsEngine` and `setAlternativeTtsEngine`.
+- **Test Modernization & Parity**:
+  - Updated version validation in `scripts/verify-lovable-tts-ui.ts` and `scripts/verify-lovable-tts-service-preference.ts` to support version >= 1.0.68 dynamically across v2+.
+  - Created dedicated automated test `scripts/verify-tts-service-url-and-direct-google-tts.ts`.
+- **Version 2.0.55 Synchronization Across All 5 Targets**:
+  1. `package.json`: `"version": "2.0.55"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20055`, `versionName = "2.0.55"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.55"`, `APP_VERSION_DESCRIPTION = "Fix TTS service URL and direct Google TTS (Version 2.0.55)"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.55"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.55"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npx tsx scripts/verify-tts-service-url-and-direct-google-tts.ts` (100% PASS).
+  - Related test suites: `verify-lovable-alternative-tts.ts`, `verify-lovable-tts-ui.ts`, `verify-lovable-tts-service-preference.ts`, `verify-v2-version-bump.ts` (100% PASS).
+  - Applet compilation: `compile_applet` (Build succeeded).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+
 ## Task 264: Fix Video Playback Stopped Working & YouTube Player Initialization
 
 - **Video Playback Root Cause Resolution**:

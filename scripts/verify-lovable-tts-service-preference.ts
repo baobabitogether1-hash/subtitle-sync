@@ -171,18 +171,25 @@ const gradleContent = fs.readFileSync(
   path.join(rootDir, "android-shell/app/build.gradle.kts"),
   "utf-8",
 );
+const gradleVersionMatch = gradleContent.match(/versionName\s*=\s*"([^"]+)"/);
+assert.ok(gradleVersionMatch, "build.gradle.kts must have versionName");
+const [gMaj, gMin, gPatch] = gradleVersionMatch[1].split(".").map(Number);
 assert.ok(
-  /versionName = "1\.0\.\d+"/.test(gradleContent),
+  gMaj > 1 || (gMaj === 1 && (gMin > 0 || (gMin === 0 && gPatch >= 68))),
   "build.gradle.kts versionName must be >= 1.0.68",
 );
+const gradleCodeMatch = gradleContent.match(/versionCode\s*=\s*(\d+)/);
 assert.ok(
-  /versionCode = 10\d+/.test(gradleContent),
+  gradleCodeMatch && Number(gradleCodeMatch[1]) >= 10068,
   "build.gradle.kts versionCode must be >= 10068",
 );
 
 const settingsContent = fs.readFileSync(path.join(rootDir, "src/utils/appSettings.ts"), "utf-8");
+const settingsVersionMatch = settingsContent.match(/version:\s*"([^"]+)"/);
+assert.ok(settingsVersionMatch, "appSettings.ts snapshot version must exist");
+const [sMaj, sMin, sPatch] = settingsVersionMatch[1].split(".").map(Number);
 assert.ok(
-  /version: "1\.0\.\d+"/.test(settingsContent),
+  sMaj > 1 || (sMaj === 1 && (sMin > 0 || (sMin === 0 && sPatch >= 68))),
   "appSettings.ts snapshot version must be >= 1.0.68",
 );
 

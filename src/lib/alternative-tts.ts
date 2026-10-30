@@ -338,13 +338,17 @@ export function buildAlternativeTtsUrl(
   return buildGoogleTranslateTtsUrl(text, lang);
 }
 
+const memoryFallbackStore: Record<string, string> = {};
+
 /**
  * Retrieves whether the alternative TTS service is enabled (off by default).
  */
 export function getUseAlternativeTts(): boolean {
-  if (typeof window === "undefined") return false;
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_USE_ALTERNATIVE_TTS);
+    const stored =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem(STORAGE_KEY_USE_ALTERNATIVE_TTS)
+        : memoryFallbackStore[STORAGE_KEY_USE_ALTERNATIVE_TTS];
     return stored === "true";
   } catch {
     return false;
@@ -355,21 +359,26 @@ export function getUseAlternativeTts(): boolean {
  * Stores whether the alternative TTS service is enabled.
  */
 export function setUseAlternativeTts(enabled: boolean): void {
-  if (typeof window === "undefined") return;
+  const val = enabled ? "true" : "false";
   try {
-    localStorage.setItem(STORAGE_KEY_USE_ALTERNATIVE_TTS, enabled ? "true" : "false");
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEY_USE_ALTERNATIVE_TTS, val);
+    }
   } catch (err) {
     console.warn("Failed to persist alternative TTS setting:", err);
   }
+  memoryFallbackStore[STORAGE_KEY_USE_ALTERNATIVE_TTS] = val;
 }
 
 /**
  * Retrieves the alternative TTS mode: "fallback_only" (default) or "always".
  */
 export function getAlternativeTtsMode(): AlternativeTtsMode {
-  if (typeof window === "undefined") return "fallback_only";
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_ALTERNATIVE_TTS_MODE);
+    const stored =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem(STORAGE_KEY_ALTERNATIVE_TTS_MODE)
+        : memoryFallbackStore[STORAGE_KEY_ALTERNATIVE_TTS_MODE];
     if (stored === "always" || stored === "fallback_only") {
       return stored;
     }
@@ -383,21 +392,25 @@ export function getAlternativeTtsMode(): AlternativeTtsMode {
  * Persists the alternative TTS mode.
  */
 export function setAlternativeTtsMode(mode: AlternativeTtsMode): void {
-  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY_ALTERNATIVE_TTS_MODE, mode);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEY_ALTERNATIVE_TTS_MODE, mode);
+    }
   } catch (err) {
     console.warn("Failed to persist alternative TTS mode:", err);
   }
+  memoryFallbackStore[STORAGE_KEY_ALTERNATIVE_TTS_MODE] = mode;
 }
 
 /**
  * Retrieves the configured Alternative TTS Engine: "lovable" (default) or "google_translate".
  */
 export function getAlternativeTtsEngine(): AlternativeTtsEngine {
-  if (typeof window === "undefined") return "lovable";
   try {
-    const stored = localStorage.getItem(STORAGE_KEY_ALTERNATIVE_TTS_ENGINE);
+    const stored =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem(STORAGE_KEY_ALTERNATIVE_TTS_ENGINE)
+        : memoryFallbackStore[STORAGE_KEY_ALTERNATIVE_TTS_ENGINE];
     if (stored === "google_translate" || stored === "lovable") {
       return stored;
     }
@@ -411,12 +424,14 @@ export function getAlternativeTtsEngine(): AlternativeTtsEngine {
  * Persists the Alternative TTS Engine choice.
  */
 export function setAlternativeTtsEngine(engine: AlternativeTtsEngine): void {
-  if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY_ALTERNATIVE_TTS_ENGINE, engine);
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(STORAGE_KEY_ALTERNATIVE_TTS_ENGINE, engine);
+    }
   } catch (err) {
     console.warn("Failed to persist alternative TTS engine:", err);
   }
+  memoryFallbackStore[STORAGE_KEY_ALTERNATIVE_TTS_ENGINE] = engine;
 }
 
 /**
@@ -484,11 +499,6 @@ export function setLovableTtsVoice(voice: string): void {
   }
   memoryFallbackStore[STORAGE_KEY_ALTERNATIVE_TTS_LOVABLE_VOICE] = v;
 }
-
-/**
- * Retrieves the configured Lovable TTS speed multiplier (0.25 to 4.0, defaults to 1.0).
- */
-const memoryFallbackStore: Record<string, string> = {};
 
 /**
  * Retrieves the configured Lovable TTS speed multiplier (0.25 to 4.0, defaults to 1.0).
