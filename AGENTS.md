@@ -141,11 +141,5 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-fix tts service url and direct google tts - grab the implementation from here:
-
-https://github.com/mostuf2556/subtitle-sync/compare/main...brownman556:subtitle-sync:main
+go on
 ```
-
-
-
-

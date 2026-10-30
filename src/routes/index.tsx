@@ -1108,8 +1108,8 @@ function Index() {
   const [alternativeTtsModeState, setAlternativeTtsModeState] = useState<AlternativeTtsMode>(() =>
     typeof window !== "undefined" ? getAlternativeTtsMode() : "fallback_only",
   );
-  const [alternativeTtsEngineState, setAlternativeTtsEngineState] = useState<AlternativeTtsEngine>(() =>
-    typeof window !== "undefined" ? getAlternativeTtsEngine() : "lovable",
+  const [alternativeTtsEngineState, setAlternativeTtsEngineState] = useState<AlternativeTtsEngine>(
+    () => (typeof window !== "undefined" ? getAlternativeTtsEngine() : "lovable"),
   );
   const [lovableTtsProviderState, setLovableTtsProviderState] = useState<LovableTtsProvider>(() =>
     typeof window !== "undefined" ? getLovableTtsProvider() : "google",

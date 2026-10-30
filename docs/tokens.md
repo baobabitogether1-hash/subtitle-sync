@@ -4,7 +4,7 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 265: Fix TTS Service URL and Direct Google TTS)
+### Prompt Token Economy Flow (Task 265: Fix TTS Service URL and Direct Google TTS)
 
 - **Prompt Objective**:
   1. Fix TTS service URL and endpoints: ensure `LOVABLE_TTS_BASE_URL = "https://tts3.lovable.app"` and `LOVABLE_TTS_ENDPOINT = "https://tts3.lovable.app/api/public/tts"`.
@@ -13,7 +13,7 @@ This document establishes the lightweight, high-efficiency operational protocol 
   4. Fix legacy test assertions in `verify-lovable-alternative-tts.ts`, `verify-lovable-tts-ui.ts`, and `verify-lovable-tts-service-preference.ts`.
   5. Synchronize app version to `2.0.55` across all 5 files (`package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, `src/utils/appSettings.ts`).
   6. Implement dedicated automated test `scripts/verify-tts-service-url-and-direct-google-tts.ts`.
-- **Status**: Active (In Progress).
+- **Status**: Completed (All subtasks verified & passing 100%).
 - **App Version**: `2.0.55`.
 
 ---

@@ -4,13 +4,13 @@ import { LibraryVideoItem } from "../types";
  * Global Application Configuration & Default Settings
  */
 
-export const APP_VERSION = "2.0.54";
+export const APP_VERSION = "2.0.55";
 export const APP_COMMIT_ID =
   (typeof process !== "undefined" && process.env?.VITE_COMMIT_SHA) ||
   (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_COMMIT_SHA) ||
   "b845e21";
 export const APP_VERSION_DESCRIPTION =
-  "Fix video playback iframe attachment and YouTube player initialization (Version 2.0.54)";
+  "Fix TTS service URL and direct Google TTS (Version 2.0.55)";
 
 export const ALL_RELEASES_URL = "https://github.com/mostuf2556/subtitle-sync/releases";
 
