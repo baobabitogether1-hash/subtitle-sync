@@ -158,6 +158,8 @@ import {
   setUseAlternativeTts,
   getAlternativeTtsMode,
   setAlternativeTtsMode,
+  getAlternativeTtsEngine,
+  setAlternativeTtsEngine,
   getLovableTtsProvider,
   setLovableTtsProvider,
   getLovableTtsVoice,
@@ -174,6 +176,7 @@ import {
   LOVABLE_VOICES,
   OPENROUTER_VOICES,
   type AlternativeTtsMode,
+  type AlternativeTtsEngine,
   type LovableTtsProvider,
 } from "@/lib/alternative-tts";
 import {
@@ -435,6 +438,7 @@ function speak(
       const normalizedRate = Math.max(0.3, Math.min(1.5, rate || 0.5));
       const useAltTts = typeof window !== "undefined" && getUseAlternativeTts();
       const altTtsMode = typeof window !== "undefined" ? getAlternativeTtsMode() : "fallback_only";
+      const altEngine = typeof window !== "undefined" ? getAlternativeTtsEngine() : "lovable";
       // Use the native speech rate setting directly (no separate extra speed rate)
       const altSpeed = normalizedRate;
       const altProvider = typeof window !== "undefined" ? getLovableTtsProvider() : "google";
@@ -461,7 +465,7 @@ function speak(
                 end: Math.round((pct / 100) * text.length),
               });
             },
-            "lovable",
+            altEngine,
             {
               provider: altProvider,
               voice: altVoice,
@@ -533,7 +537,7 @@ function speak(
                           end: Math.round((pct / 100) * text.length),
                         });
                       },
-                      "lovable",
+                      altEngine,
                       {
                         provider: altProvider || "google",
                         voice: altVoice,
@@ -579,7 +583,7 @@ function speak(
                     end: Math.round((pct / 100) * text.length),
                   });
                 },
-                "lovable",
+                altEngine,
                 {
                   provider: altProvider || "google",
                   voice: altVoice,
@@ -618,7 +622,7 @@ function speak(
                   end: Math.round((pct / 100) * text.length),
                 });
               },
-              "lovable",
+              altEngine,
               {
                 provider: altProvider,
                 voice: altVoice,
@@ -1103,6 +1107,9 @@ function Index() {
   );
   const [alternativeTtsModeState, setAlternativeTtsModeState] = useState<AlternativeTtsMode>(() =>
     typeof window !== "undefined" ? getAlternativeTtsMode() : "fallback_only",
+  );
+  const [alternativeTtsEngineState, setAlternativeTtsEngineState] = useState<AlternativeTtsEngine>(() =>
+    typeof window !== "undefined" ? getAlternativeTtsEngine() : "lovable",
   );
   const [lovableTtsProviderState, setLovableTtsProviderState] = useState<LovableTtsProvider>(() =>
     typeof window !== "undefined" ? getLovableTtsProvider() : "google",
@@ -4969,7 +4976,8 @@ function Index() {
               service={
                 useAlternativeTtsState &&
                 alternativeTtsModeState === "always" &&
-                lovableTtsProviderState === "google"
+                (lovableTtsProviderState === "google" ||
+                  alternativeTtsEngineState === "google_translate")
                   ? "google"
                   : "native"
               }
@@ -4977,6 +4985,8 @@ function Index() {
                 if (service === "google") {
                   setLovableTtsProviderState("google");
                   setLovableTtsProvider("google");
+                  setAlternativeTtsEngineState("google_translate");
+                  setAlternativeTtsEngine("google_translate");
                   setAlternativeTtsModeState("always");
                   setAlternativeTtsMode("always");
                   setUseAlternativeTtsState(true);
@@ -6019,12 +6029,19 @@ function Index() {
                                   </span>
                                   <select
                                     data-testid="alternative-tts-engine-select"
-                                    value="lovable"
-                                    disabled
-                                    className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium opacity-90 cursor-default"
+                                    value={alternativeTtsEngineState}
+                                    onChange={(e) => {
+                                      const val = e.target.value as AlternativeTtsEngine;
+                                      setAlternativeTtsEngineState(val);
+                                      setAlternativeTtsEngine(val);
+                                    }}
+                                    className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium transition-all focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                                   >
                                     <option value="lovable">
                                       Lovable Speak API (tts3.lovable.app)
+                                    </option>
+                                    <option value="google_translate">
+                                      Google TTS (Direct translate_tts)
                                     </option>
                                   </select>
                                   <a

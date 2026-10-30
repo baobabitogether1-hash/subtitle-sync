@@ -35,8 +35,8 @@ const rootDir = process.cwd();
 
 // Test 1: Service Provider & Voice Types Catalog
 console.log("\n📦 Test 1: Provider 'lovable' & Voice Types Dropdown Catalog...");
-assert.equal(LOVABLE_TTS_BASE_URL, "https://tts2.lovable.app");
-assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts2.lovable.app/api/public/tts");
+assert.equal(LOVABLE_TTS_BASE_URL, "https://tts3.lovable.app");
+assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts3.lovable.app/api/public/tts");
 assert.deepEqual(
   Array.from(LOVABLE_VOICES),
   ["Kore", "Puck", "Charon", "Fenrir", "Aoede"],
@@ -61,7 +61,7 @@ const generatedUrl = buildLovableTtsUrl(sampleText, sampleLang, {
 });
 
 const parsedUrl = new URL(generatedUrl);
-assert.equal(parsedUrl.origin, "https://tts2.lovable.app");
+assert.equal(parsedUrl.origin, "https://tts3.lovable.app");
 assert.equal(parsedUrl.pathname, "/api/public/tts");
 assert.equal(parsedUrl.searchParams.get("provider"), "lovable");
 assert.equal(parsedUrl.searchParams.get("lang"), sampleLang);

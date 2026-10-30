@@ -20,11 +20,11 @@ const rootDir = process.cwd();
 
 // Section 1: API Constants & OpenAPI 3.1.0 Endpoint
 console.log("\n🌐 Section 1: OpenAPI 3.1.0 Constants & Endpoints");
-assert.equal(LOVABLE_TTS_BASE_URL, "https://tts2.lovable.app");
-assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts2.lovable.app/api/public/tts");
+assert.equal(LOVABLE_TTS_BASE_URL, "https://tts3.lovable.app");
+assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts3.lovable.app/api/public/tts");
 assert.equal(
   LOVABLE_TTS_OPENAPI_URL,
-  "https://tts2.lovable.app/api/public/openapi.json",
+  "https://tts3.lovable.app/api/public/openapi.json",
   "Must point directly to the requested OpenAPI 3.1.0 specification",
 );
 assert.deepEqual(Array.from(LOVABLE_TTS_PROVIDERS), ["google", "lovable", "openrouter"]);

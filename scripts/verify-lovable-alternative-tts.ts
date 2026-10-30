@@ -24,11 +24,11 @@ console.log("=== Verifying Lovable Speak API Alternative TTS Service ===");
 
 // 1. Verify OpenAPI URLs and Endpoints
 console.log("1. Checking API constants and endpoints...");
-assert.equal(LOVABLE_TTS_BASE_URL, "https://tts2.lovable.app");
-assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts2.lovable.app/api/public/tts");
+assert.equal(LOVABLE_TTS_BASE_URL, "https://tts3.lovable.app");
+assert.equal(LOVABLE_TTS_ENDPOINT, "https://tts3.lovable.app/api/public/tts");
 assert.equal(
   LOVABLE_TTS_OPENAPI_URL,
-  "https://tts2.lovable.app/api/public/openapi.json",
+  "https://tts3.lovable.app/api/public/openapi.json",
   "Must point to the exact OpenAPI specification requested by user",
 );
 assert.equal(GOOGLE_TRANSLATE_TTS_ENDPOINT, "https://translate.google.com/translate_tts");
@@ -48,7 +48,7 @@ assert.equal(normalizeLanguageCode("zh-TW"), "zh-TW");
 console.log("3. Checking Lovable Speak API URL generation...");
 const testUrl = buildLovableTtsUrl("Hello world", "en");
 const parsed = new URL(testUrl);
-assert.equal(parsed.origin, "https://tts2.lovable.app");
+assert.equal(parsed.origin, "https://tts3.lovable.app");
 assert.equal(parsed.pathname, "/api/public/tts");
 assert.equal(parsed.searchParams.get("text"), "Hello world");
 assert.equal(parsed.searchParams.get("lang"), "en");
@@ -78,7 +78,7 @@ assert.ok(gUrl.includes("q=Hello%20world"));
 // 6. Alternative TTS Engine Dispatch
 console.log("6. Checking engine dispatch logic...");
 const lovableEngineUrl = buildAlternativeTtsUrl("Sample phrase", "he", "lovable");
-assert.ok(lovableEngineUrl.startsWith("https://tts2.lovable.app/api/public/tts"));
+assert.ok(lovableEngineUrl.startsWith("https://tts3.lovable.app/api/public/tts"));
 assert.ok(lovableEngineUrl.includes("lang=he"));
 
 const googleEngineUrl = buildAlternativeTtsUrl("Sample phrase", "he", "google_translate");
