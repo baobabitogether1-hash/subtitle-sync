@@ -4,17 +4,16 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 250: Completed)
+### Active Prompt Token Economy Flow (Hotfix Task 253: Fix isLanguageSpoken TypeError)
 
-- **Prompt Objective**: Isolate previous "beginner" and "advance" designs and create a first default screen where the user chooses their interface path:
-  - Created `src/components/portal/InterfacePathChooser.tsx` offering Beginner, Advanced, and Future paths.
-  - Isolated Beginner and Advanced designs, updating `src/routes/index.tsx` so `"chooser"` mode acts as the default entry portal while preserving direct access to all modes.
-  - Added dedicated "Choose Path" button in the header (`data-testid="choose-path-btn"`) alongside 1-click `data-testid="header-mode-toggle"`.
-  - Built `src/components/future/FutureExperienceContainer.tsx` previewing the clean immersion stage.
-  - Synchronized app version to `2.0.43` across all 5 version files.
-  - Verified 100% pass on dedicated automated test suite, `compile_applet`, `lint_applet`, and production build.
-- **Current Status**: All prompt tasks completed and migrated to `docs/done.md`. Backlog is clear.
-- **App Version**: Synchronized to `2.0.43` across all 5 version files.
+- **Prompt Objective**:
+  1. Fix `TypeError: langCode.trim is not a function` at `isLanguageSpoken`.
+  2. Defensively handle argument ordering in `isLanguageSpoken(langCode, spokenLangs)` or `(spokenLangs, langCode)`.
+  3. Fix reversed arguments call in `src/routes/index.tsx` line 3258: `isLanguageSpoken(code, spoken)`.
+  4. Author dedicated automated test `scripts/verify-is-language-spoken-hotfix.ts`.
+  5. Synchronize app version to `2.0.47` across all 5 targets.
+- **Status**: Hotfix Active.
+- **App Version**: Bumping to `2.0.47`.
 
 ---
 

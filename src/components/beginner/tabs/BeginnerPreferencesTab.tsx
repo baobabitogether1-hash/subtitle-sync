@@ -560,7 +560,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
                 disabled
                 className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground font-medium opacity-90 cursor-default"
               >
-                <option value="lovable">Lovable Speak API (tts2.lovable.app)</option>
+                <option value="lovable">Lovable Speak API (tts3.lovable.app)</option>
               </select>
               <a
                 href={LOVABLE_TTS_OPENAPI_URL}
@@ -763,7 +763,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
               <p className="text-[10px] text-muted-foreground">
                 Endpoint:{" "}
                 <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">
-                  https://tts2.lovable.app/api/public/tts
+                  https://tts3.lovable.app/api/public/tts
                 </code>{" "}
                 • Provider:{" "}
                 <span className="font-semibold text-foreground font-mono">

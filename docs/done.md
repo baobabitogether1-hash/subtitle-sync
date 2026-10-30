@@ -1,5 +1,82 @@
 # Done tasks
 
+## Task 252: Remote TTS tts3.lovable.app, Short Complete Sentences Parser, On-Demand Translation TTS Guard & Ratio Alignment
+
+- **Remote TTS Endpoint Migration to `tts3.lovable.app`**:
+  - Updated `LOVABLE_TTS_BASE_URL` to `"https://tts3.lovable.app"` in `src/lib/alternative-tts.ts`.
+  - Updated `LOVABLE_TTS_ENDPOINT` to `"https://tts3.lovable.app/api/public/tts"` and OpenAPI spec to `"https://tts3.lovable.app/api/public/openapi.json"`.
+  - Updated endpoint selection labels in `src/components/beginner/tabs/BeginnerPreferencesTab.tsx`, `src/routes/index.tsx` (lines 5920 and 6153), and `docs/design_play_buttons.md`.
+- **Short Complete Sentences Clause Parser Option**:
+  - Implemented `shortCompleteSentences` in `SimpleParserConfig` and `DEFAULT_SIMPLE_PARSER_CONFIG` in `src/utils/newSubtitlesParser.ts`.
+  - Configured clause delimiters including colon, semicolon, em-dash, and comma splitting.
+  - Formulated `buildSplitRegex` to match delimiters bounded by whitespace on either side (`(?:(?<=\s)[...]+)|(?:[...]+(?=\s+|$))`), capturing complete grammatical clauses like `XXX ,YYY? ZZ` into `["XXX", "YYY?", "ZZ"]`.
+  - Enforced whole-clause boundaries rejecting anti-patterns like `"XXX, Y"` or `"Y? ZZ"` where phrases/words are sliced mid-stream.
+  - Added parser preset `"speechShort"` (`"Short Complete Sentences (TTS)"`) to `src/lib/subtitles.ts`.
+  - Added dedicated controls to `src/components/NewSubtitlesParserBar.tsx` (`data-testid="parser-short-complete-sentences-toggle"`, `data-testid="parser-split-colon-semicolon-toggle"`) and `src/components/beginner/tabs/BeginnerParsingTab.tsx` (`data-testid="beginner-parser-short-clauses-preset"`).
+- **TTS-Only On-Demand Translation Guard**:
+  - Enforced user directive: "dont on-demand translation of text which is not going to act as tts input".
+  - Filtered lookahead translation in `src/routes/index.tsx` so only spoken languages (`isLanguageSpoken(spoken, code)`) trigger on-demand translations.
+  - Added `isSentenceEligibleForTts?: (index: number, text: string) => boolean` callback to `translateSentencesAhead` in `src/utils/onDemandTranslationManager.ts` wired to `isLanguageEligibleForTtsWithRole` to ensure non-spoken rows are skipped.
+- **Primary vs Secondary TTS Ratio Alignment & Visualization**:
+  - Enhanced `src/components/beginner/PerLanguageTtsPreferences.tsx` to display secondary ratio options as `1:N (Every N× of <Primary>)` and added a `Sec (rel. <Primary>)` badge.
+  - Enhanced language table ratio selects in `src/routes/index.tsx` to indicate secondary language relation.
+- **Version 2.0.46 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.46"`, added `"test:tts3-and-short-sentences-parser"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20046`, `versionName = "2.0.46"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.46"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.46"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.46"`.
+- **Dedicated Automated Verification**:
+  - Command: `npx tsx scripts/verify-tts3-and-short-sentences-parser.ts` (100% PASS).
+  - Clean `lint_applet` (`eslint src/lib src/routes`) with 0 errors.
+  - Clean `compile_applet` and production build (`npm run build`).
+
+## Task 251: Revert 3-Path Split & Restore Clean Beginner/Advanced Architecture
+
+- **User Feedback & Motivation**:
+  - The user explicitly requested to undo the split into 3 paths and revert design decisions that introduced intermediate chooser/portal screens.
+- **Workflow State & Routing Reversion (`src/routes/index.tsx`)**:
+  - Restored `workflowMode` state to strictly `"beginner" | "expert"`, defaulting cleanly to `"beginner"` (with automatic `"expert"` support for saved preference or developer mode).
+  - Removed `InterfacePathChooser` and `FutureExperienceContainer` from JSX and imports.
+  - Removed the "Choose Path" button (`data-testid="choose-path-btn"`) from the header.
+  - Kept the clean, reliable 1-click mode switcher toggle (`data-testid="header-mode-toggle"`).
+- **Component & Contract Clean-Up**:
+  - Restored `src/components/ModeSwitcherHeader.tsx` to handle `currentMode: "beginner" | "expert"` and `onModeChange: (mode: "beginner" | "expert") => void`.
+  - Deleted obsolete portal and preview components: `src/components/portal/InterfacePathChooser.tsx` and `src/components/future/FutureExperienceContainer.tsx`.
+  - Removed directories `src/components/portal` and `src/components/future`.
+  - Updated `docs/files.md` inventory.
+- **Version 2.0.45 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.45"`, added `"test:undo-three-paths-split"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20045`, `versionName = "2.0.45"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.45"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.45"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.45"`.
+- **Dedicated Automated Verification**:
+  - Command: `npx tsx scripts/verify-undo-three-paths-split.ts` (100% PASS).
+  - Command: `npx tsx scripts/verify-accordion-section-import-hotfix.ts` (100% PASS).
+  - Clean `lint_applet` (`eslint src/lib src/routes`) with 0 errors.
+  - Clean `compile_applet` and production build (`npm run build`).
+
+### Hotfix: Fix ReferenceError AccordionSection and StateMachineActionLogsInspector is not defined in index.tsx
+
+- **Root Cause & Fix**:
+  - `src/routes/index.tsx` was re-exporting `AccordionSection` at the bottom of the file (`export { AccordionSection } from "@/components/AccordionSection";`) without importing it into module scope.
+  - When the Expert view or accordion panels rendered, evaluating `<AccordionSection ...>` caused a fatal `ReferenceError: AccordionSection is not defined`.
+  - Similarly, `<StateMachineActionLogsInspector ...>` was rendered without a top-level import statement.
+  - Added explicit top-level imports in `src/routes/index.tsx` for both `AccordionSection` and `StateMachineActionLogsInspector`.
+- **Comprehensive JSX Safety Audit**:
+  - Implemented an automated scan of all 67 JSX component tags rendered in `src/routes/index.tsx` to ensure all identifiers are properly imported or declared.
+- **Version 2.0.44 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.44"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20044`, `versionName = "2.0.44"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.44"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.44"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.44"`.
+- **Dedicated Automated Verification**:
+  - Command: `npx tsx scripts/verify-accordion-section-import-hotfix.ts` (100% PASS).
+  - Clean `lint_applet` (`eslint src/lib src/routes`) with 0 errors.
+  - Clean `compile_applet` and production build (`npm run build`).
+
 ## Task 250: Implement Default Path Chooser Portal Screen & Isolate Beginner, Advanced, and Future Designs
 
 - **Default Interface Path Chooser Portal (`src/components/portal/InterfacePathChooser.tsx`)**:

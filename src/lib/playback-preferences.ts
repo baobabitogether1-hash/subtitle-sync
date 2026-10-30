@@ -168,22 +168,43 @@ export function getLanguageTtsRatio(
  * normalizing Hebrew aliases ("iw", "il", "he") and dialect codes ("pt-BR" <-> "pt").
  */
 export function isLanguageSpoken(
-  langCode: string,
-  spokenLangs: readonly string[] | undefined | null,
+  langCode: string | readonly string[] | undefined | null,
+  spokenLangs: readonly string[] | string | undefined | null,
 ): boolean {
-  if (!spokenLangs || !langCode) return false;
-  if (spokenLangs.includes(langCode)) return true;
-  const clean = langCode.trim().toLowerCase();
-  if (spokenLangs.some((s) => s.toLowerCase() === clean)) return true;
+  if (!langCode || !spokenLangs) return false;
+
+  let actualCode: string;
+  let actualList: readonly string[];
+
+  if (typeof langCode === "string" && Array.isArray(spokenLangs)) {
+    actualCode = langCode;
+    actualList = spokenLangs;
+  } else if (Array.isArray(langCode) && typeof spokenLangs === "string") {
+    actualCode = spokenLangs;
+    actualList = langCode;
+  } else if (typeof langCode === "string" && typeof spokenLangs === "string") {
+    actualCode = langCode;
+    actualList = [spokenLangs];
+  } else {
+    return false;
+  }
+
+  if (actualList.includes(actualCode)) return true;
+  const clean = actualCode.trim().toLowerCase();
+  if (actualList.some((s) => typeof s === "string" && s.toLowerCase() === clean)) return true;
   if (clean === "iw" || clean === "il") {
-    if (spokenLangs.some((s) => s.toLowerCase() === "he")) return true;
+    if (actualList.some((s) => typeof s === "string" && s.toLowerCase() === "he")) return true;
   } else if (clean === "he") {
-    if (spokenLangs.some((s) => s.toLowerCase() === "iw" || s.toLowerCase() === "il")) return true;
+    if (actualList.some((s) => typeof s === "string" && (s.toLowerCase() === "iw" || s.toLowerCase() === "il"))) return true;
   }
   const base = clean.split("-")[0];
   if (
     base &&
-    spokenLangs.some((s) => s.toLowerCase() === base || s.toLowerCase().startsWith(`${base}-`))
+    actualList.some(
+      (s) =>
+        typeof s === "string" &&
+        (s.toLowerCase() === base || s.toLowerCase().startsWith(`${base}-`)),
+    )
   ) {
     return true;
   }

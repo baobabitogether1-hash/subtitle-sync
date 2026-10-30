@@ -150,12 +150,14 @@ export interface LookaheadTranslationParams {
   sentences: string[];
   startIndex: number;
   sentencesAhead?: number; // Configured X=10 sentences ahead
+  isSentenceEligibleForTts?: (index: number, text: string) => boolean;
   onSentenceTranslated?: (index: number, translatedText: string) => void;
 }
 
 /**
  * Translates the next configured X=10 sentences ahead on demand
  * for a target language where YouTube timedtext has not yet been fetched.
+ * STRICT POLICY: Only translates sentences that will actually act as TTS input!
  */
 export async function translateSentencesAhead({
   videoId,
@@ -164,6 +166,7 @@ export async function translateSentencesAhead({
   sentences,
   startIndex,
   sentencesAhead = 10,
+  isSentenceEligibleForTts,
   onSentenceTranslated,
 }: LookaheadTranslationParams): Promise<Map<number, string>> {
   if (!sentences || sentences.length === 0) {
@@ -193,6 +196,11 @@ export async function translateSentencesAhead({
   const translationPromises: Promise<void>[] = [];
 
   for (let idx = validStart; idx <= endIndex; idx++) {
+    // If a sentence will NOT act as TTS input, do not translate it on demand!
+    if (isSentenceEligibleForTts && !isSentenceEligibleForTts(idx, sentences[idx] || "")) {
+      continue;
+    }
+
     const rawText = sentences[idx];
     if (!rawText) continue;
     // MANDATORY APPLICATION STAGE: Special characters removal MUST happen BEFORE translation stage.

@@ -140,7 +140,7 @@ The table below catalogs every button with a Play, Pause, or Audio icon, its ded
   - Beginner view: `data-testid="btn-test-alternative-tts"`
 - **Visual Design**: Small monospace button showing `Play` icon with label `▶ Test Alternative TTS ("Hello world")`. Displays a spinning `Loader2` indicator with `"Playing test audio…"` while fetching audio.
 - **Detailed Behavior on Click**:
-  - Sends a test synthesis request for `"Hello world"` to the active alternative TTS engine (Lovable Speak API `tts2.lovable.app` or Google Translate TTS proxy).
+  - Sends a test synthesis request for `"Hello world"` to the active alternative TTS engine (Lovable Speak API `tts3.lovable.app` or Google Translate TTS proxy).
   - Plays the synthesized audio through an HTML5 `<audio>` element.
   - Verifies voice configuration, audio playback codecs, and network connectivity without interfering with the video player.
 

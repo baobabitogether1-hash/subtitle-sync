@@ -387,10 +387,21 @@ export const BeginnerParsingTab: React.FC<BeginnerParsingTabProps> = ({
         </div>
 
         {splitByPunctuation && (
-          <div className="pt-2 border-t border-border space-y-2">
-            <span className="text-xs text-foreground/90 font-medium">
-              Choose punctuation marks to split on:
-            </span>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <span className="text-xs text-foreground/90 font-medium">
+                Choose punctuation marks to split on:
+              </span>
+              <button
+                type="button"
+                data-testid="beginner-parser-short-clauses-preset"
+                onClick={() => onPunctuationCharsChange([".", "!", "?", ",", ";", ":"])}
+                className="inline-flex items-center gap-1 rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                title="Select all standard punctuation to grab short, grammatically complete thought units"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Short Complete Sentences (TTS Optimized)</span>
+              </button>
+            </div>
             <div
               className="grid grid-cols-2 sm:grid-cols-3 gap-2"
               data-testid="punctuation-checkboxes"

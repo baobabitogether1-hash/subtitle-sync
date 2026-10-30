@@ -4,7 +4,8 @@ This file is strictly the active backlog containing pending, active, and upcomin
 
 ## Active Tasks
 
-*(No active tasks pending. All tasks from the prompt have been completed, verified, and migrated to `docs/done.md`.)*
+- [ ] **Hotfix Task 253: Fix isLanguageSpoken TypeError in index.tsx & playback-preferences.ts**
+  - **Subtask 253.1**: Fix argument order in `src/routes/index.tsx` line 3258 (`isLanguageSpoken(code, spoken)`), add defensive dual-argument ordering tolerance in `isLanguageSpoken` in `src/lib/playback-preferences.ts`, author dedicated test `scripts/verify-is-language-spoken-hotfix.ts`, synchronize version `2.0.47` across all 5 targets, verify and migrate to `docs/done.md`.
 
 ## Later Tasks
 
