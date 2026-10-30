@@ -141,7 +141,8 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-design should be simpler and easier and with less text all over
+is it the best design u can do ?
 ```
+
 
 

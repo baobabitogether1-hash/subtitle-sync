@@ -4421,7 +4421,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header
-        className="flex flex-wrap items-center gap-4 border-b border-border px-6 py-4"
+        className="sticky top-0 z-40 flex flex-wrap items-center gap-3 sm:gap-4 border-b border-border/70 bg-background/85 backdrop-blur-md px-4 py-3 sm:px-6 shadow-2xs transition-colors"
         data-app-hydrated={isHydrated ? "true" : undefined}
       >
         <div className="mr-auto flex flex-col gap-1 max-w-3xl">
@@ -4431,7 +4431,7 @@ function Index() {
             </span>
             <span className="text-muted-foreground/40 text-xs">·</span>
             <h1
-              className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate max-w-xl"
+              className="font-display text-lg sm:text-xl font-bold tracking-tight text-foreground truncate max-w-xl"
               data-testid="top-screen-video-title"
               title={topScreenTitle}
             >

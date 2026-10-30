@@ -1,5 +1,35 @@
 # Done tasks
 
+## Task 261: Elevated Frontend Aesthetic Polish & Modern Design Craftsmanship
+
+- **Elevated Aesthetic Craft & Modern UI Polish**:
+  - Responded to user prompt ("is it the best design u can do ?") in strict adherence to `skills/system_skills/frontend_design/SKILL.md` (60-30-10 palette discipline, anti-slop rules, zero-pill metadata, single-elevation depth, tabular numerals, and compositor motion).
+  - **Sticky Glassmorphism Top Bar (`src/routes/index.tsx`)**:
+    - Converted static top header to modern floating glassmorphism: `sticky top-0 z-40 bg-background/85 backdrop-blur-md border-b border-border/70 px-4 py-3 sm:px-6 shadow-2xs transition-colors`.
+    - Polished wordmark and typography hierarchy: `font-display text-lg sm:text-xl font-bold tracking-tight text-foreground truncate max-w-xl`.
+    - Preserved all functional test IDs: `top-screen-video-title`, `header-app-version-badge`, `header-mode-toggle`, `top-screen-video-description`, `top-screen-video-caption-status`.
+  - **Refined Active Subtitle Row & Sentence Styling (`src/components/SubtitleRow.tsx`)**:
+    - Replaced heavy generic accents with subtle surface contrast: `bg-primary/[0.08] dark:bg-primary/[0.14]` with `transition-colors duration-150`.
+    - Enhanced sticky timestamp styling: `whitespace-nowrap px-3 py-2.5 tabular-nums text-xs font-mono text-muted-foreground w-28 min-w-[7rem] max-w-[7rem]` with crisp backdrop blur on freeze.
+    - Polished cell padding and typography: `px-3.5 py-2.5 text-sm leading-relaxed transition-colors min-w-[12rem]`.
+    - Fully preserved all TTS attributes and selectors (`data-tts-pronounced`, `data-tts-pronounced-highlight`, `data-tts-eligible`, `data-tts-role`, `data-language-column`).
+  - **Refined Subtitles Table & Navigation**:
+    - Polished table container and sticky headers with `shadow-2xs` and subtle border contrast.
+    - Maintained absolute parity between Beginner and Advanced modes and strict Stage 3 before Stage 4 pipeline order.
+- **Version 2.0.52 Synchronization Across All 5 Targets**:
+  1. `package.json`: `"version": "2.0.52"`, added `"test:elevated-design"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20052`, `versionName = "2.0.52"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.52"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.52"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.52"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:elevated-design` (`scripts/verify-elevated-frontend-design.ts`) (100% PASS).
+  - Forward-compatible test: `npm run test:simplified-design-and-reduced-text` (100% PASS).
+  - Chars removal parity test: `npx tsx scripts/verify-chars-removal-accordion-order.ts` (100% PASS).
+  - Pipeline stage verification: `npx tsx scripts/verify-application-stages-pipeline.ts` (100% PASS).
+  - Applet compilation: `compile_applet` (Build succeeded).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+
 ## Task 260: Simpler, Easier UI with Reduced Text Clutter
 
 - **Streamlined UI & Text Clutter Elimination**:

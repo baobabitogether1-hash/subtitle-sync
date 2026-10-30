@@ -4,16 +4,15 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 260: Simpler, Easier UI with Reduced Text Clutter)
+### Active Prompt Token Economy Flow (Task 261: Elevate Frontend Aesthetic Polish & Modern Design)
 
 - **Prompt Objective**:
-  1. Streamline and simplify UI across Beginner and Advanced modes by removing redundant, verbose explanatory text and walls of text.
-  2. Simplify NewSubtitlesParserBar with shorter labels, less visual noise, and sleek controls.
-  3. Simplify BeginnerPreferencesTab, BeginnerVideoTab, ModeSwitcherHeader, and top screen headers.
-  4. Synchronize app version to `2.0.51` across all 5 files.
-  5. Author dedicated automated test `scripts/verify-simplified-design-and-reduced-text.ts`.
+  1. Elevate design to modern production-grade frontend standards (refined typography, glassmorphism sticky header, subtle ambient surface styling, crisp data-grid, and sleek controls).
+  2. Maintain 100% functional parity, testids, and zero regressions across all modes.
+  3. Synchronize app version to `2.0.52` across all 5 files.
+  4. Author dedicated automated test `scripts/verify-elevated-frontend-design.ts`.
 - **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.51`.
+- **App Version**: `2.0.52`.
 
 ---
 

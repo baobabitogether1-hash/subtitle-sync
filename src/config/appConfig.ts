@@ -4,13 +4,13 @@ import { LibraryVideoItem } from "../types";
  * Global Application Configuration & Default Settings
  */
 
-export const APP_VERSION = "2.0.51";
+export const APP_VERSION = "2.0.52";
 export const APP_COMMIT_ID =
   (typeof process !== "undefined" && process.env?.VITE_COMMIT_SHA) ||
   (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_COMMIT_SHA) ||
   "c192f44";
 export const APP_VERSION_DESCRIPTION =
-  "Streamline UI design, eliminate text clutter, and enhance usability across beginner and advanced views (Version 2.0.51)";
+  "Elevate frontend aesthetic polish, glassmorphism header, and modern visual refinement (Version 2.0.52)";
 
 export const ALL_RELEASES_URL = "https://github.com/mostuf2556/subtitle-sync/releases";
 

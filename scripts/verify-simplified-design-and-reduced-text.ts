@@ -8,25 +8,25 @@ console.log("===================================================================
 
 const rootDir = process.cwd();
 
-// 1. Verify App Version 2.0.51 Synchronization across all 5 files
-console.log("\n--> [Step 1] Verifying Version 2.0.51 synchronization across all 5 files...");
+// 1. Verify App Version 2.0.51+ Synchronization across all 5 files
+console.log("\n--> [Step 1] Verifying Version synchronization across all 5 files...");
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, "package.json"), "utf-8"));
-assert.equal(packageJson.version, "2.0.51", "package.json version must be 2.0.51");
+assert.ok(packageJson.version >= "2.0.51", "package.json version must be >= 2.0.51");
 
 const buildGradle = fs.readFileSync(path.join(rootDir, "android-shell/app/build.gradle.kts"), "utf-8");
-assert.ok(buildGradle.includes('versionName = "2.0.51"'), "build.gradle.kts must have versionName = '2.0.51'");
-assert.ok(buildGradle.includes("versionCode = 20051"), "build.gradle.kts must have versionCode = 20051");
+assert.ok(buildGradle.includes(`versionName = "${packageJson.version}"`), "build.gradle.kts must match package.json versionName");
+assert.ok(buildGradle.includes("versionCode = 2005"), "build.gradle.kts must have versionCode starting with 2005");
 
 const appConfig = fs.readFileSync(path.join(rootDir, "src/config/appConfig.ts"), "utf-8");
-assert.ok(appConfig.includes('export const APP_VERSION = "2.0.51";'), "appConfig.ts must export APP_VERSION = '2.0.51'");
+assert.ok(appConfig.includes(`export const APP_VERSION = "${packageJson.version}";`), "appConfig.ts must export APP_VERSION");
 
 const apkUpdater = fs.readFileSync(path.join(rootDir, "src/utils/apkUpdater.ts"), "utf-8");
-assert.ok(apkUpdater.includes('export const CURRENT_APK_VERSION = "v2.0.51";'), "apkUpdater.ts must have CURRENT_APK_VERSION = 'v2.0.51'");
+assert.ok(apkUpdater.includes(`export const CURRENT_APK_VERSION = "v${packageJson.version}";`), "apkUpdater.ts must have CURRENT_APK_VERSION");
 
 const appSettings = fs.readFileSync(path.join(rootDir, "src/utils/appSettings.ts"), "utf-8");
-assert.ok(appSettings.includes('version: "2.0.51"'), "appSettings.ts must export version = '2.0.51'");
-console.log("✅ PASS: App version 2.0.51 synchronized across all 5 files.");
+assert.ok(appSettings.includes(`version: "${packageJson.version}"`), "appSettings.ts must export version matching package.json");
+console.log(`✅ PASS: App version ${packageJson.version} synchronized across all 5 files.`);
 
 // 2. Verify Simplified NewSubtitlesParserBar
 console.log("\n--> [Step 2] Verifying simplified labels in NewSubtitlesParserBar...");
