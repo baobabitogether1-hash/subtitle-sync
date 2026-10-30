@@ -217,24 +217,35 @@ export function simpleAlign(
 
   // Find base cues
   let baseCues = parsedTracks[baseLanguage] || [];
+  let effectiveBaseLang = baseLanguage;
   if (baseCues.length === 0) {
     const firstKey = Object.keys(parsedTracks).find((k) => (parsedTracks[k]?.length ?? 0) > 0);
-    if (firstKey) baseCues = parsedTracks[firstKey]!;
+    if (firstKey) {
+      baseCues = parsedTracks[firstKey]!;
+      effectiveBaseLang = firstKey;
+    }
   }
 
   if (baseCues.length === 0) return [];
 
   // Split base cues into sentences using simple parser
-  const segments = splitCuesIntoSentences(baseCues, config);
+  let segments = splitCuesIntoSentences(baseCues, config);
+  if (!segments || segments.length === 0) {
+    // Fallback: use raw cues directly so table is never empty when valid subtitles exist
+    segments = baseCues.map((c) => ({ start: c.start, end: c.end, text: c.text }));
+  }
 
   // Formulate rows aligned across all tracks
   const rows: Row[] = segments.map((seg) => {
     const texts: Record<string, string> = {
-      [baseLanguage]: seg.text,
+      [effectiveBaseLang]: seg.text,
     };
+    if (baseLanguage && baseLanguage !== effectiveBaseLang) {
+      texts[baseLanguage] = seg.text;
+    }
 
     for (const [code, cues] of Object.entries(parsedTracks)) {
-      if (code === baseLanguage) continue;
+      if (code === effectiveBaseLang || code === baseLanguage) continue;
       texts[code] = getTextInWindow(cues, seg.start, seg.end);
     }
 

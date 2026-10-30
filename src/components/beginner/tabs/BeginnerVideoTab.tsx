@@ -38,6 +38,7 @@ export interface BeginnerVideoTabProps {
   ttsServiceControlsSlot?: React.ReactNode;
   charsRemovalSlot?: React.ReactNode;
   subtitlesTableSlot?: React.ReactNode;
+  criticalCaptionsAlertSlot?: React.ReactNode;
   favoriteLanguages: string[];
   favoriteLanguageCatalog: Array<{ code: string; name: string }>;
   selectedTargetLanguages: string[];
@@ -63,6 +64,7 @@ export const BeginnerVideoTab: React.FC<BeginnerVideoTabProps> = ({
   ttsServiceControlsSlot,
   charsRemovalSlot,
   subtitlesTableSlot,
+  criticalCaptionsAlertSlot,
   favoriteLanguages,
   favoriteLanguageCatalog,
   selectedTargetLanguages,
@@ -103,6 +105,8 @@ export const BeginnerVideoTab: React.FC<BeginnerVideoTabProps> = ({
       data-testid="beginner-video-tab"
       data-control-category="daily-usage"
     >
+      {criticalCaptionsAlertSlot}
+
       {/* Daily video and subtitle controls */}
       <div className="bg-card border border-border rounded-xl p-3.5 shadow-sm space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

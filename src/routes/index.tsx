@@ -67,6 +67,9 @@ import {
   parseJson3,
   parseVideoId,
   timedTextVideoId,
+  registerLiveCaptionInterceptor,
+  setupEarlyCaptionInterceptor,
+  isCaptionInterceptorReady,
 } from "@/lib/native-captions";
 import { removeAngleBrackets } from "@/utils/captionParser";
 import {
@@ -186,9 +189,15 @@ import { VideoPlaybackControls } from "@/components/VideoPlaybackControls";
 import { FloatingDraggablePauseButton } from "@/components/FloatingDraggablePauseButton";
 import { trackNetworkRequest, useNetworkRequests } from "@/utils/networkTracker";
 import { NetworkRequestsInspector } from "@/components/NetworkRequestsInspector";
-import { StateMachineActionLogsInspector } from "@/components/StateMachineActionLogsInspector";
-import { logError, logStateMachineAction } from "@/utils/logBuffer";
-import { AccordionSection } from "@/components/AccordionSection";
+import {
+  logError,
+  logStateMachineAction,
+  logInterception,
+  logSubtitlePopulation,
+  logForeignTrack,
+  copyBugReportToClipboard,
+} from "@/utils/logBuffer";
+import { CriticalCaptionsAlert } from "@/components/CriticalCaptionsAlert";
 import { SubtitlesTablePanel } from "@/components/SubtitlesTablePanel";
 import { HighlightedSubtitle } from "@/components/HighlightedSubtitle";
 import { ApkReleasesFooter } from "@/components/ApkReleasesFooter";
@@ -1131,21 +1140,27 @@ function Index() {
   }, []);
 
   const baseLanguage = useMemo(() => {
-    if (explicitBaseLanguage) {
+    if (explicitBaseLanguage && tracks?.[explicitBaseLanguage]) {
       return explicitBaseLanguage;
     }
     if (observedUrl) {
       try {
         const l = new URL(observedUrl).searchParams.get("lang");
-        if (l) return l;
+        if (l && tracks?.[l]) return l;
       } catch {
         // ignore malformed URL
       }
     }
     if (tracks && Object.keys(tracks).length > 0) {
+      const match = Object.keys(tracks).find(
+        (k) =>
+          (tracks[k]?.events?.length ||
+            (Array.isArray(tracks[k]) ? (tracks[k] as unknown as unknown[]).length : 0)) > 0,
+      );
+      if (match) return match;
       return Object.keys(tracks)[0];
     }
-    return "";
+    return explicitBaseLanguage || "";
   }, [explicitBaseLanguage, observedUrl, tracks]);
 
   useEffect(() => {
@@ -1495,11 +1510,19 @@ function Index() {
         });
         if (!json) {
           failed.push(code);
+          logForeignTrack(code, "timedtext_fetch_failed", {
+            reason:
+              "YouTube timedtext returned non-JSON3 or HTTP error; falling back to on-demand translation",
+          });
         }
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
       }
       if (failed.length > 0) {
         setFailedLangs((prev) => Array.from(new Set([...prev, ...failed])));
+        logForeignTrack(failed.join(", "), "escalating_on_demand_translation", {
+          failedCount: failed.length,
+          baseLanguage,
+        });
         notifySubtitleFetch(
           "error",
           `Subtitles fetch failed for ${failed.join(", ")}. Tap "Fetch again".`,
@@ -2040,6 +2063,44 @@ function Index() {
       // ignore fetch error
     }
   };
+
+  const handleRecheckCaptions = useCallback(() => {
+    logInterception("User clicked Re-check Captions from Critical Alert", { videoId });
+    const shell = nativeShell();
+    const captured = shell?.getLastObservedTimedTextUrl();
+    if (captured && (!videoId || timedTextVideoId(captured) === videoId)) {
+      setObservedUrl(captured);
+      setDefaultCaptionsLoaded(true);
+      let defaultLang = "";
+      try {
+        defaultLang = new URL(captured).searchParams.get("lang") || "";
+      } catch {
+        // ignore malformed url
+      }
+      if (defaultLang && shell) {
+        try {
+          const raw = shell.fetchTranslatedCaptionsWithUrl(captured, defaultLang, "json3");
+          if (raw && isValidJsonSubtitleResponse(raw)) {
+            const json = parseJson3(raw);
+            if (json) {
+              if (videoId) saveCachedRawJson3(videoId, defaultLang, raw);
+              setTracks((prev) => ({ ...prev, [defaultLang]: json }));
+              setShown((prev) => (prev.includes(defaultLang) ? prev : [defaultLang, ...prev]));
+              setOpenPanels((prev) => (prev.subtitles ? prev : { ...prev, subtitles: true }));
+              logSubtitlePopulation("Re-check successfully captured captions", {
+                defaultLang,
+                cues: json.events?.length,
+              });
+            }
+          }
+        } catch (err) {
+          logError("Interception", "Re-check failed to fetch captions via shell", err);
+        }
+      }
+    } else {
+      logInterception("Re-check found no observed timedtext URL yet", { videoId, isVideoPlaying });
+    }
+  }, [videoId, isVideoPlaying]);
 
   const [stripSpeakerBrackets, setStripSpeakerBrackets] = useState<boolean>(() =>
     getStripSpeakerBracketsSetting(),
@@ -2740,15 +2801,21 @@ function Index() {
         }
       }
     }
-    window.onNativeCaptionsInterceptedBase64 = (encoded) => {
+    const unregister = registerLiveCaptionInterceptor((encoded) => {
       const payload = decodeInterceptedCaption(encoded);
       if (!payload) return;
       const urlVideoId = timedTextVideoId(payload.url);
       if (urlVideoId && urlVideoId !== videoId) return;
 
+      logInterception("Intercepted caption payload arrived from bridge", {
+        url: payload.url,
+        byteLength: payload.rawData?.length,
+      });
+
       // Discard invalid, non-JSON3, error pages, or empty subtitle payloads
       if (!isValidJsonSubtitleResponse(payload.rawData)) {
         console.warn("[Interception] Discarded non-JSON3 / bad response payload:", payload.url);
+        logInterception("Discarded non-JSON3 / bad response payload", { url: payload.url });
         return;
       }
 
@@ -2778,6 +2845,11 @@ function Index() {
           setYoutubeTranslatedLanguages((prev) => (prev.includes(lang) ? prev : [...prev, lang]));
         }
         setOpenPanels((prev) => (prev.subtitles ? prev : { ...prev, subtitles: true }));
+        logSubtitlePopulation("Interception populated tracks state", {
+          lang,
+          isTarget: Boolean(targetLanguage),
+          cues: json.events?.length,
+        });
         if (autoSpeakOnFetch && targetLanguage && isTtsSpeakableLanguage(lang, baseLanguage)) {
           // Auto-enable "Speak" checkbox for the fetched language
           setSpoken((prev) => (prev.includes(lang) ? prev : [...prev, lang]));
@@ -2800,9 +2872,9 @@ function Index() {
           },
         }));
       }
-    };
+    });
     return () => {
-      delete window.onNativeCaptionsInterceptedBase64;
+      unregister();
     };
   }, [isAndroid, videoId, autoSpeakOnFetch, baseLanguage, speakFetchedLanguageName]);
 
@@ -3510,15 +3582,19 @@ function Index() {
       }
       playerEl.current.innerHTML = "";
       const host = document.createElement("div");
-      host.className = "h-full w-full";
-      playerEl.current.appendChild(host);
+      // Ensure interceptor queue and bridges are active before creating player iframe
+      setupEarlyCaptionInterceptor();
+      logInterception("Initializing YouTube Player iframe element", {
+        videoId,
+        isInterceptorReady: isCaptionInterceptorReady(),
+      });
       if (!window.YT?.Player) return;
       player.current = new window.YT.Player(host, {
         videoId,
         playerVars: {
           rel: 0,
           autoplay: isAndroid ? 1 : 0,
-          cc_load_policy: isAndroid ? 1 : 0,
+          cc_load_policy: 1,
           playsinline: 1,
           origin: window.location.origin,
         },
@@ -4172,17 +4248,21 @@ function Index() {
     }
   }, [cols, baseLanguage, favoriteLanguages]);
 
-  const hasLegitimateSubtitles = useMemo(() => {
-    if (!tracks) return false;
-    const hasValidTrack = Object.values(tracks).some((track) => {
+  const hasAnySubtitles = useMemo(() => {
+    if (defaultCaptionsLoaded) return true;
+    if (!tracks || Object.keys(tracks).length === 0) return false;
+    return Object.values(tracks).some((track) => {
       const cues = Array.isArray(track) ? track : track?.events || [];
-      const isValid =
+      return (
         (Array.isArray(cues) && cues.length > 0) ||
-        (Array.isArray(track?.events) && track.events.length > 0);
-      return isValid;
+        (Array.isArray(track?.events) && track.events.length > 0)
+      );
     });
-    return Boolean(hasValidTrack && rows.length > 0 && cols.length > 0);
-  }, [tracks, rows.length, cols.length]);
+  }, [defaultCaptionsLoaded, tracks]);
+
+  const hasLegitimateSubtitles = useMemo(() => {
+    return hasAnySubtitles;
+  }, [hasAnySubtitles]);
 
   useEffect(() => {
     if (hasLegitimateSubtitles) {
@@ -4837,6 +4917,15 @@ function Index() {
               {specialCharactersRemovalPanel}
             </BeginnerCharsRemovalAccordion>
           }
+          criticalCaptionsAlertSlot={
+            <CriticalCaptionsAlert
+              videoId={videoId}
+              hasSubtitles={hasAnySubtitles}
+              isVideoPlaying={isVideoPlaying}
+              onRecheck={handleRecheckCaptions}
+              onOpenManualUrlModal={() => setIsSubtitlesUrlModalOpen(true)}
+            />
+          }
           subtitlesTableSlot={
             <SubtitlesTablePanel
               isAndroid={isAndroid}
@@ -4981,6 +5070,16 @@ function Index() {
                     </Button>
                   </form>
                 )}
+              </div>
+
+              <div className="px-4 md:px-6 pt-2">
+                <CriticalCaptionsAlert
+                  videoId={videoId}
+                  hasSubtitles={hasAnySubtitles}
+                  isVideoPlaying={isVideoPlaying}
+                  onRecheck={handleRecheckCaptions}
+                  onOpenManualUrlModal={() => setIsSubtitlesUrlModalOpen(true)}
+                />
               </div>
 
               <div className="grid items-start gap-4 p-4 md:p-6 lg:grid-cols-2">

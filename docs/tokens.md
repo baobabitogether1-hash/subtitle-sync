@@ -4,14 +4,14 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Active Task 244)
+### Active Prompt Token Economy Flow (Tasks 245 - 247: Completed)
 
-- **Prompt Objective**: Present language code as the language name for selected element `button:nth-of-type(4)` in `BeginnerFavoriteLanguageSelector` and across components, with polished styles.
-- **Decomposition**:
-  1. `BeginnerFavoriteLanguageSelector.tsx`: Implement `getDisplayLanguageName` resolving via catalog, `ALL_KNOWN_LANGUAGES`, and `Intl.DisplayNames`. Polish button styles with clear active/hover/focus indicators and title/aria-label.
-  2. `src/routes/index.tsx`: Pass `SUPPORTED_LANGUAGES_CATALOG` unconditionally to `favoriteLanguageCatalog`, and enhance `getLanguageMeta` and `speakingLangName` fallback.
-  3. Bump app version to `2.0.39` across all 5 files.
-  4. Author dedicated test `scripts/verify-beginner-language-name-display.ts`, run `compile_applet`, `lint_applet`, commit, and migrate to `docs/done.md`.
+- **Prompt Objective**: Resolve 3 critical reliability issues:
+  1. Subtitle interception readiness before iframe init + critical alert to re-enable YouTube CC (Task 245 - COMPLETED).
+  2. Subtitles-viewer population & visibility when default subtitles are intercepted (Task 246 - COMPLETED).
+  3. Foreign language fetch failure handling & on-demand translation execution, with informative timestamped logging and easy copy-to-clipboard for bug reporting (Task 247 - COMPLETED).
+- **Current Status**: All active prompt tasks fully completed, verified with dedicated test suites, and migrated to `docs/done.md`. Backlog is clear.
+- **App Version**: Synchronized to `2.0.40` across all 5 version files.
 
 ---
 

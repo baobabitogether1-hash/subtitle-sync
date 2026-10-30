@@ -26,6 +26,7 @@ export interface BeginnerFlowContainerProps {
   ttsServiceControlsSlot?: React.ReactNode;
   charsRemovalSlot?: React.ReactNode;
   subtitlesTableSlot?: React.ReactNode;
+  criticalCaptionsAlertSlot?: React.ReactNode;
   perLanguageTtsSettingsSlot?: React.ReactNode;
   favoriteLanguageCatalog: Array<{ code: string; name: string }>;
   selectedTargetLanguages: string[];
@@ -55,6 +56,7 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
   ttsServiceControlsSlot,
   charsRemovalSlot,
   subtitlesTableSlot,
+  criticalCaptionsAlertSlot,
   perLanguageTtsSettingsSlot,
   favoriteLanguageCatalog,
   selectedTargetLanguages,
@@ -177,6 +179,7 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
             ttsServiceControlsSlot={ttsServiceControlsSlot}
             charsRemovalSlot={charsRemovalSlot}
             subtitlesTableSlot={subtitlesTableSlot}
+            criticalCaptionsAlertSlot={criticalCaptionsAlertSlot}
             subtitlesRatio={subtitlesRatio}
             onSubtitlesRatioChange={(ratio) => {
               setSubtitlesRatio(ratio);

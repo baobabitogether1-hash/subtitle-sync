@@ -2,7 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "./router";
+import { setupEarlyCaptionInterceptor } from "./lib/native-captions";
 import "./styles.css";
+
+// Guarantee subtitle interceptor is ready before any DOM components or YouTube iframe elements initialize
+setupEarlyCaptionInterceptor();
 
 const router = getRouter();
 

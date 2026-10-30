@@ -692,8 +692,18 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     Base64.NO_WRAP
                 )
 
-                // Execute in WebView
-                val script = "if (window.onNativeCaptionsInterceptedBase64) { window.onNativeCaptionsInterceptedBase64('$base64Payload'); }"
+                // Execute in WebView with fallback early buffering
+                val script = """
+                    (function() {
+                        if (typeof window.onNativeCaptionsInterceptedBase64 === 'function') {
+                            window.onNativeCaptionsInterceptedBase64('$base64Payload');
+                        } else {
+                            window.__earlyInterceptedCaptions = window.__earlyInterceptedCaptions || [];
+                            window.__earlyInterceptedCaptions.push('$base64Payload');
+                            console.log('[CaptionInterceptor] Early caption buffered for delayed processing');
+                        }
+                    })();
+                """.trimIndent()
                 webView.evaluateJavascript(script, null)
             } catch (e: Exception) {
                 Log.e(TAG, "Error evaluating JS bridge: ${e.message}")

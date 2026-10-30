@@ -1,5 +1,78 @@
 # Done tasks
 
+## Task 247: Chapter 3 - Fix Foreign Language Fetch Failure, On-Demand Translation Fallback & Detailed Logging with Easy Copy-to-Clipboard
+
+- **Resilient Foreign Subtitle Fetch & Translation Fallback (`src/utils/onDemandTranslationManager.ts`, `src/routes/index.tsx`)**:
+  - Implemented multi-tiered Google Translation fallback in `translateWithGoogle` using primary (`translate.googleapis.com/translate_a/single`) and secondary mirror endpoints (`clients5.google.com/translate_a/t?client=dict-chrome-ex...`).
+  - Added seamless escalation: when YouTube `timedtext` returns 404, 403, or malformed data for foreign tracks, `failedLangs` triggers on-demand translation automatically.
+  - Added `logForeignTrack` to record detailed translation lifecycle events, status codes, sentence counts, and fallback triggers with high-priority WARN/INFO levels.
+- **In-Flight Translation Feedback in Subtitles Viewer (`src/components/SubtitleRow.tsx`)**:
+  - Replaced empty blank cells with a visible `Translating...` status indicator (`data-testid="sentence-pending-indicator-${actualIndex}-${l.code}"`) whenever foreign language sentences are in flight.
+- **Timestamped Structured Logging & 1-Click Copy-to-Clipboard (`src/utils/logBuffer.ts`, `src/components/StateMachineActionLogsInspector.tsx`)**:
+  - Added `logForeignTrack`, `logInterception`, and `logSubtitlePopulation` helper functions formatting categorized events with millisecond timestamps into ring buffer.
+  - Enhanced `logBuffer.copyAll()` and `copyBugReportToClipboard()` to generate comprehensive diagnostic reports combining metadata, URL, user agent, app state, network activity, and chronological logs.
+  - Added log level filtering (`ALL`, `SUBTITLES`, `ACTION`, `WARN`, `ERROR`) and 1-click clipboard export in `StateMachineActionLogsInspector`.
+- **Version 2.0.40 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.40"`, added `"test:foreign-fetch-and-diagnostic-logs"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20040`, `versionName = "2.0.40"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.40"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.40"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.40"`.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-foreign-fetch-and-diagnostic-logs.ts` (`npm run test:foreign-fetch-and-diagnostic-logs` - 100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+
+## Task 246: Chapter 2 - Fix Default Subtitles Population & Subtitles-Viewer Visibility
+
+- **Reliable Subtitles Table Formulation (`src/utils/newSubtitlesParser.ts`)**:
+  - Enhanced `simpleAlign` with `effectiveBaseLang` fallback: when user-requested or URL-specified `baseLanguage` is missing from `tracks`, automatically discovers the track with valid cues and maps aligned sentence text to both the effective base language and requested language keys.
+  - Added raw cue fallback in `simpleAlign`: if sentence splitting yields 0 segments (e.g. non-standard punctuation configurations), falls back directly to raw cues, guaranteeing that subtitle rows are never empty when valid caption tracks are present.
+- **Resilient Subtitle Viewer Lifecycle (`src/routes/index.tsx`)**:
+  - Enhanced `baseLanguage` `useMemo` to prioritize detected tracks that actually contain cues over non-existent or empty tracks.
+  - Decoupled `hasLegitimateSubtitles` from transient row/col array construction timing, ensuring the subtitles viewer does not unmount or flicker during language additions and updates.
+  - Connected `logSubtitlePopulation` to capture state transitions and cue counts when default subtitles arrive.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-subtitles-viewer-population.ts` (`npm run test:subtitles-viewer-population` - 100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+
+## Task 245: Chapter 1 - Fix Subtitle Interception Readiness & Critical Alert to Re-enable YouTube Captions
+
+- **Interception Pre-Registration & Early Caption Buffering (`src/lib/native-captions.ts`, `src/client.tsx`, `android-shell/app/src/main/java/com/ytviewer/app/MainActivity.kt`, `src/routes/index.tsx`)**:
+  - Implemented `setupEarlyCaptionInterceptor`, `registerLiveCaptionInterceptor`, and `isCaptionInterceptorReady` in `src/lib/native-captions.ts`.
+  - Registered early caption interception buffer in `src/client.tsx` immediately at client startup before React tree or router mounts, guaranteeing zero dropped timedtext requests.
+  - Enhanced Android Native Shell `MainActivity.kt`'s `dispatchToJavaScript` with automatic buffering into `window.__earlyInterceptedCaptions` if JavaScript bridge handler is not yet registered.
+  - Updated YouTube player initialization in `src/routes/index.tsx` to verify interceptor readiness and enforce `cc_load_policy: 1` so YouTube embeds request closed captions automatically.
+- **Critical User Alert to Re-enable YouTube Captions (`src/components/CriticalCaptionsAlert.tsx`, `src/components/beginner/tabs/BeginnerVideoTab.tsx`, `src/routes/index.tsx`)**:
+  - Created dedicated `CriticalCaptionsAlert` component (`data-testid="critical-enable-captions-alert"`) displayed when a video is loaded or playing without captured subtitles.
+  - Prominently instructs users to turn CC ON (or toggle CC OFF and ON again) in the YouTube player, with status indicators and action buttons ("Check Captions Again", "Enter Subtitles URL", and "Copy Bug Report & Logs").
+  - Rendered in both Beginner Mode and Advanced Mode with full parity.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-interceptor-readiness-and-cc-alert.ts` (`npm run test:interceptor-readiness-and-cc-alert` - 100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+
+## Task 244: Present Language Name Instead of Language Code in Targeted Element & Across Components
+
+- **Presentation of Language Names Instead of Language Codes (`src/components/beginner/BeginnerFavoriteLanguageSelector.tsx`)**:
+  - Implemented `getDisplayLanguageName` helper resolving language codes to human-readable full display names via provided catalog, global `ALL_KNOWN_LANGUAGES`, and standard `Intl.DisplayNames`.
+  - Resolved button text, tooltips (`title={name}`), and accessibility labels (`aria-label={`Select ${name} as target subtitle language`}`) so human-readable names are displayed rather than raw ISO codes.
+  - Styled language buttons with polished interactive states, borders, active check icons, and focus rings conforming to dark/light themes.
+- **Complete Language Catalog Delivery (`src/routes/index.tsx`)**:
+  - Passed `favoriteLanguageCatalog={SUPPORTED_LANGUAGES_CATALOG}` unconditionally across both web and Android environments, guaranteeing complete naming resolution across all catalog items.
+  - Enhanced language metadata fallbacks in `getLanguageMeta` and `speakingLangName` across playback and subtitle controls.
+- **Version 2.0.39 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.39"`, added script `"test:beginner-language-name-display"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20039`, `versionName = "2.0.39"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.39"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.39"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.39"`.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-beginner-language-name-display.ts` (`npm run test:beginner-language-name-display` - 100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful compilation).
+
 ## Task 243: UI Improvements - Language Filtering, Error Alert Placement, Auto Minimal Ratio TTS Primary, Parallel Subtitles Freeze Columns & Floating Button Colors
 
 - **Language Filtering while Adding to Favorites (`src/routes/index.tsx`)**:

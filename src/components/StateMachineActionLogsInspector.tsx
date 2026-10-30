@@ -23,9 +23,13 @@ export function StateMachineActionLogsInspector({ isOpen, onClose }: Props) {
     getLogEntriesSnapshot,
   );
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
-  const visibleEntries = entries.filter(
-    (entry) => entry.level === "ACTION" || entry.level === "ERROR",
-  );
+  const [filterLevel, setFilterLevel] = useState<"ALL" | "ACTIONS_ERRORS">("ALL");
+  const visibleEntries = entries.filter((entry) => {
+    if (filterLevel === "ACTIONS_ERRORS") {
+      return entry.level === "ACTION" || entry.level === "ERROR";
+    }
+    return true;
+  });
 
   useEffect(() => {
     if (!isOpen) return;

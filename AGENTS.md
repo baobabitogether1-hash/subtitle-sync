@@ -142,15 +142,15 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-lang code has to be presented as the language name
-Apply style changes to the selected element(s).
-[AIS_METADATA_SECTION_START]
-CSS selector 1: div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > main:nth-of-type(1) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(4)
-CSS 1: {
+initial issues which are stopping app from acting reliably:
+1. case where no subtitles fetched yet and there is no clear indication to the user that that is the status. the fix would be to ensure fix both: 1. never fail to intercept the youtube api request (ensure intercaptor is ready before init the iframe element), 2. critical alert the user to re-enable the youtube captions again 
+2. case where the default subtitles intercepted but there is a failure to show&populate the subtitles-viewer
+3. the subtitles-viewer has been populated but failed to fetch foreign languages subtitles and failed to execute on-demand translation
 
-}
-[AIS_METADATA_SECTION_END]
+ensure the logs indicated those issues in informative manner to aid reliable bug reporting. (easy copy-to-clipboard. all actions and app status reported and timestamped)
 ```
+
+
 
 
 

@@ -293,6 +293,37 @@ export const logTTS = (message: string, details?: any) =>
 export const logSync = (message: string, details?: any) =>
   logBuffer.add({ level: "SYNC", category: "SyncEngine", message, details });
 
+export const logInterception = (action: string, details?: any) =>
+  logBuffer.add({ level: "ACTION", category: "Interception", message: action, details });
+
+export const logSubtitlePopulation = (action: string, details?: any) =>
+  logBuffer.add({ level: "SUBTITLES", category: "SubtitlesViewer", message: action, details });
+
+export const logForeignTrack = (lang: string, status: string, details?: any) =>
+  logBuffer.add({
+    level: status.toLowerCase().includes("fail") || status.toLowerCase().includes("error") ? "WARN" : "INFO",
+    category: "ForeignSubtitles",
+    message: `[${lang}] ${status}`,
+    details,
+  });
+
+/**
+ * Copies the complete timestamped diagnostic report and application state to clipboard.
+ */
+export async function copyBugReportToClipboard(userComplaint?: string): Promise<boolean> {
+  const report = logBuffer.copyAll(userComplaint);
+  try {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(report);
+      logInfo("Diagnostics", "Full bug report & logs copied to clipboard");
+      return true;
+    }
+  } catch (err) {
+    console.error("Failed to copy bug report:", err);
+  }
+  return false;
+}
+
 export const registerAppStateProvider = (provider: AppStateProvider) =>
   logBuffer.registerAppStateProvider(provider);
 

@@ -111,3 +111,60 @@ export function buildLangReplacedCaptionUrl(
     return baseUrl;
   }
 }
+
+declare global {
+  interface Window {
+    __earlyInterceptedCaptions?: string[];
+    onNativeCaptionsInterceptedBase64?: (encoded: string) => void;
+    isInterceptorReady?: boolean;
+  }
+}
+
+/**
+ * Initializes early caption interception buffer to guarantee no YouTube API
+ * timedtext requests are lost even if dispatched before the React tree mounts.
+ */
+export function setupEarlyCaptionInterceptor(): void {
+  if (typeof window === "undefined") return;
+  window.__earlyInterceptedCaptions = window.__earlyInterceptedCaptions || [];
+  if (!window.onNativeCaptionsInterceptedBase64) {
+    window.onNativeCaptionsInterceptedBase64 = (encoded: string) => {
+      if (encoded && typeof encoded === "string") {
+        window.__earlyInterceptedCaptions = window.__earlyInterceptedCaptions || [];
+        window.__earlyInterceptedCaptions.push(encoded);
+      }
+    };
+  }
+  window.isInterceptorReady = true;
+}
+
+/**
+ * Attaches the live handler and drains any captions intercepted during early app bootstrap.
+ */
+export function registerLiveCaptionInterceptor(handler: (encoded: string) => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  setupEarlyCaptionInterceptor();
+  window.onNativeCaptionsInterceptedBase64 = handler;
+  const queued = window.__earlyInterceptedCaptions || [];
+  window.__earlyInterceptedCaptions = [];
+  if (queued.length > 0) {
+    for (const item of queued) {
+      try {
+        handler(item);
+      } catch (err) {
+        console.error("[CaptionInterceptor] Error processing queued caption:", err);
+      }
+    }
+  }
+  return () => {
+    window.onNativeCaptionsInterceptedBase64 = (encoded: string) => {
+      window.__earlyInterceptedCaptions = window.__earlyInterceptedCaptions || [];
+      window.__earlyInterceptedCaptions.push(encoded);
+    };
+  };
+}
+
+export function isCaptionInterceptorReady(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(window.isInterceptorReady);
+}

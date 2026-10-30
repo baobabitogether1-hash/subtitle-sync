@@ -4,7 +4,7 @@
  * on demand until authentic subtitles are fetched from YouTube timedtext API.
  */
 
-import { logInfo, logWarn } from "./logBuffer";
+import { logInfo, logWarn, logForeignTrack } from "./logBuffer";
 import { removeSpecialCharacters } from "./captionParser";
 
 export function normalizeLanguage(lang: string): string {
@@ -24,7 +24,7 @@ export interface TranslateOptions {
   toLang: string;
 }
 
-export const translateWithGoogle = ({
+export const translateWithGoogle = async ({
   text,
   fromLang,
   toLang,
@@ -36,21 +36,17 @@ export const translateWithGoogle = ({
   // MANDATORY APPLICATION STAGE: Special characters removal MUST happen BEFORE translation stage.
   const cleanText = removeSpecialCharacters(text);
   if (!cleanText || cleanText.trim().length === 0) {
-    return Promise.resolve("");
+    return "";
   }
 
   const normalizedFromLang = normalizeLanguage(fromLang);
   const normalizedToLang = normalizeLanguage(toLang);
   const requestUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${normalizedFromLang}&tl=${normalizedToLang}&dt=t&q=${encodeURIComponent(cleanText)}`;
 
-  return fetch(requestUrl)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      }
-      return res.json();
-    })
-    .then((data) => {
+  try {
+    const res = await fetch(requestUrl);
+    if (res.ok) {
+      const data = await res.json();
       let translated = "";
       if (typeof data?.translatedText === "string" && data.translatedText) {
         translated = data.translatedText;
@@ -65,8 +61,26 @@ export const translateWithGoogle = ({
       if (translated && translated.trim().length > 0) {
         return translated;
       }
-      throw new Error("No translated text returned");
-    });
+    }
+  } catch (_primaryErr) {
+    // Attempt fallback mirror endpoint
+  }
+
+  // Secondary fallback mirror
+  try {
+    const fallbackUrl = `https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=${normalizedFromLang}&tl=${normalizedToLang}&q=${encodeURIComponent(cleanText)}`;
+    const res = await fetch(fallbackUrl);
+    if (res.ok) {
+      const data = await res.json();
+      if (typeof data === "string" && data.trim()) return data.trim();
+      if (Array.isArray(data) && typeof data[0] === "string" && data[0].trim()) return data[0].trim();
+      if (Array.isArray(data?.[0]) && typeof data[0][0] === "string" && data[0][0].trim()) return data[0][0].trim();
+    }
+  } catch (_e) {
+    // Ignore fallback failure
+  }
+
+  throw new Error(`On-demand translation failed for ${normalizedFromLang} -> ${normalizedToLang}`);
 };
 
 /**
@@ -209,11 +223,17 @@ export async function translateSentencesAhead({
           setCachedTranslation(fromLang, toLang, text, translated);
           sentenceMap.set(idx, translated);
           inFlightRequests.delete(cacheKey);
+          logForeignTrack(toLang, "on_demand_translated", { fromLang, index: idx });
           onSentenceTranslated?.(idx, translated);
           return translated;
         })
         .catch((err) => {
           inFlightRequests.delete(cacheKey);
+          logForeignTrack(toLang, "on_demand_translation_failed", {
+            fromLang,
+            index: idx,
+            error: err?.message || String(err),
+          });
           logWarn(
             "onDemandTranslation",
             `Failed on-demand translate for index ${idx}: ${err?.message || err}`,
