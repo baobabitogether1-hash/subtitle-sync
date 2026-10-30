@@ -4,13 +4,13 @@ import { LibraryVideoItem } from "../types";
  * Global Application Configuration & Default Settings
  */
 
-export const APP_VERSION = "2.0.53";
+export const APP_VERSION = "2.0.54";
 export const APP_COMMIT_ID =
   (typeof process !== "undefined" && process.env?.VITE_COMMIT_SHA) ||
   (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_COMMIT_SHA) ||
-  "c192f44";
+  "b845e21";
 export const APP_VERSION_DESCRIPTION =
-  "Fix Android 'This page didn't load' runtime crash and enhance error screen diagnostics (Version 2.0.53)";
+  "Fix video playback iframe attachment and YouTube player initialization (Version 2.0.54)";
 
 export const ALL_RELEASES_URL = "https://github.com/mostuf2556/subtitle-sync/releases";
 

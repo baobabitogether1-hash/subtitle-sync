@@ -4,15 +4,16 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 262: Fix Android "This page didn't load" Runtime Error)
+### Active Prompt Token Economy Flow (Task 264: Fix Video Playback Stopped Working)
 
 - **Prompt Objective**:
-  1. Fix Android "This page didn't load" crash: eliminate `saveFavoriteLanguages` ReferenceError and guard subtitle row text lookups.
-  2. Enhance `src/routes/__root.tsx` ErrorComponent with visible error details and one-click app state reset button.
-  3. Stage Item 2 ("enforce same components policy (beginner & advance mode) - only the order differ") in `docs/tasks.md` and `docs/later.md`.
-  4. Synchronize app version to `2.0.53` across all 5 files and implement dedicated test `scripts/verify-android-page-error-fix.ts`.
+  1. Fix video playback stopped working: ensure YouTube player host `div` is appended to `playerEl.current`, preventing detached iframe execution.
+  2. Guard player initialization and state recovery across mode/tab switching and seeking.
+  3. Support instant resume and seek-to-0 on ended state in `handleTogglePlay`.
+  4. Synchronize app version to `2.0.54` across all 5 files (`package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, `src/utils/appSettings.ts`).
+  5. Implement dedicated test `scripts/verify-video-play-fix.ts`.
 - **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.53`.
+- **App Version**: `2.0.54`.
 
 ---
 
