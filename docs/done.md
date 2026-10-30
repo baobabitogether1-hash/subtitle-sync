@@ -1,5 +1,44 @@
 # Done tasks
 
+## Task 260: Simpler, Easier UI with Reduced Text Clutter
+
+- **Streamlined UI & Text Clutter Elimination**:
+  - Responded to user request ("design should be simpler and easier and with less text all over") in accordance with the universal Frontend Design Constitution.
+  - **NewSubtitlesParserBar (`src/components/NewSubtitlesParserBar.tsx`)**:
+    - Removed redundant `"Live Dynamic Updates"` badge.
+    - Replaced wordy checkbox strings with concise, clean labels (`Dot ( . )`, `Question ( ? )`, `Exclamation ( ! )`, `Comma ( , )`, `Colons ( ; : )`, `Intra-cue`, `Short Sentences (TTS)`).
+  - **ModeSwitcherHeader (`src/components/ModeSwitcherHeader.tsx`)**:
+    - Simplified badges from `Beginner Mode (Guided Tabs)` / `Advanced Studio (Full Controls)` to clean `Beginner Mode` and `Advanced Studio`.
+    - Streamlined subtitles to quiet inline text (`Guided setup` vs `Full controls`).
+  - **BeginnerVideoTab (`src/components/beginner/tabs/BeginnerVideoTab.tsx`)**:
+    - Removed redundant explanatory paragraph (`Paste or share a YouTube video link to begin subtitle synchronization.`).
+    - Streamlined header to clean `Video & Subtitles`.
+  - **BeginnerPreferencesTab (`src/components/beginner/tabs/BeginnerPreferencesTab.tsx`)**:
+    - Simplified tab header to clean `Preferences` with concise copy.
+    - Shortened playback order sub-labels to `Video dialogue leads` and `Speech translation leads`.
+    - Removed redundant paragraph under `Favorite Target Languages`.
+    - Streamlined Alternative TTS status line, removing verbose endpoint URL and text walls.
+  - **Top Screen Header (`src/routes/index.tsx`)**:
+    - Clamped `top-screen-video-description` with `line-clamp-1` to prevent top header bloat.
+    - Simplified alternative TTS status text to clean inline tokens.
+  - **SpecialCharactersRemovalPanel (`src/components/SpecialCharactersRemovalPanel.tsx`)**:
+    - Shortened chip header to `Symbols to strip:` and rule header to `Add custom rule:`.
+- **Version 2.0.51 Synchronization Across All 5 Targets**:
+  1. `package.json`: `"version": "2.0.51"`, added `"test:simplified-design-and-reduced-text"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20051`, `versionName = "2.0.51"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.51"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.51"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.51"`.
+- **Verification & Validation**:
+  - Dedicated automated test: `npm run test:simplified-design-and-reduced-text` (`scripts/verify-simplified-design-and-reduced-text.ts`) (100% PASS).
+  - Beginner tab flow test: `npm run test:beginner-mode-tab-flow` (100% PASS).
+  - Parser minimal text test: `npm run test:parser-minimal-text` (100% PASS).
+  - Top screen video metadata test: `npx tsx scripts/verify-top-screen-video-metadata.ts` (100% PASS).
+  - Version rule audit: `npx tsx scripts/verify-agents-version-rule.ts` (100% PASS).
+  - Applet compilation: `compile_applet` (Build succeeded).
+  - Applet lint: `lint_applet` (PASS, 0 errors, 0 warnings).
+  - Zero open PR check on `https://github.com/mostuf2556/subtitle-sync/pulls`: Verified.
+
 ## Task 259: Space-Saving Styles on Sanitization Live Preview in Chars Removal Accordion
 
 - **Selected Element Space-Saving Styling (`src/components/SpecialCharactersRemovalPanel.tsx`)**:

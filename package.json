@@ -1,6 +1,6 @@
 {
   "name": "subtitle-sync",
-  "version": "2.0.50",
+  "version": "2.0.51",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -254,6 +254,7 @@
     "test:unified-languages-table": "tsx scripts/verify-unified-languages-table.ts",
     "test:refined-language-settings": "tsx scripts/verify-refined-language-settings.ts",
     "test:accordion-timeout-hourglass": "tsx scripts/verify-accordion-timeout-hourglass.ts",
+    "test:simplified-design-and-reduced-text": "tsx scripts/verify-simplified-design-and-reduced-text.ts",
     "test:android": "bash scripts/run-android-e2e.sh"
   },
   "overrides": {

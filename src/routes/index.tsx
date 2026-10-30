@@ -4484,7 +4484,7 @@ function Index() {
           <div className="flex flex-col gap-0.5">
             <p
               data-testid="top-screen-video-description"
-              className="text-xs text-muted-foreground line-clamp-2 leading-relaxed"
+              className="text-xs text-muted-foreground line-clamp-1 leading-relaxed"
               title={topScreenDescription}
             >
               {topScreenDescription}
@@ -6217,24 +6217,25 @@ function Index() {
                                     </div>
                                   </div>
 
-                                  <p className="text-[10px] text-muted-foreground">
-                                    Endpoint:{" "}
-                                    <code className="bg-muted px-1 py-0.5 rounded text-[10px] font-mono">
-                                      https://tts3.lovable.app/api/public/tts
-                                    </code>{" "}
-                                    • Provider:{" "}
-                                    <span className="font-semibold text-foreground font-mono">
-                                      {lovableTtsProviderState}
-                                    </span>{" "}
-                                    • Speaks subtitles using configured target language, current
-                                    text, and native speech rate with voice:{" "}
-                                    {lovableTtsProviderState === "google"
-                                      ? "Default"
-                                      : lovableTtsVoiceState ||
-                                        (lovableTtsProviderState === "openrouter"
-                                          ? "alloy"
-                                          : "Kore")}
-                                    .
+                                  <p className="text-[10px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                                    <span>
+                                      Provider:{" "}
+                                      <strong className="text-foreground font-mono">
+                                        {lovableTtsProviderState}
+                                      </strong>
+                                    </span>
+                                    <span>•</span>
+                                    <span>
+                                      Voice:{" "}
+                                      <span className="text-foreground">
+                                        {lovableTtsProviderState === "google"
+                                          ? "Default"
+                                          : lovableTtsVoiceState ||
+                                            (lovableTtsProviderState === "openrouter"
+                                              ? "alloy"
+                                              : "Kore")}
+                                      </span>
+                                    </span>
                                   </p>
                                 </div>
 

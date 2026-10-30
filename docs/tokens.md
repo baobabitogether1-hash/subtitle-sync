@@ -4,15 +4,16 @@ This document establishes the lightweight, high-efficiency operational protocol 
 
 ---
 
-### Active Prompt Token Economy Flow (Task 259: Space-Saving Styles on Sanitization Live Preview)
+### Active Prompt Token Economy Flow (Task 260: Simpler, Easier UI with Reduced Text Clutter)
 
 - **Prompt Objective**:
-  1. Apply space-saving, compact style changes to selected element `div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5)` (Sanitization Live Preview Card in SpecialCharactersRemovalPanel).
-  2. Implement collapsible space-saving toggle (`showPreview`), slim header, compact padding, and max-height scrolling to prevent vertical waste of space.
-  3. Synchronize app version to `2.0.50` across all 5 files.
-  4. Author dedicated automated test `scripts/verify-compact-preview-space-saving.ts`.
+  1. Streamline and simplify UI across Beginner and Advanced modes by removing redundant, verbose explanatory text and walls of text.
+  2. Simplify NewSubtitlesParserBar with shorter labels, less visual noise, and sleek controls.
+  3. Simplify BeginnerPreferencesTab, BeginnerVideoTab, ModeSwitcherHeader, and top screen headers.
+  4. Synchronize app version to `2.0.51` across all 5 files.
+  5. Author dedicated automated test `scripts/verify-simplified-design-and-reduced-text.ts`.
 - **Status**: Completed (Migrated to `docs/done.md`).
-- **App Version**: `2.0.50`.
+- **App Version**: `2.0.51`.
 
 ---
 

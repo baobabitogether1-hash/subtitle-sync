@@ -116,7 +116,7 @@ export const BeginnerVideoTab: React.FC<BeginnerVideoTabProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                <span>Daily Video &amp; Subtitles</span>
+                <span>Video &amp; Subtitles</span>
                 {videoId && (
                   <Badge
                     variant="outline"
@@ -126,9 +126,6 @@ export const BeginnerVideoTab: React.FC<BeginnerVideoTabProps> = ({
                   </Badge>
                 )}
               </h2>
-              <p className="text-xs text-muted-foreground">
-                Paste or share a YouTube video link to begin subtitle synchronization.
-              </p>
             </div>
           </div>
 

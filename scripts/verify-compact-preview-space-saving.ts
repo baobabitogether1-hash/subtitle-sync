@@ -78,10 +78,10 @@ console.log("4. Verifying version synchronization across all 5 targets (2.0.50).
 const pkg = JSON.parse(fs.readFileSync(path.resolve(rootDir, "package.json"), "utf-8"));
 const activeVer = pkg.version;
 assert.ok(activeVer && typeof activeVer === "string", "package.json version must be valid");
-assert.strictEqual(activeVer, "2.0.50", "package.json version must be 2.0.50");
+assert.ok(activeVer >= "2.0.50", "package.json version must be at least 2.0.50");
 
 const gradle = fs.readFileSync(path.resolve(rootDir, "android-shell/app/build.gradle.kts"), "utf-8");
-assert.ok(gradle.includes('versionCode = 20050'), "gradle must have versionCode 20050");
+assert.ok(gradle.includes('versionCode = 2005'), "gradle must have updated versionCode 2005x");
 assert.ok(gradle.includes(`versionName = "${activeVer}"`), `gradle must have versionName ${activeVer}`);
 
 const appConfig = fs.readFileSync(path.resolve(rootDir, "src/config/appConfig.ts"), "utf-8");

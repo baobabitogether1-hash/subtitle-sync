@@ -141,12 +141,7 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-some components and element are just a waste of space
-Apply style changes to the selected element(s).
-[AIS_METADATA_SECTION_START]
-CSS selector 1: div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5)
-CSS 1: {
-
-}
-[AIS_METADATA_SECTION_END]
+design should be simpler and easier and with less text all over
 ```
+
+

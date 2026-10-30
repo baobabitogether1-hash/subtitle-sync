@@ -35,19 +35,17 @@ export const ModeSwitcherHeader: React.FC<ModeSwitcherHeaderProps> = ({
           {isBeginner ? (
             <>
               <Sparkles className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-              <span>Beginner Mode (Guided Tabs)</span>
+              <span>Beginner Mode</span>
             </>
           ) : (
             <>
               <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-500 dark:text-indigo-400" />
-              <span>Advanced Studio (Full Controls)</span>
+              <span>Advanced Studio</span>
             </>
           )}
         </Badge>
         <span className="hidden sm:inline text-muted-foreground text-[11px]">
-          {isBeginner
-            ? "Step-by-step setup with auto-detected subtitles"
-            : "Direct multi-panel controls & detailed inspectors"}
+          {isBeginner ? "Guided setup" : "Full controls"}
         </span>
       </div>
 

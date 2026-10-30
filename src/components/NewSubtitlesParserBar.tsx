@@ -60,9 +60,6 @@ export function NewSubtitlesParserBar({
           >
             {sentenceCount} {sentenceCount === 1 ? "sentence" : "sentences"}
           </span>
-          <span className="hidden sm:inline-block rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-            Live Dynamic Updates
-          </span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -100,7 +97,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("shortCompleteSentences")}
               className="h-3.5 w-3.5 rounded border-border accent-emerald-600 cursor-pointer"
             />
-            <span>Short Complete Sentences (TTS)</span>
+            <span>Short Sentences (TTS)</span>
           </label>
 
           {/* Max Words Per Sentence input */}
@@ -119,7 +116,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitOnDot")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Split on dot ( . )</span>
+            <span>Dot ( . )</span>
           </label>
 
           {/* Question mark split toggle */}
@@ -131,7 +128,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitOnQuestion")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Split on ?</span>
+            <span>Question ( ? )</span>
           </label>
 
           {/* Exclamation split toggle */}
@@ -143,7 +140,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitOnExclamation")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Split on !</span>
+            <span>Exclamation ( ! )</span>
           </label>
 
           {/* Comma split toggle */}
@@ -155,7 +152,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitOnComma")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Split on comma ( , )</span>
+            <span>Comma ( , )</span>
           </label>
 
           {/* Semicolon & Colon split toggle */}
@@ -167,7 +164,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitOnColonSemicolon")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Split on ; and :</span>
+            <span>Colons ( ; : )</span>
           </label>
 
           {/* Intra-cue splitting toggle */}
@@ -179,7 +176,7 @@ export function NewSubtitlesParserBar({
               onChange={() => handleToggle("splitIntraCue")}
               className="h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
             />
-            <span>Intra-cue splitting</span>
+            <span>Intra-cue</span>
           </label>
 
           {/* Abbreviation exceptions input */}
