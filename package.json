@@ -1,6 +1,6 @@
 {
   "name": "subtitle-sync",
-  "version": "2.0.40",
+  "version": "2.0.43",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -13,6 +13,8 @@
     "preview": "vite preview --host 0.0.0.0 --port 3000",
     "lint": "eslint src/lib src/routes",
     "format": "prettier --write .",
+    "test:interface-path-chooser": "tsx scripts/verify-interface-path-chooser.ts",
+    "test:future-app-design": "tsx scripts/verify-future-app-design.ts",
     "test:interceptor-readiness-and-cc-alert": "tsx scripts/verify-interceptor-readiness-and-cc-alert.ts",
     "test:subtitles-viewer-population": "tsx scripts/verify-subtitles-viewer-population.ts",
     "test:foreign-fetch-and-diagnostic-logs": "tsx scripts/verify-foreign-fetch-and-diagnostic-logs.ts",

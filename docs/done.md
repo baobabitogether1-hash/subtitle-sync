@@ -1,5 +1,86 @@
 # Done tasks
 
+## Task 250: Implement Default Path Chooser Portal Screen & Isolate Beginner, Advanced, and Future Designs
+
+- **Default Interface Path Chooser Portal (`src/components/portal/InterfacePathChooser.tsx`)**:
+  - Created a dignified, anti-slop default portal screen that presents users with 3 clean paths based on their goals:
+    1. **Beginner Experience**: Streamlined 2-tab flow with automated subtitle detection and zero cognitive clutter.
+    2. **Future Experience**: Clean, distraction-free preview of the AuralFlow immersion stage from `docs/future.md` with continuous video playback, non-blocking audio ducking, and dual karaoke subtitles.
+    3. **Advanced Studio**: Comprehensive workspace with fine-grained multi-track alignment, real-time timedtext network inspector, timing adjustments, and sub-segment pacing.
+  - Implemented persistent user choice management ("Remember my choice on this device") with the ability to return to the chooser at any time.
+- **Future Experience Preview Canvas (`src/components/future/FutureExperienceContainer.tsx`)**:
+  - Created an isolated theater canvas featuring an aspect-ratio video player, minimal playback controls, audio ducking indicator, dual-subtitle card (Original + Translation), and interactive sentence sequence navigator.
+- **Isolated Path Routing & Header Navigation (`src/routes/index.tsx`, `src/components/ModeSwitcherHeader.tsx`)**:
+  - Updated `workflowMode` state to support `"chooser" | "beginner" | "expert" | "future"` with `"chooser"` as the default first screen.
+  - Added a dedicated "Choose Path" navigation button (`data-testid="choose-path-btn"`) in the top navigation bar, allowing users to return to the Path Chooser from any mode.
+  - Preserved existing `data-testid="header-mode-toggle"` for seamless 1-click toggling between beginner and advanced modes, maintaining 100% backward compatibility with automated test suites.
+  - Preserved `}, [videoId, isAndroid, workflowMode, playerContainerNode]);` player lifecycle dependency.
+- **Inventory & Version 2.0.43 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.43"`, added `"test:interface-path-chooser"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20043`, `versionName = "2.0.43"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.43"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.43"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.43"`.
+  6. `docs/files.md`: Registered `InterfacePathChooser.tsx` and `FutureExperienceContainer.tsx`.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-interface-path-chooser.ts` (`npm run test:interface-path-chooser` - 100% PASS).
+  - Executed `scripts/verify-v2-version-bump.ts` (100% PASS).
+  - Executed `scripts/verify-future-app-design.ts` (100% PASS).
+  - Executed `scripts/verify-beginner-mode-tab-flow.ts` (100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+  - Clean production build (`npm run build`).
+
+## Task 249: Author Breakthrough App-Design Blueprint in `docs/future.md`
+
+- **Architectural Post-Mortem & Diagnosis (`docs/future.md`)**:
+  - Analyzed the foundational failure modes of previous trials: the Fragility Trap (scraping volatile `timedtext`), the Pause-Stutter Paradox (destroying video immersion through hard pause-and-wait TTS cycles), and the Cockpit Fallacy (exposing complex developer diagnostics to language learners).
+- **The 4-Pillar Winning Architecture ("AuralFlow Engine")**:
+  - **Pillar 1: Resilient Ingestion Mesh**: 5-tier subtitle acquisition pipeline featuring Global Edge Content-Addressed Caching (CAS), Native Android session snooping, headless rotating browser sessions, on-device Whisper WebAssembly/ONNX fallback directly from audio streams, and universal drag-and-drop.
+  - **Pillar 2: Semantic Alignment Matrix (SAM)**: Acoustic-to-semantic boundary detection using neural sentence tokenizers (`Intl.Segmenter`), strict pre-translation noise removal, cross-language thought-unit alignment, and phonetic transliteration ribbons (Furigana, Pinyin, Nikud).
+  - **Pillar 3: Intelligent WebAudio Ducking**: Eliminates jarring pause/play loops by dynamically attenuating native video audio to 15% volume (-16dB) via `GainNode` during foreign speech narration, coupled with micro-tempo warping (0.90x–1.05x) and optional interactive Shadowing Station.
+  - **Pillar 4: The 3-Second "Zen Stage" Interface**: Frictionless 3-second path from URL paste or Android Share Intent to dual karaoke playback. Theater-first layout with clean contrast, tap-to-define word tooltips, and power tools tucked cleanly into a slide-out drawer.
+- **Viral Growth & Retention Loop**:
+  - 1-Click Flashcard export to Anki (`.apkg`), Quizlet, and Notion with synchronized native audio snippets and video frame grabs.
+  - Social short-link snippet sharing (`/s/VIDEO_ID?start=X&end=Y&langs=...`) for instant playback without sign-in.
+  - Concrete 90-day phased execution roadmap and verification contracts.
+- **Inventory & Version 2.0.42 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.42"`, added `"test:future-app-design"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20042`, `versionName = "2.0.42"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.42"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.42"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.42"`.
+  6. `docs/files.md`: Registered `docs/future.md`.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-future-app-design.ts` (`npm run test:future-app-design` - 100% PASS).
+  - Executed `scripts/verify-v2-version-bump.ts` (100% PASS).
+  - Executed `scripts/verify-foreign-fetch-and-diagnostic-logs.ts` (100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+  - Clean production build (`npm run build`).
+
+## Task 248: Resolve Vite Dev Reload Warnings & Verify Clean Dev Server Operation
+
+- **Module Health & Import Resolution Audit**:
+  - Audited all 10 reported Vite module files (`src/components/NetworkRequestsInspector.tsx`, `src/routes/index.tsx`, `src/components/WebDemoUrlsInput.tsx`, `src/components/AttemptOrderSettings.tsx`, `src/components/LanguageSubtitleUrlModal.tsx`, `src/components/VideoPlayground.tsx`, `src/components/LanguageBoxesSelector.tsx`, `src/components/ShareStateModal.tsx`, `src/styles.css`, `src/components/beginner/BeginnerFlowContainer.tsx`).
+  - Confirmed 100% syntactical validity, module presence, and clean relative import resolution with zero missing imports or broken dependencies.
+- **Dev Server Cache Refresh & Port 3000 Stability**:
+  - Restarted Node.js development server to clear stale Vite HMR module cache.
+  - Confirmed dev server is healthy and responding with HTTP 200 OK on port 3000.
+- **Version 2.0.41 Synchronization Across All 5 Files**:
+  1. `package.json`: `"version": "2.0.41"`.
+  2. `android-shell/app/build.gradle.kts`: `versionCode = 20041`, `versionName = "2.0.41"`.
+  3. `src/config/appConfig.ts`: `APP_VERSION = "2.0.41"`.
+  4. `src/utils/apkUpdater.ts`: `CURRENT_APK_VERSION = "v2.0.41"`.
+  5. `src/utils/appSettings.ts`: snapshot `version: "2.0.41"`.
+- **Dedicated Automated Verification**:
+  - Authored `scripts/verify-dev-reload-and-module-health.ts` validating all 10 modules, import paths, and dev server response (`npx tsx scripts/verify-dev-reload-and-module-health.ts` - 100% PASS).
+  - Executed `scripts/verify-v2-version-bump.ts` (100% PASS).
+  - Executed `scripts/verify-foreign-fetch-and-diagnostic-logs.ts` (100% PASS).
+  - Clean `lint_applet` (0 errors).
+  - Clean `compile_applet` (successful build).
+  - Clean production build (`npm run build`).
+
 ## Task 247: Chapter 3 - Fix Foreign Language Fetch Failure, On-Demand Translation Fallback & Detailed Logging with Easy Copy-to-Clipboard
 
 - **Resilient Foreign Subtitle Fetch & Translation Fallback (`src/utils/onDemandTranslationManager.ts`, `src/routes/index.tsx`)**:

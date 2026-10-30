@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export interface ModeSwitcherHeaderProps {
-  currentMode: "beginner" | "expert";
-  onModeChange: (mode: "beginner" | "expert") => void;
+  currentMode: "chooser" | "beginner" | "expert" | "future";
+  onModeChange: (mode: "chooser" | "beginner" | "expert" | "future") => void;
   className?: string;
 }
 
