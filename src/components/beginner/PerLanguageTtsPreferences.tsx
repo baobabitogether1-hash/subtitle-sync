@@ -2,6 +2,8 @@ import React from "react";
 import { Gauge, Languages } from "lucide-react";
 import { getLanguageVoices, getUniqueVoiceKey, SpeechVoiceLike } from "@/utils/speechVoiceUtils";
 import { getLanguageTtsRatio } from "@/lib/playback-preferences";
+import { LanguageTtsOrderSelect } from "@/components/LanguageTtsOrderSelect";
+import type { SectionOrder } from "@/lib/playback-preferences";
 
 export interface TtsPreferenceLanguage {
   code: string;
@@ -14,11 +16,14 @@ interface PerLanguageTtsPreferencesProps {
   voices: SpeechVoiceLike[];
   ratios: Record<string, number>;
   rates: Record<string, number>;
+  languageOrders: Record<string, SectionOrder>;
+  defaultOrder: SectionOrder;
   voiceSelections: Record<string, string>;
   primaryLang?: string;
   onPrimaryLangChange?: (languageCode: string) => void;
   onRatioChange: (languageCode: string, ratio: number) => void;
   onRateChange: (languageCode: string, rate: number) => void;
+  onOrderChange: (languageCode: string, order: SectionOrder) => void;
   onVoiceChange: (languageCode: string, voiceURI: string) => void;
 }
 
@@ -29,11 +34,14 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
   voices,
   ratios,
   rates,
+  languageOrders,
+  defaultOrder,
   voiceSelections,
   primaryLang,
   onPrimaryLangChange,
   onRatioChange,
   onRateChange,
+  onOrderChange,
   onVoiceChange,
 }) => {
   const effectivePrimary = primaryLang || languages[0]?.code || "";
@@ -82,7 +90,7 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
             return (
               <div
                 key={language.code}
-                className="grid grid-cols-1 gap-2 rounded-lg border border-border/60 bg-muted/20 p-2 sm:grid-cols-[minmax(8rem,1fr)_auto_minmax(8rem,1fr)_minmax(10rem,1.5fr)] sm:items-center"
+                className="grid grid-cols-1 gap-2 rounded-lg border border-border/60 bg-muted/20 p-2 sm:grid-cols-[minmax(8rem,1fr)_auto_minmax(8rem,1fr)_minmax(10rem,1.5fr)_minmax(9rem,1fr)] sm:items-center"
                 data-testid={`beginner-tts-language-${language.code}`}
               >
                 <div className="flex items-center gap-1.5 truncate">
@@ -202,6 +210,12 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
                     ))}
                   </select>
                 </label>
+                <LanguageTtsOrderSelect
+                  languageCode={language.code}
+                  languageName={language.name}
+                  order={languageOrders[language.code] ?? defaultOrder}
+                  onChange={onOrderChange}
+                />
               </div>
             );
           })}

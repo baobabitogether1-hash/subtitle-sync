@@ -61,8 +61,6 @@ import {
 } from "@/lib/alternative-tts";
 
 export interface BeginnerPreferencesTabProps {
-  order: "video-first" | "tts-first";
-  onOrderChange: (order: "video-first" | "tts-first") => void;
   ttsSpeed: number;
   onTtsSpeedChange: (speed: number) => void;
   ttsVoice: string;
@@ -77,8 +75,6 @@ export interface BeginnerPreferencesTabProps {
 }
 
 export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
-  order,
-  onOrderChange,
   ttsSpeed,
   onTtsSpeedChange,
   ttsVoice,
@@ -322,101 +318,7 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
         />
       </label>
 
-      {/* 1. Playback Order */}
-      <div className="bg-card border border-border rounded-xl p-3.5 shadow-sm space-y-2.5">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-            <Sliders className="w-3.5 h-3.5 text-primary" />
-            <span>Playback Narration Order</span>
-          </h3>
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setShowOrderHelp(!showOrderHelp)}
-              className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium"
-              title="Learn how narration order works"
-              aria-expanded={showOrderHelp}
-            >
-              <HelpCircle className="w-3 h-3" />
-              <span>{showOrderHelp ? "Hide Info" : "Order Info"}</span>
-            </button>
-            <Badge variant="outline" className="text-[10px] text-muted-foreground border-border">
-              {order === "video-first" ? "Video First" : "TTS First"}
-            </Badge>
-          </div>
-        </div>
-
-        {showOrderHelp && (
-          <div className="rounded-md border border-border/60 bg-muted/30 p-2.5 text-[11px] leading-relaxed text-muted-foreground animate-in fade-in duration-150">
-            Determine whether video audio leads and TTS follows, or TTS narrates the translated
-            subtitle before continuing video playback.
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-          <button
-            type="button"
-            onClick={() => onOrderChange("video-first")}
-            className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
-              order === "video-first"
-                ? "bg-primary/10 border-primary text-foreground ring-1 ring-primary/40 shadow-2xs"
-                : "bg-background border-border hover:border-primary/50 text-foreground"
-            }`}
-            data-testid="order-video-first"
-          >
-            <div
-              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                order === "video-first"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <Film className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-foreground flex items-center justify-between">
-                <span>Video First</span>
-                {order === "video-first" && <Check className="w-3.5 h-3.5 text-primary" />}
-              </div>
-              <div className="text-[11px] text-muted-foreground truncate">
-                Video dialogue leads
-              </div>
-            </div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onOrderChange("tts-first")}
-            className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
-              order === "tts-first"
-                ? "bg-primary/10 border-primary text-foreground ring-1 ring-primary/40 shadow-2xs"
-                : "bg-background border-border hover:border-primary/50 text-foreground"
-            }`}
-            data-testid="order-tts-first"
-          >
-            <div
-              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                order === "tts-first"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <Mic className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-foreground flex items-center justify-between">
-                <span>TTS First</span>
-                {order === "tts-first" && <Check className="w-3.5 h-3.5 text-primary" />}
-              </div>
-              <div className="text-[11px] text-muted-foreground truncate">
-                Speech translation leads
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. TTS Speed & Voice Selection */}
+      {/* TTS Speed & Voice Selection */}
       <div className="bg-card border border-border rounded-xl p-3.5 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

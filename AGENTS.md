@@ -30,7 +30,9 @@ The application processes and presents subtitles through a strict sequential pip
 
 ### Absolute Parity Rule Between Advanced and Beginner Modes:
 
+- **Default cross-mode scope**: Unless a prompt explicitly limits its scope, every requested behavior, setting, bug fix, and UI capability MUST apply to both Beginner and Advanced modes. Implement shared behavior through the same component or source of truth whenever both modes expose the feature; mode-specific differences may change presentation or ordering only when explicitly required.
 - The processing rules (special characters removal before translation, punctuation splitting, alignment criteria, fallback order) **MUST BE 100% IDENTICAL** across both Advanced Mode and Beginner Mode.
+- Tests for shared behavior MUST cover both modes unless the behavior is inherently mode-specific.
 - **Parallel UI & Accordion Ordering**:
   - The Special Characters Removal (Chars Removal) feature MUST be present in Advanced Mode as a dedicated accordion section, providing full functional parity with Beginner Mode.
   - In BOTH Advanced Mode and Beginner Mode, the Chars Removal section/accordion MUST strictly appear BEFORE the Parser (Sentence Splitting) section/accordion, adhering directly to the pipeline sequence (Stage 3 Chars Removal precedes Stage 4 Parser).
@@ -150,5 +152,18 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-there is 1 file not comited yet and not pushed
+1. AGENTS.md  - all prompt instructions by default should update all view modes (i.e: beginner, advanced)
+
+1.5 https://mostuf2556.github.io/subtitle-sync/ - fix it
+
+2. reuse-shared-components policy:
+language settings - on the begginer-mode it need to be replaced to use the same component used on advanced-mode
+
+3.
+url: https://mostuf2556.github.io/subtitle-sync/?v=L2Ryrr6txwA&tts=1
+selector: #root > div > div.w-full.min-h-screen.bg-background.text-foreground.flex.flex-col > main > div:nth-child(2) > div > div:nth-child(3)
+
+configuration of order between tts-play and video-play should be set on the language settings (it is not effecient)
+
+i.e: use may want some languages to tts-play before the video-play and some afterwards
 ```
