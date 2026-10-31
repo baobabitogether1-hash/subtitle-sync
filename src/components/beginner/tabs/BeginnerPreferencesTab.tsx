@@ -60,6 +60,8 @@ import {
   type LovableTtsProvider,
 } from "@/lib/alternative-tts";
 
+import { GlobalFavoriteLanguagesPanel } from "@/components/GlobalFavoriteLanguagesPanel";
+
 export interface BeginnerPreferencesTabProps {
   ttsSpeed: number;
   onTtsSpeedChange: (speed: number) => void;
@@ -72,6 +74,11 @@ export interface BeginnerPreferencesTabProps {
   baseLanguage?: string;
   perLanguageTtsSettingsSlot?: React.ReactNode;
   onContinueToNextTab?: () => void;
+  catalog?: Array<{ code: string; name: string }>;
+  targetLanguages?: string[];
+  videoId?: string;
+  onApplyFavoritesToVideo?: () => void;
+  onSaveCurrentSelectionAsFavorites?: () => void;
 }
 
 export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
@@ -86,10 +93,14 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
   baseLanguage = "en",
   perLanguageTtsSettingsSlot,
   onContinueToNextTab,
+  catalog,
+  targetLanguages,
+  videoId,
+  onApplyFavoritesToVideo,
+  onSaveCurrentSelectionAsFavorites,
 }) => {
   const [voices, setVoices] = useState<SpeechVoiceLike[]>(() => getCachedVoices());
   const [isAuditioning, setIsAuditioning] = useState(false);
-  const [newLangCode, setNewLangCode] = useState("");
   const [useAlternativeTtsState, setUseAlternativeTtsState] = useState<boolean>(() =>
     typeof window !== "undefined" ? getUseAlternativeTts() : false,
   );
@@ -255,29 +266,6 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
       }
     }
   };
-
-  const handleAddLanguage = (codeToAdd: string) => {
-    if (!codeToAdd) return;
-    const clean = codeToAdd.trim().toLowerCase();
-    if (!favoriteLanguages.includes(clean)) {
-      onFavoriteLanguagesChange([...favoriteLanguages, clean]);
-    }
-    setNewLangCode("");
-  };
-
-  const handleRemoveLanguage = (codeToRemove: string) => {
-    onFavoriteLanguagesChange(favoriteLanguages.filter((l) => l !== codeToRemove));
-  };
-
-  const commonPresets = [
-    { code: "en", name: "English" },
-    { code: "he", name: "Hebrew (עברית)" },
-    { code: "es", name: "Spanish (Español)" },
-    { code: "fr", name: "French (Français)" },
-    { code: "ru", name: "Russian (Русский)" },
-    { code: "ar", name: "Arabic (العربية)" },
-    { code: "de", name: "German (Deutsch)" },
-  ];
 
   return (
     <div
@@ -730,80 +718,17 @@ export const BeginnerPreferencesTab: React.FC<BeginnerPreferencesTabProps> = ({
 
       {perLanguageTtsSettingsSlot}
 
-      {/* 3. Favorite Languages Selector & Extender */}
+      {/* 3. Global Favorite Languages Panel (Shared Parity) */}
       <div className="bg-card border border-border rounded-xl p-3.5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Languages className="w-4 h-4 text-primary" />
-            <h3 className="text-xs font-semibold text-foreground">Favorite Target Languages</h3>
-          </div>
-          <span className="text-[11px] text-muted-foreground">
-            {favoriteLanguages.length} active
-          </span>
-        </div>
-
-        {/* Active Languages Chips */}
-        <div className="flex flex-wrap gap-1.5 pt-1" data-testid="favorite-languages-chips">
-          {favoriteLanguages.map((code) => {
-            const found = ALL_KNOWN_LANGUAGES.find((l) => l.code === code);
-            return (
-              <Badge
-                key={code}
-                variant="secondary"
-                className="bg-background border border-border text-foreground text-xs pl-2.5 pr-1 py-1 flex items-center gap-1.5"
-                data-testid={`fav-lang-${code}`}
-              >
-                <span>{found ? found.name : code.toUpperCase()}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveLanguage(code)}
-                  className="w-4 h-4 rounded hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground"
-                  aria-label={`Remove ${code}`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </Badge>
-            );
-          })}
-        </div>
-
-        {/* Add Language Form */}
-        <div className="flex items-center gap-2 pt-1">
-          <select
-            value={newLangCode}
-            onChange={(e) => {
-              if (e.target.value) {
-                handleAddLanguage(e.target.value);
-              }
-            }}
-            className="flex-1 h-8 rounded-md bg-background border border-border text-foreground text-xs px-2.5 focus:outline-none focus:ring-1 focus:ring-primary"
-            data-testid="add-lang-select"
-          >
-            <option value="">+ Add language to favorites...</option>
-            {ALL_KNOWN_LANGUAGES.filter((l) => !favoriteLanguages.includes(l.code)).map((l) => (
-              <option key={l.code} value={l.code}>
-                {l.name} ({l.code})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Quick Presets */}
-        <div className="flex flex-wrap items-center gap-1 text-[11px] text-muted-foreground pt-1">
-          <span className="text-[10px] text-muted-foreground/70 mr-1">Quick add:</span>
-          {commonPresets
-            .filter((p) => !favoriteLanguages.includes(p.code))
-            .map((p) => (
-              <button
-                key={p.code}
-                type="button"
-                onClick={() => handleAddLanguage(p.code)}
-                className="px-2 py-0.5 rounded bg-background border border-border hover:border-primary/50 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-              >
-                +{p.name.split(" ")[0]}
-              </button>
-            ))}
-        </div>
+        <GlobalFavoriteLanguagesPanel
+          catalog={catalog || ALL_KNOWN_LANGUAGES}
+          favoriteLanguages={favoriteLanguages}
+          targetLanguages={targetLanguages || []}
+          videoId={videoId || ""}
+          onFavoriteLanguagesChange={onFavoriteLanguagesChange}
+          onApplyFavoritesToVideo={onApplyFavoritesToVideo || (() => {})}
+          onSaveCurrentSelectionAsFavorites={onSaveCurrentSelectionAsFavorites || (() => {})}
+        />
       </div>
 
       {/* Navigation Footer */}

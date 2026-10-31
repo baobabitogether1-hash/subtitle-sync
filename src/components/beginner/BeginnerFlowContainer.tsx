@@ -42,6 +42,8 @@ export interface BeginnerFlowContainerProps {
   onSubtitlesRatioChange?: (ratio: number) => void;
   onFavoriteLanguagesChange?: (langs: string[]) => void;
   onBaseLangChange?: (baseLang: string) => void;
+  onApplyFavoritesToVideo?: () => void;
+  onSaveCurrentSelectionAsFavorites?: () => void;
   onSwitchToAdvanced?: () => void;
 }
 
@@ -74,6 +76,8 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
   onSubtitlesRatioChange,
   onFavoriteLanguagesChange,
   onBaseLangChange,
+  onApplyFavoritesToVideo,
+  onSaveCurrentSelectionAsFavorites,
   onSwitchToAdvanced,
 }) => {
   // Load initial settings
@@ -207,6 +211,11 @@ export const BeginnerFlowContainer: React.FC<BeginnerFlowContainerProps> = ({
             baseLanguage={baseLanguage}
             perLanguageTtsSettingsSlot={perLanguageTtsSettingsSlot}
             onContinueToNextTab={() => handleTabChange("video")}
+            catalog={favoriteLanguageCatalog}
+            targetLanguages={selectedTargetLanguages}
+            videoId={videoId}
+            onApplyFavoritesToVideo={onApplyFavoritesToVideo}
+            onSaveCurrentSelectionAsFavorites={onSaveCurrentSelectionAsFavorites}
           />
         </div>
       </main>

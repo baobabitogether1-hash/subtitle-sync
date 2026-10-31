@@ -152,18 +152,14 @@ A subtitle HTTP response is considered valid and "good" ONLY when it satisfies a
 ## Last raw prompt
 
 ```
-1. AGENTS.md  - all prompt instructions by default should update all view modes (i.e: beginner, advanced)
+1. by default split by punctuations (in case of ".",
+,","?", "!" (but wrap together text within start/closing couples of punctuation chars  such as: "\"\" or "("  )
+2. should the video be played before or after the tts-play? add another option which is to play the video in between tts-play groups (1 group to play before , one group to play after the video-play)
+Apply style changes to the selected element(s).
+[AIS_METADATA_SECTION_START]
+CSS selector 1: div#root:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > details:nth-of-type(5) > div:nth-of-type(1)
+CSS 1: {
 
-1.5 https://mostuf2556.github.io/subtitle-sync/ - fix it
-
-2. reuse-shared-components policy:
-language settings - on the begginer-mode it need to be replaced to use the same component used on advanced-mode
-
-3.
-url: https://mostuf2556.github.io/subtitle-sync/?v=L2Ryrr6txwA&tts=1
-selector: #root > div > div.w-full.min-h-screen.bg-background.text-foreground.flex.flex-col > main > div:nth-child(2) > div > div:nth-child(3)
-
-configuration of order between tts-play and video-play should be set on the language settings (it is not effecient)
-
-i.e: use may want some languages to tts-play before the video-play and some afterwards
+}
+[AIS_METADATA_SECTION_END]
 ```

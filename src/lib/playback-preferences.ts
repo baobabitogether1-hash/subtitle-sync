@@ -1,7 +1,7 @@
 /** Device-saved playback/fetch preferences (localStorage). */
 
 export type SubtitleRequestMode = "tlang" | "lang";
-export type SectionOrder = "video-first" | "tts-first";
+export type SectionOrder = "video-first" | "tts-first" | "video-middle";
 export type TtsLanguageOrders = Record<string, SectionOrder>;
 
 export const isTtsSpeakableLanguage = (languageCode: unknown, baseLanguage: unknown): boolean => {
@@ -91,7 +91,11 @@ export const subtitleRequestModeOrder = (primary?: SubtitleRequestMode): Subtitl
 };
 
 export const getSectionOrder = () =>
-  read<SectionOrder>(KEYS.sectionOrder, ["video-first", "tts-first"], "video-first");
+  read<SectionOrder>(
+    KEYS.sectionOrder,
+    ["video-first", "tts-first", "video-middle"],
+    "video-first",
+  );
 export const setSectionOrder = (o: SectionOrder) => write(KEYS.sectionOrder, o);
 
 export const getTtsLanguageOrdersPreference = (): TtsLanguageOrders => {
@@ -103,7 +107,8 @@ export const getTtsLanguageOrdersPreference = (): TtsLanguageOrders => {
     return Object.fromEntries(
       Object.entries(parsed).filter(
         ([languageCode, order]) =>
-          languageCode.trim().length > 0 && (order === "video-first" || order === "tts-first"),
+          languageCode.trim().length > 0 &&
+          (order === "video-first" || order === "tts-first" || order === "video-middle"),
       ),
     ) as TtsLanguageOrders;
   } catch {
@@ -126,10 +131,33 @@ export function partitionTtsLanguagesByOrder<T extends { code: string }>(
 ): { ttsFirst: T[]; videoFirst: T[] } {
   const ttsFirst: T[] = [];
   const videoFirst: T[] = [];
-  for (const language of languages) {
-    const order = languageOrders[language.code] ?? defaultOrder;
-    (order === "tts-first" ? ttsFirst : videoFirst).push(language);
+
+  if (defaultOrder === "video-middle") {
+    const unconfigured: T[] = [];
+    for (const language of languages) {
+      const explicit = languageOrders[language.code];
+      if (explicit === "tts-first") {
+        ttsFirst.push(language);
+      } else if (explicit === "video-first") {
+        videoFirst.push(language);
+      } else {
+        unconfigured.push(language);
+      }
+    }
+    const half = Math.ceil(unconfigured.length / 2);
+    ttsFirst.push(...unconfigured.slice(0, half));
+    videoFirst.push(...unconfigured.slice(half));
+  } else {
+    for (const language of languages) {
+      const order = languageOrders[language.code] ?? defaultOrder;
+      if (order === "tts-first") {
+        ttsFirst.push(language);
+      } else {
+        videoFirst.push(language);
+      }
+    }
   }
+
   return { ttsFirst, videoFirst };
 }
 

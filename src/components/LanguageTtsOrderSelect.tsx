@@ -26,6 +26,7 @@ export function LanguageTtsOrderSelect({
       >
         <option value="video-first">After video</option>
         <option value="tts-first">Before video</option>
+        <option value="video-middle">In between</option>
       </select>
     </label>
   );

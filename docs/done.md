@@ -1,5 +1,37 @@
 # Done tasks
 
+## Chapter 2: Task 2 - Video Playback in Between TTS Groups
+
+- **Implementation**:
+  - Extended `SectionOrder` type in `src/lib/playback-preferences.ts` with `"video-middle"` (Video in between TTS groups).
+  - Updated `partitionTtsLanguagesByOrder` so that when order is `"video-middle"`, the TTS languages are partitioned into two groups: Group 1 (`ttsFirst`) speaks before video playback, and Group 2 (`videoFirst`) speaks after video playback.
+  - Added "In between (video plays between TTS groups)" option to `LanguageTtsOrderSelect.tsx` with dedicated data-testid and aria support.
+  - Added global playback sequence selector (`section-order-select`) with options "Video before TTS", "Video after TTS", and "Video in between TTS groups" to `src/routes/index.tsx` (inside the Languages accordion at focused element).
+  - Maintained 100% Beginner Mode cross-mode parity by adding `onDefaultOrderChange` and `beginner-section-order-select` in `src/components/beginner/PerLanguageTtsPreferences.tsx`.
+  - Bumped and synchronized app version to `2.0.57` across all 5 required targets (`package.json`, `android-shell/app/build.gradle.kts`, `src/config/appConfig.ts`, `src/utils/apkUpdater.ts`, `src/utils/appSettings.ts`).
+- **Dedicated verification**: `npx tsx scripts/verify-tts-language-playback-order.ts` (PASS, 3/3); `npx tsx scripts/verify-agents-version-rule.ts` (PASS); `compile_applet` (PASS); `lint_applet` (PASS).
+- **Delivery**: Verified compilation, linting, and automated test suites.
+
+## Chapter 1: Task 1 - Default Punctuation Splitting with Paired Quote/Parentheses Wrapping
+
+- **Implementation**:
+  - Implemented `isInsidePairedWrapper` in `src/utils/newSubtitlesParser.ts` and `src/lib/subtitles.ts` to detect text enclosed within quotation marks (`"..."`, `'...'`, `“...”`, `«...»`) and brackets/parentheses (`(...)`, `[...]`, `{...}`).
+  - Updated `splitCuesIntoSentences` and `sentenceBoundaryOffsets` to ensure punctuation delimiters strictly inside paired wrappers do not split, wrapping coupled text inside quotes and parentheses together as intact clauses.
+  - Enabled punctuation splitting by default on `.`, `,`, `?`, `!` with `wrapCoupledPunctuation: true` in `DEFAULT_SIMPLE_PARSER_CONFIG`.
+- **Dedicated verification**: `npx tsx scripts/verify-punctuation-paired-splitting.ts` (PASS, 5/5); `compile_applet` (PASS); `lint_applet` (PASS).
+- **Delivery**: Verified compilation, linting, and automated test suite.
+
+## Prompt 3: Configure TTS/video order per language & Unified Language Settings
+
+- **Implementation**:
+  - Created shared `LanguageTtsOrderSelect` component supporting per-language playback order overrides (`tts-first` / `video-first`) with fallback to global default.
+  - Implemented per-language TTS ordering persistence in `playback-preferences.ts` via `getTtsLanguageOrdersPreference()`, `setTtsLanguageOrderPreference()`, and `partitionTtsLanguagesByOrder()`.
+  - Updated TTS playback state machine in `src/routes/index.tsx` to partition spoken languages into `tts-first` (spoken at row arrival) and `video-first` (spoken after section completion).
+  - Integrated `LanguageTtsOrderSelect` into both Advanced mode TTS settings table and Beginner mode `PerLanguageTtsPreferences`.
+  - Unified language settings by replacing Beginner mode's custom favorite languages UI with the shared `GlobalFavoriteLanguagesPanel`, achieving 100% component parity and shared management across modes.
+- **Dedicated verification**: `npx tsx scripts/verify-tts-language-playback-order.ts` (PASS); `compile_applet` (PASS); `lint_applet` (PASS); `npx tsx scripts/verify-agents-version-rule.ts` (PASS).
+- **Delivery**: Verified compilation, linting, and dedicated automated test suite.
+
 ## Prompt 1: Default changes to all view modes
 
 - **Implementation**: AGENTS.md now requires behavior, settings, and bug fixes to cover Beginner and Advanced by default, reuse shared behavior/components when both modes expose a feature, and include cross-mode tests.

@@ -229,6 +229,7 @@ import { getPlaybackSectionId } from "@/lib/playback-section-identity";
 import { subtitleRequestQueue } from "@/utils/subtitleRequestQueue";
 import {
   getSectionOrder,
+  setSectionOrder as saveSectionOrder,
   getTtsLanguageOrdersPreference,
   getSubtitleRequestMode,
   getTtsRatiosPreference,
@@ -1818,13 +1819,14 @@ function Index() {
   const handlePrimaryTtsLangChange = useCallback((code: string) => {
     setPrimaryTtsLang(code);
   }, []);
-  const handleTtsLanguageOrderChange = useCallback(
-    (languageCode: string, order: SectionOrder) => {
-      setTtsLanguageOrders((current) => ({ ...current, [languageCode]: order }));
-      setTtsLanguageOrderPreference(languageCode, order);
-    },
-    [],
-  );
+  const handleTtsLanguageOrderChange = useCallback((languageCode: string, order: SectionOrder) => {
+    setTtsLanguageOrders((current) => ({ ...current, [languageCode]: order }));
+    setTtsLanguageOrderPreference(languageCode, order);
+  }, []);
+  const handleSectionOrderChange = useCallback((newOrder: SectionOrder) => {
+    setSectionOrderState(newOrder);
+    saveSectionOrder(newOrder);
+  }, []);
 
   useEffect(() => {
     if (primaryTtsLang) {
@@ -3979,7 +3981,8 @@ function Index() {
         const langs = getEligibleLangs(rowIdx, requestedOrder);
         if (langs.length === 0) return;
         const sectionId = getPlaybackSectionId(rows[rowIdx]!);
-        const spokenLanguages = playedTtsLanguageRecords.current.get(sectionId) ?? new Set<string>();
+        const spokenLanguages =
+          playedTtsLanguageRecords.current.get(sectionId) ?? new Set<string>();
         playedTtsLanguageRecords.current.set(sectionId, spokenLanguages);
         logStateMachineAction("TTS_SECTION_STARTED", {
           videoId,
@@ -4100,8 +4103,7 @@ function Index() {
       if (pauseMode && isPlaying) {
         const candidateRow =
           prev >= 0 && (idx !== prev || ms >= (rows[prev]?.end ?? Infinity) - 80) ? prev : -1;
-        const sectionId =
-          candidateRow >= 0 ? getPlaybackSectionId(rows[candidateRow]!) : "";
+        const sectionId = candidateRow >= 0 ? getPlaybackSectionId(rows[candidateRow]!) : "";
         if (
           candidateRow >= 0 &&
           !playedTtsRecords.current.has(sectionId) &&
@@ -5051,6 +5053,8 @@ function Index() {
           onFavoriteLanguagesChange={(newFavs) => {
             handleUpdateFavoriteLanguages(newFavs);
           }}
+          onApplyFavoritesToVideo={handleResetVideoToFavorites}
+          onSaveCurrentSelectionAsFavorites={handleSaveCurrentAsFavorites}
           onBaseLangChange={(lang) => {
             setBaseLanguage(lang);
             if (!spoken.includes(lang)) {
@@ -5122,9 +5126,9 @@ function Index() {
                   return next;
                 });
               }}
+              onOrderChange={handleTtsLanguageOrderChange}
+              onDefaultOrderChange={handleSectionOrderChange}
             />
-              onOrderChange={handleTtsLanguageOrderChange}
-              onOrderChange={handleTtsLanguageOrderChange}
           }
           onSwitchToAdvanced={() => handleWorkflowModeChange("expert")}
           charsRemovalSlot={
@@ -5258,7 +5262,8 @@ function Index() {
                               );
                             }
                           }
-                        setVideoId(id);
+                          setVideoId(id);
+                        }
                       } else {
                         setCaptionStatus("Enter a valid YouTube link or video ID.");
                       }
@@ -7267,6 +7272,35 @@ function Index() {
                             <div className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/20">
                               <div className="space-y-0.5">
                                 <label
+                                  htmlFor="section-order-select"
+                                  className="text-xs font-medium text-foreground cursor-pointer"
+                                >
+                                  Video &amp; TTS Playback Sequence
+                                </label>
+                                <div className="text-[11px] text-muted-foreground">
+                                  Choose whether video plays before, after, or in between TTS-play
+                                  groups
+                                </div>
+                              </div>
+                              <select
+                                id="section-order-select"
+                                data-testid="section-order-select"
+                                value={sectionOrder}
+                                onChange={(e) =>
+                                  handleSectionOrderChange(e.target.value as SectionOrder)
+                                }
+                                className="rounded border border-input bg-background px-2.5 py-1 text-xs text-foreground cursor-pointer font-medium"
+                              >
+                                <option value="video-first">Video before TTS (Video first)</option>
+                                <option value="tts-first">Video after TTS (TTS first)</option>
+                                <option value="video-middle">
+                                  Video in between TTS groups (1 group before, 1 group after)
+                                </option>
+                              </select>
+                            </div>
+                            <div className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/20">
+                              <div className="space-y-0.5">
+                                <label
                                   htmlFor="auto-speak-on-fetch-toggle"
                                   className="text-xs font-medium text-foreground cursor-pointer"
                                 >
@@ -7432,6 +7466,7 @@ function Index() {
                                                 <span className="flex items-center gap-1 font-semibold text-primary">
                                                   <span
                                                     data-testid={`tts-switch-primary-${lang.code}`}
+                                                    title={`Click to set ${lang.name} as Primary`}
                                                   >
                                                     {lang.name}
                                                   </span>
@@ -7446,6 +7481,7 @@ function Index() {
                                                 <span className="flex items-center gap-1 font-medium text-foreground">
                                                   <span
                                                     data-testid={`tts-switch-primary-${lang.code}`}
+                                                    title={`Click to set ${lang.name} as Primary`}
                                                   >
                                                     {lang.name}
                                                   </span>

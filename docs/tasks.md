@@ -4,9 +4,7 @@ This file is strictly the active backlog containing pending, active, and upcomin
 
 ## Active Tasks
 
-3. **Prompt 3: Configure TTS/video order per language**
-  - [ ] Move playback-order configuration into Language Settings and support per-language TTS before or after video playback.
-  - [ ] Add focused tests for mixed per-language ordering and retain existing playback behavior by default.
+*(No active tasks currently pending; all prompt tasks completed and verified in docs/done.md)*
 
 ## Later Tasks
 

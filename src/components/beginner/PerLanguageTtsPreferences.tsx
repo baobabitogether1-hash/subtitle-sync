@@ -24,6 +24,7 @@ interface PerLanguageTtsPreferencesProps {
   onRatioChange: (languageCode: string, ratio: number) => void;
   onRateChange: (languageCode: string, rate: number) => void;
   onOrderChange: (languageCode: string, order: SectionOrder) => void;
+  onDefaultOrderChange?: (order: SectionOrder) => void;
   onVoiceChange: (languageCode: string, voiceURI: string) => void;
 }
 
@@ -42,6 +43,7 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
   onRatioChange,
   onRateChange,
   onOrderChange,
+  onDefaultOrderChange,
   onVoiceChange,
 }) => {
   const effectivePrimary = primaryLang || languages[0]?.code || "";
@@ -76,6 +78,30 @@ export const PerLanguageTtsPreferences: React.FC<PerLanguageTtsPreferencesProps>
         Choose narration frequency, speed, and device voice. Secondary languages are activated
         relative to the primary language.
       </p>
+      <div className="flex items-center justify-between gap-2 p-2 rounded-lg border border-border bg-muted/20">
+        <div className="space-y-0.5">
+          <label
+            htmlFor="beginner-section-order-select"
+            className="text-xs font-medium text-foreground cursor-pointer"
+          >
+            Video &amp; TTS Playback Sequence
+          </label>
+          <div className="text-[10px] text-muted-foreground">
+            Should video play before, after, or in between TTS groups?
+          </div>
+        </div>
+        <select
+          id="beginner-section-order-select"
+          data-testid="beginner-section-order-select"
+          value={defaultOrder}
+          onChange={(e) => onDefaultOrderChange?.(e.target.value as SectionOrder)}
+          className="rounded border border-input bg-background px-2 py-1 text-xs text-foreground cursor-pointer font-medium"
+        >
+          <option value="video-first">Video before TTS</option>
+          <option value="tts-first">Video after TTS</option>
+          <option value="video-middle">Video in between TTS groups</option>
+        </select>
+      </div>
       {languages.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
           Add a favorite language below to configure its TTS settings.
