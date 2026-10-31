@@ -1,7 +1,7 @@
 # Current Subtask (`current-sub-task.md`)
 
-- **Status**: [IDLE] - No active subtasks in progress. All tasks from previous prompt completed and verified.
+- **Status**: [IDLE]
 - **Active Task**: None
 - **Active Subtask**: None
 - **Target Files**: None
-- **Validation**: All tests passing 100%, build succeeded, lint clean.
+- **Validation**: The remaining lockfile is synchronized with package.json and will be included in the requested follow-up commit/push.

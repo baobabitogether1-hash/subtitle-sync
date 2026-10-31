@@ -105,6 +105,8 @@ To guarantee token economy without heavy processing, maintain the following file
 
 - **Activate Token Economy on Prompt Entry**: Acknowledge `tokens.md` as an ultra-fast preface; never begin un-staged source edits.
 - **Atomic Sub-tasks in Backlog**: Numbered sub-tasks belong in `docs/tasks.md`.
+- **Numbered Prompt Routing**: Create one ordered backlog task per numbered user item; put explicitly deferred items only in the Later Tasks sections, and stage the earliest active item before implementation.
+- **Requested Commit/Push**: When explicitly requested, commit and push only after all active tasks pass focused validation and required build/lint checks; never rewrite published history.
 - **Stage `current-sub-task.md`**: Focus exclusively on the active sub-task.
 - **Move to done.md and Cycle**: Move the completed subtask/task completely out of `current-sub-task.md`, `docs/todo.md`, and `docs/tasks.md` into `docs/done.md`. keep `docs/tasks.md` strictly as the active backlog of pending and upcoming items.
 - **Prompt Completion Audit Gate**: Before completing any prompt, verify that EVERY task and subtask planned for the prompt has been fully implemented, tested with a dedicated test, marked complete `[x]`, and recorded in `docs/done.md`.

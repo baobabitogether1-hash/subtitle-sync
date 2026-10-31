@@ -128,6 +128,10 @@ export function countWords(text: string): number {
     .filter((token) => token.length > 0).length;
 }
 
+export function isSentenceWithinWordLimit(text: string, maxWords: number): boolean {
+  return !Number.isFinite(maxWords) || maxWords <= 0 || countWords(text) <= maxWords;
+}
+
 /**
  * Splits each native timed cue independently so parser output never crosses cue boundaries.
  * Grabs grammatically complete sentence/clause units bounded by punctuation (e.g. XXX, YYY? ZZ -> XXX, YYY?, ZZ).

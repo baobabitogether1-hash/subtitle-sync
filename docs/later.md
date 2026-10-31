@@ -22,3 +22,5 @@ The following tasks are deferred for later execution after all active tasks are 
 - [ ] **Task 228: Validate playback lifecycle on Android API 34**
   - Run `bash android-shell/gradlew assembleDebug && bash scripts/run-android-e2e.sh && bash scripts/android-e2e-assert.sh` on a host with JDK 21, Android SDK, `adb`, and an API 34 Google APIs emulator or device.
   - Confirm playback does not restart repeatedly during play-state updates. Runtime validation is blocked in this Codespace because `adb` is unavailable.
+- [ ] **Later: Verify GitHub Actions and screencast artifacts**
+  - Verify the relevant GitHub Actions workflows and ensure the Android screencast artifact is produced without deprecated or limiting configuration. Inspect workflow history and artifact-upload behavior when this later item is activated.

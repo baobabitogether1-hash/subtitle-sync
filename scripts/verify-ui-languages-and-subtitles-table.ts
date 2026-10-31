@@ -145,6 +145,15 @@ assert.ok(
   panelSource.includes("sticky left-0") && panelSource.includes("sticky left-28"),
   "SubtitlesTablePanel must support freezing first 2 columns (time & default subtitle)",
 );
+assert.ok(
+  panelSource.includes("const shouldFreezeColumns = !isAndroid && freezeColumns") &&
+    panelSource.includes("freezeColumns={shouldFreezeColumns}"),
+  "Android must never render frozen subtitle columns",
+);
+assert.ok(
+  /\{!isAndroid && \(\s*<button[\s\S]*?toggle-freeze-columns-btn/.test(panelSource),
+  "Android must not show a freeze-columns control",
+);
 const rowSource = fs.readFileSync(path.join(rootDir, "src/components/SubtitleRow.tsx"), "utf8");
 assert.ok(
   rowSource.includes("sticky left-0") && rowSource.includes("sticky left-28"),

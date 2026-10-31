@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   countWords,
+  isSentenceWithinWordLimit,
   splitCuesIntoSentences,
   simpleAlign,
   DEFAULT_SIMPLE_PARSER_CONFIG,
@@ -22,7 +23,20 @@ assert.strictEqual(countWords("hello"), 1, "Single word has 1 word");
 assert.strictEqual(countWords("hello world"), 2, "Two words have 2 words");
 assert.strictEqual(countWords("  This is a   sentence with  spaces.  "), 6, "Calculates correct word count ignoring spaces");
 assert.strictEqual(countWords("Word! Another? Yes."), 3, "Words with trailing punctuation counted as 3 words");
+assert.equal(isSentenceWithinWordLimit("one two three", 3), true, "Exact-limit sentences remain eligible");
+assert.equal(isSentenceWithinWordLimit("one two three four", 3), false, "Over-limit sentences are excluded");
+assert.equal(isSentenceWithinWordLimit("one two three four", 0), true, "A zero limit disables TTS word filtering");
 console.log("✅ PASS: countWords correctly calculates word counts.");
+
+const routeContent = fs.readFileSync(path.join(process.cwd(), "src/routes/index.tsx"), "utf8");
+assert.ok(
+  /isSentenceWithinWordLimit\(\s*sourceSentences\[idx\]\s*\|\|\s*""/.test(routeContent),
+  "On-demand translations must skip source sentences exceeding the parser word limit",
+);
+assert.ok(
+  routeContent.includes("isSentenceWithinWordLimit(baseText, maxTtsWordsRef.current)"),
+  "Playback TTS must skip base sentences exceeding the parser word limit",
+);
 
 // 2. Test splitCuesIntoSentences with maxWordsPerSentence filtering
 console.log("2. Testing splitCuesIntoSentences sentence discarding based on word limit...");

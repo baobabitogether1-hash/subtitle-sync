@@ -1,7 +1,7 @@
 # Active Task Mirror (`docs/todo.md`)
 
-- **Status**: [IDLE] - No active subtasks in progress. All tasks from previous prompt completed and verified.
+- **Status**: [IDLE]
 - **Active Task**: None
 - **Active Subtask**: None
 - **Target Files**: None
-- **Validation**: All tests passing 100%, build succeeded, lint clean.
+- **Validation**: All current-prompt tasks are complete.

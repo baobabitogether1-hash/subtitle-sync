@@ -1,0 +1,41 @@
+PARALLEL WORK IN TWO APPLICATION AREAS
+======================================
+
+Purpose
+-------
+Two independent parts of the application can be developed at the same time when each workstream has a clear boundary, separate file ownership, and an agreed integration contract. Parallel work is not a reason to edit shared files concurrently.
+
+1. Choose independent work areas
+--------------------------------
+Break the goal into two bounded tasks with separate behavior and tests. For example, one task can own a parser utility and its unit test while another owns Android subtitle-table layout and its UI test. Write down each task's expected inputs, outputs, and acceptance checks before implementation.
+
+2. Assign file ownership
+------------------------
+List the files each workstream may change. The lists must not overlap. If both tasks need the same file, assign that file to one owner or split the work into sequential edits. Do not have separate workers edit the same file and resolve it later by overwriting one version.
+
+Files that commonly need a single owner include:
+- src/routes/index.tsx
+- src/utils/appSettings.ts and other shared persistence/state modules
+- package.json and lockfiles
+- AGENTS.md and shared task-tracking files
+- shared components, types, and global styles
+
+3. Isolate working trees
+------------------------
+Use a separate Git worktree and branch for each concurrent workstream. Keep the primary worktree unchanged while both tasks are active. Do not share a writable working directory between workers. Never rewrite published history; integrate completed branches with a normal merge after reviewing the diff.
+
+4. Keep task tracking coherent
+-------------------------------
+Record both workstreams in docs/tasks.md with distinct scopes, owners, and validation commands. If the repository's current-sub-task.md protocol permits only one active subtask, designate one item active and keep the other pending until its owner is ready; do not let concurrent workers overwrite the single-task mirror. Avoid concurrent edits to docs/tasks.md, docs/todo.md, current-sub-task.md, docs/done.md, or docs/tokens.md.
+
+5. Integrate and verify
+-----------------------
+Before integration, each owner runs the focused test for their files and reports the exact command and result. Review each branch's changed-file list and diff, confirm no ownership overlap, then merge one workstream at a time. After integration, run tests covering both areas plus the project's build and lint checks. Resolve shared-file changes serially and rerun affected tests.
+
+Stop parallel work when:
+- both changes require the same state owner, route, shared component, or configuration file;
+- one task changes a contract the other task depends on;
+- a focused test fails and its failure could affect the other workstream; or
+- task tracking cannot accurately represent the active work.
+
+In those cases, agree on the shared contract first, complete the shared-file change with one owner, and resume independent work afterward.
