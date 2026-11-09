@@ -1,5 +1,33 @@
 # Done tasks
 
+### Task 359 (Prompt 135 - Chapter 1): Dedicated Learning Stage with Punchable Word Balloons Exposing Translation
+
+- **Prompt**:
+  ```
+  1. go on.
+  ```
+- **Context & Implementation**:
+  - **1. Interactive Word Balloon Learning Component (`WordBalloonLearningView.tsx`)**:
+    - Built rich interactive learning component with punchable word balloons (`balloon-punch-btn-X`) floating in a cluster.
+    - Each balloon features vibrant individual color themes, highlight glare reflection, string & knot styling, and punch/pop animations.
+    - Punching an unpunched balloon pops it with a Web Audio synthetic sound effect, reveals the translated word in high-contrast bold typography (`balloon-translation-X`), marks it as punched, and triggers TTS voice pronunciation.
+    - Tapping an already-punched balloon replays its target language TTS pronunciation on demand.
+    - Includes Sound Effects Toggle (`balloon-sound-toggle`), Punch All (`punch-all-balloons-btn`), Re-inflate (`reset-balloons-btn`), and Back to Video (`balloon-back-to-video-btn`).
+    - Sentence navigation controls (`balloon-prev-sentence-btn`, `balloon-replay-sentence-btn`, `balloon-next-sentence-btn`) with progress tracking bar and score indicator.
+    - Target translation language selector (`balloon-target-lang-select`) allowing dynamic language switching on the fly.
+  - **2. Advanced Mode Stage 5 Stepper & Video Display Controls Integration (`src/routes/index.tsx`)**:
+    - Integrated Stage 5 in the stage stepper (`#stage-step-learning` / "Word Balloons") with automatic panel opening.
+    - Added `<Button data-testid="toggle-word-balloon-learning-view-btn">` in `video-display-controls` for quick switching between Video player and Word Balloons learning view.
+    - Rendered `WordBalloonLearningView` in the primary player container slot when `showWordBalloonLearningView` is true.
+  - **3. Beginner Mode 100% Parity (`BeginnerVideoTab.tsx` / `BeginnerFlowContainer.tsx`)**:
+    - Wired `toggle-word-balloon-learning-view-btn` inside `video-display-controls` in Beginner Mode, seamlessly replacing video player with `WordBalloonLearningView`.
+  - **4. Single Source of Truth Versioning**:
+    - Synchronized version across all 5 single-source files to `v2.1.63` (code `20163`) via `npm run sync-version`.
+- **Testing & Verification**:
+  - Authored dedicated automated test suite `scripts/verify-word-balloon-learning-stage.ts` (`npm run test:word-balloon-learning`) passing 100%.
+  - Verified `compile_applet` and `lint_applet` passing with zero errors.
+
+
 ### Task 364 (Prompt 134): Programmatic Caption Triggering Before Fallback Notification & Automation Guide
 
 - **Prompt**:

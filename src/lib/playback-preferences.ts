@@ -43,6 +43,7 @@ export function extractLanguageCodeList(val: unknown): string[] {
 }
 
 export type PickWordStrategy = "longest" | "random";
+export type TableDisplayMode = "single" | "multiple";
 
 const KEYS = {
   requestMode: "yt_subtitle_request_mode_v1",
@@ -62,6 +63,7 @@ const KEYS = {
   pickWordStrategy: "yt_pick_word_strategy_v1",
   perLangPickWordStrategy: "yt_per_lang_pick_word_strategy_v1",
   ttsVolumes: "yt_tts_volumes_v1",
+  tableDisplayMode: "yt_table_display_mode_v1",
 } as const;
 
 const memoryStorage = new Map<string, string>();
@@ -1101,3 +1103,39 @@ export function setPickWordStrategy(strategy: PickWordStrategy, langCode?: unkno
     // ignore
   }
 }
+
+export const TABLE_DISPLAY_MODE_EVENT = "yt_table_display_mode_changed";
+
+/**
+ * Returns whether to display/update subtitles using a single unified table or multiple per-language tables.
+ */
+export function getTableDisplayMode(): TableDisplayMode {
+  const s = getStorage();
+  if (!s) return "single";
+  try {
+    const val = s.getItem(KEYS.tableDisplayMode);
+    return val === "multiple" ? "multiple" : "single";
+  } catch {
+    return "single";
+  }
+}
+
+/**
+ * Persists the preferred table display mode ("single" | "multiple").
+ */
+export function setTableDisplayMode(mode: TableDisplayMode): void {
+  const s = getStorage();
+  if (!s) return;
+  const normalized: TableDisplayMode = mode === "multiple" ? "multiple" : "single";
+  try {
+    s.setItem(KEYS.tableDisplayMode, normalized);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent(TABLE_DISPLAY_MODE_EVENT, { detail: { mode: normalized } }),
+      );
+    }
+  } catch {
+    // ignore
+  }
+}
+

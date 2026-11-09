@@ -1,5 +1,16 @@
 import React from "react";
-import { Check, Languages, Sparkles, FileCode, Columns, Filter, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Check,
+  Languages,
+  Sparkles,
+  FileCode,
+  Columns,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Table as TableIcon,
+  LayoutGrid,
+} from "lucide-react";
 
 import { type Row, type Json3, subtitleColumnName } from "@/lib/subtitles";
 import { SubtitleRow, type SubtitleColumn } from "@/components/SubtitleRow";
@@ -7,7 +18,14 @@ import { type SpeechProgress } from "@/components/HighlightedSubtitle";
 import { NewSubtitlesParserBar } from "@/components/NewSubtitlesParserBar";
 import { SimpleParserConfig, DEFAULT_SIMPLE_PARSER_CONFIG } from "@/utils/newSubtitlesParser";
 import { LearningGoalsFiltersPanel } from "@/components/shared/LearningGoalsFiltersPanel";
-import { getZeroKnowledgeInLang, getPickWordStrategy } from "@/lib/playback-preferences";
+import {
+  getZeroKnowledgeInLang,
+  getPickWordStrategy,
+  TableDisplayMode,
+  getTableDisplayMode,
+  setTableDisplayMode,
+  TABLE_DISPLAY_MODE_EVENT,
+} from "@/lib/playback-preferences";
 import { getLanguageColorPalette } from "@/utils/languageColors";
 
 export interface SubtitlesTablePanelProps {
@@ -38,6 +56,8 @@ export interface SubtitlesTablePanelProps {
   onParserConfigChange?: (config: SimpleParserConfig) => void;
   onScrollToActivePosition?: () => void;
   onTablePlay?: () => void;
+  tableDisplayMode?: TableDisplayMode;
+  onTableDisplayModeChange?: (mode: TableDisplayMode) => void;
 }
 
 export function SubtitlesTablePanel({
